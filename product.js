@@ -15,6 +15,7 @@ function calculateEMI(principal, annualRatePercent, months) {
 }
 
 function buildEmiSectionHtml(price) {
+    if (price < 20000) return '';
     const bodyRows = emiFinanciers.map(f => `
         <tr>
             <td>${f.name}<br><span class="spec-key">${f.rate}% p.a.</span></td>
