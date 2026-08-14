@@ -342,6 +342,27 @@ h1, h2, h3, h4 {
     }
 }
 
+/* Large faint logo mark slowly spinning behind the hero copy. */
+.hero-logo-spin {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    opacity: 0.08;
+    pointer-events: none;
+    animation: heroLogoSpin 40s linear infinite;
+}
+@keyframes heroLogoSpin {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .hero-logo-spin {
+        animation: none;
+    }
+}
+
 .hero-content {
     position: relative;
     z-index: 10;
