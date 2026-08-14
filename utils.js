@@ -1,0 +1,74 @@
+// Shared display helpers.
+
+// Anything 11 months or under shows as months; 12+ rolls into
+// "X Year(s) Y Month(s)" (e.g. 14 -> "1 Year 2 Months").
+function formatDuration(months) {
+    const m = Math.max(0, Math.round(months));
+    if (m <= 11) return `${m} Month${m === 1 ? '' : 's'}`;
+    const years = Math.floor(m / 12);
+    const rem = m % 12;
+    let label = `${years} Year${years === 1 ? '' : 's'}`;
+    if (rem > 0) label += ` ${rem} Month${rem === 1 ? '' : 's'}`;
+    return label;
+}
+
+window.formatDuration = formatDuration;
+
+// Deterministic (not random) text -> pick, so the same brand/model always
+// auto-fills the same spec instead of jittering on every keystroke.
+function hashText(str) {
+    let h = 2166136261;
+    for (let i = 0; i < str.length; i++) {
+        h ^= str.charCodeAt(i);
+        h = Math.imul(h, 16777619);
+    }
+    return Math.abs(h >>> 0);
+}
+
+function pickDeterministic(text, options) {
+    if (!options || options.length === 0) return '';
+    return options[hashText(text) % options.length];
+}
+
+window.hashText = hashText;
+window.pickDeterministic = pickDeterministic;
+
+function formatRelativeTime(timestamp) {
+    const mins = Math.floor((Date.now() - timestamp) / 60000);
+    if (mins < 1) return 'just now';
+    if (mins < 60) return `${mins} minute${mins === 1 ? '' : 's'} ago`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`;
+    const days = Math.floor(hours / 24);
+    return `${days} day${days === 1 ? '' : 's'} ago`;
+}
+window.formatRelativeTime = formatRelativeTime;
+
+// Prefer an option whose own distinctive token literally appears in the
+// typed text (so "MacBook Air M2" matches the "Apple M2" option, not a
+// random pick that could contradict what's right there in the name).
+function isUsableToken(t) {
+    if (/^[0-9]+$/.test(t)) return t.length >= 3; // bare digits need 3+ to avoid noise
+    return t.length >= 2;
+}
+
+function matchOptionFromText(text, options) {
+    const lower = (text || '').toLowerCase();
+    if (!lower) return null;
+
+    // Words shared by every option in the pool (e.g. "RTX", "Apple") don't
+    // discriminate between them, so only match on tokens unique to a single
+    // option — otherwise "RTX 4060" in the text could match "RTX 3060" just
+    // because they share the word "RTX".
+    const tokenSets = options.map(opt => new Set((opt.toLowerCase().match(/[a-z0-9]+/g) || []).filter(isUsableToken)));
+    const tokenCounts = {};
+    tokenSets.forEach(set => set.forEach(t => { tokenCounts[t] = (tokenCounts[t] || 0) + 1; }));
+
+    for (let i = 0; i < options.length; i++) {
+        const uniqueTokens = Array.from(tokenSets[i]).filter(t => tokenCounts[t] === 1);
+        if (uniqueTokens.some(t => lower.includes(t))) return options[i];
+    }
+    return null;
+}
+
+window.matchOptionFromText = matchOptionFromText;
