@@ -165,11 +165,25 @@ const mobileSpecPools = {
     Redmi:   { Processor: ['Dimensity 9000', 'Snapdragon 8+ Gen 1'], RAM: ['6GB', '8GB'], Storage: ['128GB', '256GB'], Camera: ['108MP'] }
 };
 
-function randomChoice(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
-function randomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+// Seeded PRNG (mulberry32) — the catalog below is regenerated from scratch
+// on every page load (shop grid, product page, compare page, ...) since
+// there's no backend to persist it. Using Math.random() meant the same
+// product got a different location/price/specs depending on which page
+// generated it, e.g. a listing showing "Kochi" in the shop grid would show
+// a different city once you opened it. A fixed seed makes generation
+// deterministic so every page derives the exact same catalog.
+let seed = 20260814;
+function seededRandom() {
+    seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+}
+function randomChoice(arr) { return arr[Math.floor(seededRandom() * arr.length)]; }
+function randomInt(min, max) { return Math.floor(seededRandom() * (max - min + 1)) + min; }
 function shuffle(arr) {
     for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
+        const j = Math.floor(seededRandom() * (i + 1));
         [arr[i], arr[j]] = [arr[j], arr[i]];
     }
     return arr;

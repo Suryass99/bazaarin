@@ -1,3 +1,42 @@
+// EMI financiers — annual interest rates spread 4%-8%, reducing-balance EMI.
+const emiFinanciers = [
+    { name: 'Bajaj Finserv', rate: 4 },
+    { name: 'HDFC Bank', rate: 5 },
+    { name: 'IDFC First Bank', rate: 6 },
+    { name: 'ZestMoney', rate: 7 },
+    { name: 'Home Credit', rate: 8 }
+];
+const emiTenures = [6, 12, 24];
+
+function calculateEMI(principal, annualRatePercent, months) {
+    const r = annualRatePercent / 12 / 100;
+    const emi = principal * r * Math.pow(1 + r, months) / (Math.pow(1 + r, months) - 1);
+    return Math.round(emi);
+}
+
+function buildEmiSectionHtml(price) {
+    const bodyRows = emiFinanciers.map(f => `
+        <tr>
+            <td>${f.name}<br><span class="spec-key">${f.rate}% p.a.</span></td>
+            ${emiTenures.map(m => `<td>₹${calculateEMI(price, f.rate, m).toLocaleString('en-IN')}/mo</td>`).join('')}
+        </tr>
+    `).join('');
+    return `
+        <div class="emi-section">
+            <h3>EMI Options</h3>
+            <p class="form-hint" style="margin-bottom:12px;">Estimated monthly instalments for ₹${price.toLocaleString('en-IN')} across partnered financiers.</p>
+            <div class="emi-table-wrap">
+                <table class="emi-table">
+                    <thead>
+                        <tr><th>Financier</th><th>6 months</th><th>1 year</th><th>2 years</th></tr>
+                    </thead>
+                    <tbody>${bodyRows}</tbody>
+                </table>
+            </div>
+        </div>
+    `;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const productId = parseInt(urlParams.get('id'));
@@ -68,6 +107,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         ${specsHtml}
                     </div>
                 </div>
+
+                ${buildEmiSectionHtml(product.price)}
 
                 <div class="reason-section">
                     <h3>Reason for Selling</h3>
