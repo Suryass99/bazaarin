@@ -1347,6 +1347,88 @@ h1, h2, h3, h4 {
     font-size: 0.9rem;
 }
 
+/* --- Landing Split (index.html): white login panel + purple panel with
+   drifting laptop/mobile icons, per the Stripe-style split layout. --- */
+.landing-split {
+    display: flex;
+    min-height: 100vh;
+    padding-top: 96px;
+}
+.landing-left {
+    flex: 1 1 58%;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    padding: 60px 40px;
+    text-align: center;
+}
+.landing-tagline {
+    color: var(--color-text-muted);
+    font-size: 0.95rem;
+    letter-spacing: 0.4px;
+}
+.landing-right {
+    flex: 1 1 42%;
+    background: linear-gradient(160deg, #5b21b6 0%, #3b0764 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 32px;
+    padding: 40px 0;
+    overflow: hidden;
+}
+.icon-row {
+    overflow: hidden;
+}
+.icon-row-track {
+    display: flex;
+    width: max-content;
+    animation: iconScrollRight 24s linear infinite;
+}
+.icon-row.reverse .icon-row-track {
+    animation-name: iconScrollLeft;
+}
+.icon-group {
+    display: flex;
+    align-items: center;
+    gap: 44px;
+    padding-right: 44px;
+    flex-shrink: 0;
+}
+.icon-group svg {
+    opacity: 0.55;
+    flex-shrink: 0;
+}
+@keyframes iconScrollRight {
+    from { transform: translateX(-50%); }
+    to { transform: translateX(0%); }
+}
+@keyframes iconScrollLeft {
+    from { transform: translateX(0%); }
+    to { transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .icon-row-track {
+        animation: none;
+    }
+}
+@media (max-width: 900px) {
+    .landing-split {
+        flex-direction: column;
+        padding-top: 90px;
+    }
+    .landing-left {
+        padding: 48px 24px;
+    }
+    .landing-right {
+        min-height: 220px;
+        padding: 28px 0;
+    }
+}
+
 /* --- Access Portal --- */
 .portal-page {
     display: flex;
