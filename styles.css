@@ -1347,86 +1347,255 @@ h1, h2, h3, h4 {
     font-size: 0.9rem;
 }
 
-/* --- Landing Split (index.html): white login panel + purple panel with
-   drifting laptop/mobile icons, per the Stripe-style split layout. --- */
-.landing-split {
-    display: flex;
-    min-height: 100vh;
-    padding-top: 96px;
+/* --- Landing Track (index.html) ---------------------------------------
+   A scroll-driven perspective run. Three strips lie on a ground plane and
+   converge on a vanishing point — violet down the middle, green either
+   side. Scrolling lowers the camera toward the ground (`--cam-y`), which
+   sweeps the strips outward and pulls the floor lettering past the
+   viewer; `--travel` slides the lane dashes and words along the plane.
+   home.js writes every custom property below on .track-stage. --------- */
+.landing-track {
+    position: relative;
+    height: 340vh;
 }
-.landing-left {
-    flex: 1 1 58%;
+.track-stage {
+    --horizon: 34%;
+    --cam-y: 260vh;
+    --travel: 0px;
+    --logo-scale: 0.8;
+    --logo-drop: 0px;
+    --logo-opacity: 1;
+    --intro-opacity: 1;
+    --choice-opacity: 0;
+    --choice-scale: 0.72;
+    --choice-rise: 90px;
+
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow: hidden;
     background: #ffffff;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 28px;
-    padding: 60px 40px;
+    perspective: 75vh;
+    perspective-origin: 50% var(--horizon);
+}
+
+/* Ground plane: pivoted about its far-from-viewer edge and laid flat, so
+   local +Y runs away from the camera and meets the horizon. */
+.track-plane {
+    position: absolute;
+    left: 50%;
+    top: var(--horizon);
+    width: 260vw;
+    margin-left: -130vw;
+    height: 6000vh;
+    transform-origin: 50% 0%;
+    transform: translateY(var(--cam-y)) rotateX(-90deg);
+    transform-style: preserve-3d;
+}
+.strip {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    left: 50%;
+}
+.strip-mid {
+    width: 68vw;
+    margin-left: -34vw;
+    background: #6d28d9;
+}
+.strip-side {
+    width: 26vw;
+    background: #0d7a53;
+}
+.strip-side.left { margin-left: -66vw; }
+.strip-side.right { margin-left: 40vw; }
+
+/* Dashed lane markings, scrolled by --travel to sell forward motion. */
+.lane {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 0.7vw;
+    background-image: repeating-linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0.65) 0 0.8vh,
+        rgba(255, 255, 255, 0) 0.8vh 2.4vh
+    );
+    background-position: 0 var(--travel);
+}
+.lane-l { left: 16vw; }
+.lane-r { right: 16vw; }
+
+/* Lettering painted on the road. Each word's position along the plane is
+   set by home.js so it can fade out before it reaches the camera. */
+.floor-word {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 200vw;
+    margin-left: -100vw;
     text-align: center;
+    font-size: 13vw;
+    font-weight: 700;
+    letter-spacing: 0.4vw;
+    line-height: 1;
+    white-space: nowrap;
+    color: rgba(109, 40, 217, 0.22);
+    opacity: 0;
+    will-change: transform, opacity;
 }
-.landing-tagline {
+.floor-word.alt {
+    color: rgba(13, 122, 83, 0.22);
+}
+
+/* Haze over the vanishing point. However deep the plane is it still stops
+   short of the true horizon, so this both hides that edge and gives the
+   road the atmospheric fade the reference sequence has. */
+.track-haze {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(var(--horizon) - 14vh);
+    height: 32vh;
+    background: linear-gradient(to bottom, #ffffff 0%, #ffffff 65%, rgba(255, 255, 255, 0) 100%);
+    pointer-events: none;
+}
+
+/* The rotating mark sits on the vanishing point and grows as we close in. */
+.track-logo {
+    position: absolute;
+    left: 50%;
+    top: var(--horizon);
+    transform: translate(-50%, calc(-50% + var(--logo-drop))) scale(var(--logo-scale));
+    opacity: var(--logo-opacity);
+    will-change: transform, opacity;
+    pointer-events: none;
+}
+
+.track-intro {
+    position: absolute;
+    left: 50%;
+    top: 15%;
+    transform: translateX(-50%);
+    width: min(680px, 88vw);
+    text-align: center;
+    opacity: var(--intro-opacity);
+    pointer-events: none;
+}
+.track-headline {
+    font-size: clamp(1.6rem, 3.4vw, 2.6rem);
+    font-weight: 600;
+    letter-spacing: -0.5px;
+    color: var(--color-text-main);
+}
+.track-sub {
+    margin-top: 10px;
     color: var(--color-text-muted);
-    font-size: 0.95rem;
-    letter-spacing: 0.4px;
+    font-size: 1rem;
 }
-.landing-right {
-    flex: 1 1 42%;
-    background: linear-gradient(160deg, #5b21b6 0%, #3b0764 100%);
+.track-hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 18px;
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+}
+.track-hint svg {
+    animation: hintBob 1.8s ease-in-out infinite;
+}
+@keyframes hintBob {
+    0%, 100% { transform: translateY(-2px); }
+    50% { transform: translateY(3px); }
+}
+
+/* End of the run: the two account choices take the place of the vehicle
+   in the reference sequence. */
+.track-choice {
+    position: absolute;
+    left: 50%;
+    top: 56%;
+    display: flex;
+    gap: 26px;
+    transform: translate(-50%, -50%) translateY(var(--choice-rise)) scale(var(--choice-scale));
+    opacity: var(--choice-opacity);
+    will-change: transform, opacity;
+}
+.track-choice[data-idle="true"] {
+    pointer-events: none;
+}
+.choice {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    gap: 32px;
-    padding: 40px 0;
-    overflow: hidden;
+    gap: 6px;
+    min-width: 300px;
+    padding: 34px 44px;
+    color: #ffffff;
+    text-align: left;
+    box-shadow: 0 26px 60px rgba(15, 23, 42, 0.3);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
-.icon-row {
-    overflow: hidden;
+.choice:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 32px 70px rgba(15, 23, 42, 0.38);
 }
-.icon-row-track {
-    display: flex;
-    width: max-content;
-    animation: iconScrollRight 24s linear infinite;
+.choice-buy {
+    background: linear-gradient(160deg, #6d28d9 0%, #3b0764 100%);
 }
-.icon-row.reverse .icon-row-track {
-    animation-name: iconScrollLeft;
+.choice-sell {
+    background: linear-gradient(160deg, #0d7a53 0%, #054636 100%);
 }
-.icon-group {
-    display: flex;
-    align-items: center;
-    gap: 44px;
-    padding-right: 44px;
-    flex-shrink: 0;
+.choice-title {
+    font-size: 1.7rem;
+    font-weight: 600;
 }
-.icon-group svg {
-    opacity: 0.55;
-    flex-shrink: 0;
+.choice-note {
+    font-size: 0.95rem;
+    opacity: 0.82;
 }
-@keyframes iconScrollRight {
-    from { transform: translateX(-50%); }
-    to { transform: translateX(0%); }
+
+/* Rides in with the choices, by which point the violet strip is wide enough
+   under it for white text to read. */
+.track-tagline {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 6vh;
+    text-align: center;
+    font-size: 0.85rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.8);
+    opacity: var(--choice-opacity);
+    pointer-events: none;
 }
-@keyframes iconScrollLeft {
-    from { transform: translateX(0%); }
-    to { transform: translateX(-50%); }
-}
-@media (prefers-reduced-motion: reduce) {
-    .icon-row-track {
-        animation: none;
-    }
-}
-@media (max-width: 900px) {
-    .landing-split {
+
+@media (max-width: 720px) {
+    .track-choice {
         flex-direction: column;
-        padding-top: 90px;
+        gap: 16px;
     }
-    .landing-left {
-        padding: 48px 24px;
+    .choice {
+        min-width: min(320px, 82vw);
+        padding: 22px 26px;
     }
-    .landing-right {
-        min-height: 220px;
-        padding: 28px 0;
-    }
+    .choice-title { font-size: 1.25rem; }
+    /* Keep the opening title clear of both the navbar and the mark that
+       sits on the vanishing point. */
+    .track-intro { top: 12%; }
+    .track-sub { font-size: 0.9rem; }
+    .track-hint { margin-top: 12px; }
+    .track-logo svg { width: 84px; height: 84px; }
+}
+
+/* Without motion the run is pointless: collapse it to a single screen
+   holding the finished frame. */
+@media (prefers-reduced-motion: reduce) {
+    .landing-track { height: 100vh; }
+    .track-hint { display: none; }
+    .floor-word { display: none; }
 }
 
 /* --- Access Portal --- */

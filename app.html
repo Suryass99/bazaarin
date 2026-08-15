@@ -1244,86 +1244,255 @@ h1, h2, h3, h4 {
     font-size: 0.9rem;
 }
 
-/* --- Landing Split (home route): white login panel + purple panel with
-   drifting laptop/mobile icons, per the Stripe-style split layout. --- */
-.landing-split {
-    display: flex;
-    min-height: 100vh;
-    padding-top: 96px;
+/* --- Landing Track (home route) ---------------------------------------
+   A scroll-driven perspective run. Three strips lie on a ground plane and
+   converge on a vanishing point — violet down the middle, green either
+   side. Scrolling lowers the camera toward the ground (`--cam-y`), which
+   sweeps the strips outward and pulls the floor lettering past the
+   viewer; `--travel` slides the lane dashes and words along the plane.
+   renderHomeRoute writes every custom property below on .track-stage. --------- */
+.landing-track {
+    position: relative;
+    height: 340vh;
 }
-.landing-left {
-    flex: 1 1 58%;
+.track-stage {
+    --horizon: 34%;
+    --cam-y: 260vh;
+    --travel: 0px;
+    --logo-scale: 0.8;
+    --logo-drop: 0px;
+    --logo-opacity: 1;
+    --intro-opacity: 1;
+    --choice-opacity: 0;
+    --choice-scale: 0.72;
+    --choice-rise: 90px;
+
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow: hidden;
     background: #ffffff;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 28px;
-    padding: 60px 40px;
+    perspective: 75vh;
+    perspective-origin: 50% var(--horizon);
+}
+
+/* Ground plane: pivoted about its far-from-viewer edge and laid flat, so
+   local +Y runs away from the camera and meets the horizon. */
+.track-plane {
+    position: absolute;
+    left: 50%;
+    top: var(--horizon);
+    width: 260vw;
+    margin-left: -130vw;
+    height: 6000vh;
+    transform-origin: 50% 0%;
+    transform: translateY(var(--cam-y)) rotateX(-90deg);
+    transform-style: preserve-3d;
+}
+.strip {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    left: 50%;
+}
+.strip-mid {
+    width: 68vw;
+    margin-left: -34vw;
+    background: #6d28d9;
+}
+.strip-side {
+    width: 26vw;
+    background: #0d7a53;
+}
+.strip-side.left { margin-left: -66vw; }
+.strip-side.right { margin-left: 40vw; }
+
+/* Dashed lane markings, scrolled by --travel to sell forward motion. */
+.lane {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 0.7vw;
+    background-image: repeating-linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0.65) 0 0.8vh,
+        rgba(255, 255, 255, 0) 0.8vh 2.4vh
+    );
+    background-position: 0 var(--travel);
+}
+.lane-l { left: 16vw; }
+.lane-r { right: 16vw; }
+
+/* Lettering painted on the road. Each word's position along the plane is
+   set by renderHomeRoute so it can fade out before it reaches the camera. */
+.floor-word {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 200vw;
+    margin-left: -100vw;
     text-align: center;
+    font-size: 13vw;
+    font-weight: 700;
+    letter-spacing: 0.4vw;
+    line-height: 1;
+    white-space: nowrap;
+    color: rgba(109, 40, 217, 0.22);
+    opacity: 0;
+    will-change: transform, opacity;
 }
-.landing-tagline {
+.floor-word.alt {
+    color: rgba(13, 122, 83, 0.22);
+}
+
+/* Haze over the vanishing point. However deep the plane is it still stops
+   short of the true horizon, so this both hides that edge and gives the
+   road the atmospheric fade the reference sequence has. */
+.track-haze {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(var(--horizon) - 14vh);
+    height: 32vh;
+    background: linear-gradient(to bottom, #ffffff 0%, #ffffff 65%, rgba(255, 255, 255, 0) 100%);
+    pointer-events: none;
+}
+
+/* The rotating mark sits on the vanishing point and grows as we close in. */
+.track-logo {
+    position: absolute;
+    left: 50%;
+    top: var(--horizon);
+    transform: translate(-50%, calc(-50% + var(--logo-drop))) scale(var(--logo-scale));
+    opacity: var(--logo-opacity);
+    will-change: transform, opacity;
+    pointer-events: none;
+}
+
+.track-intro {
+    position: absolute;
+    left: 50%;
+    top: 15%;
+    transform: translateX(-50%);
+    width: min(680px, 88vw);
+    text-align: center;
+    opacity: var(--intro-opacity);
+    pointer-events: none;
+}
+.track-headline {
+    font-size: clamp(1.6rem, 3.4vw, 2.6rem);
+    font-weight: 600;
+    letter-spacing: -0.5px;
+    color: var(--color-text-main);
+}
+.track-sub {
+    margin-top: 10px;
     color: var(--color-text-muted);
-    font-size: 0.95rem;
-    letter-spacing: 0.4px;
+    font-size: 1rem;
 }
-.landing-right {
-    flex: 1 1 42%;
-    background: linear-gradient(160deg, #5b21b6 0%, #3b0764 100%);
+.track-hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 18px;
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+}
+.track-hint svg {
+    animation: hintBob 1.8s ease-in-out infinite;
+}
+@keyframes hintBob {
+    0%, 100% { transform: translateY(-2px); }
+    50% { transform: translateY(3px); }
+}
+
+/* End of the run: the two account choices take the place of the vehicle
+   in the reference sequence. */
+.track-choice {
+    position: absolute;
+    left: 50%;
+    top: 56%;
+    display: flex;
+    gap: 26px;
+    transform: translate(-50%, -50%) translateY(var(--choice-rise)) scale(var(--choice-scale));
+    opacity: var(--choice-opacity);
+    will-change: transform, opacity;
+}
+.track-choice[data-idle="true"] {
+    pointer-events: none;
+}
+.choice {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    gap: 32px;
-    padding: 40px 0;
-    overflow: hidden;
+    gap: 6px;
+    min-width: 300px;
+    padding: 34px 44px;
+    color: #ffffff;
+    text-align: left;
+    box-shadow: 0 26px 60px rgba(15, 23, 42, 0.3);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
-.icon-row {
-    overflow: hidden;
+.choice:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 32px 70px rgba(15, 23, 42, 0.38);
 }
-.icon-row-track {
-    display: flex;
-    width: max-content;
-    animation: iconScrollRight 24s linear infinite;
+.choice-buy {
+    background: linear-gradient(160deg, #6d28d9 0%, #3b0764 100%);
 }
-.icon-row.reverse .icon-row-track {
-    animation-name: iconScrollLeft;
+.choice-sell {
+    background: linear-gradient(160deg, #0d7a53 0%, #054636 100%);
 }
-.icon-group {
-    display: flex;
-    align-items: center;
-    gap: 44px;
-    padding-right: 44px;
-    flex-shrink: 0;
+.choice-title {
+    font-size: 1.7rem;
+    font-weight: 600;
 }
-.icon-group svg {
-    opacity: 0.55;
-    flex-shrink: 0;
+.choice-note {
+    font-size: 0.95rem;
+    opacity: 0.82;
 }
-@keyframes iconScrollRight {
-    from { transform: translateX(-50%); }
-    to { transform: translateX(0%); }
+
+/* Rides in with the choices, by which point the violet strip is wide enough
+   under it for white text to read. */
+.track-tagline {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 6vh;
+    text-align: center;
+    font-size: 0.85rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.8);
+    opacity: var(--choice-opacity);
+    pointer-events: none;
 }
-@keyframes iconScrollLeft {
-    from { transform: translateX(0%); }
-    to { transform: translateX(-50%); }
-}
-@media (prefers-reduced-motion: reduce) {
-    .icon-row-track {
-        animation: none;
-    }
-}
-@media (max-width: 900px) {
-    .landing-split {
+
+@media (max-width: 720px) {
+    .track-choice {
         flex-direction: column;
-        padding-top: 90px;
+        gap: 16px;
     }
-    .landing-left {
-        padding: 48px 24px;
+    .choice {
+        min-width: min(320px, 82vw);
+        padding: 22px 26px;
     }
-    .landing-right {
-        min-height: 220px;
-        padding: 28px 0;
-    }
+    .choice-title { font-size: 1.25rem; }
+    /* Keep the opening title clear of both the navbar and the mark that
+       sits on the vanishing point. */
+    .track-intro { top: 12%; }
+    .track-sub { font-size: 0.9rem; }
+    .track-hint { margin-top: 12px; }
+    .track-logo svg { width: 84px; height: 84px; }
+}
+
+/* Without motion the run is pointless: collapse it to a single screen
+   holding the finished frame. */
+@media (prefers-reduced-motion: reduce) {
+    .landing-track { height: 100vh; }
+    .track-hint { display: none; }
+    .floor-word { display: none; }
 }
 
 /* --- Access Portal --- */
@@ -2593,7 +2762,7 @@ h1, h2, h3, h4 {
     }
 
     const ROUTES = {
-        home:          { nav: navHome,        render: renderHomeRoute,       wrapperClass: 'landing-split',                     showFooter: true,  showSearchBar: false },
+        home:          { nav: navHome,        render: renderHomeRoute,       wrapperClass: 'landing-track',                     showFooter: true,  showSearchBar: false },
         shop:          { nav: navShop,        render: renderShopRoute,       wrapperClass: 'container product-page-container',  showFooter: true,  showSearchBar: true },
         product:       { nav: navProduct,     render: renderProductRoute,    wrapperClass: 'container product-page-container',  showFooter: false, showSearchBar: false },
         compare:       { nav: navCompare,     render: renderCompareRoute,    wrapperClass: 'container product-page-container',  showFooter: true,  showSearchBar: false },
@@ -2635,60 +2804,158 @@ h1, h2, h3, h4 {
     // ===================================================================
     // PAGE: home (from index.html + home.js)
     // ===================================================================
-    function deviceIconSvg(type) {
-        if (type === 'laptop') {
-            return `<svg width="36" height="27" viewBox="0 0 24 18" fill="none" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="1" width="20" height="12" rx="1"/><path d="M1 16h22l-1.6 2.4a1 1 0 0 1-.9.6H3.5a1 1 0 0 1-.9-.6L1 16z"/></svg>`;
-        }
-        return `<svg width="20" height="30" viewBox="0 0 16 24" fill="none" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="1" width="12" height="22" rx="2"/><line x1="6.5" y1="19" x2="9.5" y2="19"/></svg>`;
+    // The home route is a scroll-driven perspective run that doubles as the
+    // login gate. Every distance below is a multiple of the viewport height so
+    // the run frames itself identically on a phone and on a desktop.
+    const CAM_HIGH = 2.6;    // camera height at the start of the run
+    const CAM_LOW = 0.7;     // camera height at the end (just above the tarmac)
+    const DEPTH = 0.75;      // must match `perspective` on .track-stage
+    const TRAVEL = 19;       // distance the floor slides toward the camera
+    const WORD_GAP = 2.4;    // spacing between floor words along the plane
+    const RUN_END = 0.75;    // scroll fraction at which the camera stops moving
+
+    const FLOOR_WORDS = [
+        'BUILD FOR INDIA', 'REFURBISHED', 'CERTIFIED', 'SAVE MORE',
+        'LESS E-WASTE', 'TRUSTED', 'BUY SMARTER', 'SELL FASTER'
+    ];
+
+    const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
+    const lerp = (a, b, t) => a + (b - a) * t;
+    const smoothstep = (t) => t * t * (3 - 2 * t);
+
+    // --cam-y is the on-screen distance between the horizon and the near edge
+    // of the ground plane, i.e. camera height: a large value keeps the camera
+    // high and the strips pinched together, a small one drops it to the tarmac
+    // and throws the strips out past the edges of the frame. --travel slides
+    // the lane dashes and floor lettering along the plane.
+    function drawTrack(progress) {
+        const stage = document.getElementById('trackStage');
+        if (!stage) return;
+        const vh = window.innerHeight;
+        const run = smoothstep(clamp(progress / RUN_END, 0, 1));
+        const travel = -TRAVEL * vh * run;
+
+        stage.style.setProperty('--cam-y', lerp(CAM_HIGH, CAM_LOW, run) * vh + 'px');
+        stage.style.setProperty('--travel', travel + 'px');
+
+        // The mark grows with the approach, then hands the frame to the choices.
+        const handover = clamp((progress - 0.48) / 0.2, 0, 1);
+        stage.style.setProperty('--logo-scale', lerp(0.8, 2.6, run));
+        stage.style.setProperty('--logo-drop', lerp(0, 30, run) + 'px');
+        stage.style.setProperty('--logo-opacity', 1 - handover);
+
+        stage.style.setProperty('--intro-opacity', 1 - clamp(progress / 0.26, 0, 1));
+
+        const choice = smoothstep(clamp((progress - 0.55) / 0.38, 0, 1));
+        stage.style.setProperty('--choice-opacity', choice);
+        stage.style.setProperty('--choice-scale', lerp(0.72, 1, choice));
+        stage.style.setProperty('--choice-rise', lerp(90, 0, choice) + 'px');
+        document.getElementById('trackChoice').dataset.idle = choice < 0.5 ? 'true' : 'false';
+
+        // Words are carried toward the camera by --travel and recycled to the
+        // far end once they pass it, so the road never empties out. A word that
+        // reaches the eye plane projects to nonsense, so each fades out over the
+        // last stretch before it gets there — and fades back in at the far end,
+        // where the haze hides it anyway.
+        const words = document.querySelectorAll('.floor-word');
+        const span = words.length * WORD_GAP * vh;
+        const fadeFrom = DEPTH * vh * 0.4;
+        const fadeTo = DEPTH * vh * 1.6;
+        words.forEach((word, i) => {
+            const y = (((i * WORD_GAP * vh + travel) % span) + span) % span;
+            word.style.transform = `translateY(${y}px)`;
+            word.style.opacity = clamp((y - fadeFrom) / (fadeTo - fadeFrom), 0, 1);
+        });
     }
-    function iconGroupHtml(startWithLaptop) {
-        const seq = startWithLaptop ? ['laptop', 'mobile', 'laptop', 'mobile'] : ['mobile', 'laptop', 'mobile', 'laptop'];
-        return `<span class="icon-group">${seq.map(deviceIconSvg).join('')}</span>`;
+
+    // One listener for the life of the page; drawTrack no-ops on other routes.
+    let trackQueued = false;
+    function onTrackScroll() {
+        if (trackQueued) return;
+        trackQueued = true;
+        requestAnimationFrame(() => {
+            trackQueued = false;
+            // The scroll container here is #appRoot itself, wearing the
+            // route's .landing-track class.
+            const track = document.querySelector('.landing-track');
+            if (!track) return;
+            const span = track.offsetHeight - window.innerHeight;
+            const progress = span > 0
+                ? clamp(-track.getBoundingClientRect().top / span, 0, 1)
+                : 1;
+            drawTrack(progress);
+        });
     }
-    function iconRowHtml(reverse, startWithLaptop) {
-        return `
-            <div class="icon-row${reverse ? ' reverse' : ''}">
-                <div class="icon-row-track">
-                    ${iconGroupHtml(startWithLaptop)}
-                    ${iconGroupHtml(startWithLaptop)}
-                </div>
-            </div>
-        `;
-    }
-    function iconRowsHtml() {
-        return iconRowHtml(false, true) + iconRowHtml(true, false) + iconRowHtml(false, true) + iconRowHtml(true, false);
-    }
+    window.addEventListener('scroll', onTrackScroll, { passive: true });
+    window.addEventListener('resize', onTrackScroll);
 
     function renderHomeRoute(root) {
         const user = getCurrentUser();
         if (user && user.accountType === 'seller') { location.hash = '#/seller'; return; }
         if (user && user.accountType === 'admin') { location.hash = '#/admin'; return; }
 
-        const heroHtml = !user ? `
-            <span class="badge">Sign In to Bazaarin</span>
-            <h2 class="hero-title">Are You Buying,<br><span class="text-gradient">Or Selling?</span></h2>
-            <p class="hero-subtitle">Choose how you'd like to use Bazaarin — buy certified refurbished electronics, or list your own to sell.</p>
-            <div class="hero-actions">
-                <a href="#/signin?role=customer" class="btn-dark-green large">I'm a Buyer</a>
-                <a href="#/signin?role=seller" class="btn-pale-green large">I'm a Seller</a>
-            </div>
-        ` : `
-            <span class="badge">Welcome back, ${user.name}!</span>
-            <h2 class="hero-title">Build for India,<br><span class="text-gradient">Priced for Everyone.</span></h2>
-            <p class="hero-subtitle">From Mumbai to Kochi, shop certified secondhand laptops and phones from sellers across the country. Save money and reduce e-waste with India's most trusted refurbished marketplace.</p>
-            <div class="hero-actions">
-                <a href="#/shop?category=Laptops" class="btn-dark-green large">Shop Laptops</a>
-                <a href="#/shop?category=Mobiles" class="btn-pale-green large">Shop Mobiles</a>
+        // A signed-in buyer already has an account, so their choices skip the
+        // sign-in step and go straight to the relevant page.
+        const signedIn = !!user;
+        const subtitle = signedIn
+            ? `Welcome back, ${user.name}. Pick up where you left off.`
+            : `Certified secondhand laptops and phones, from sellers across the country.`;
+        const buyHref = signedIn ? '#/shop' : '#/signin?role=customer';
+        const buyNote = signedIn ? 'Browse the full catalogue' : 'Shop certified laptops &amp; mobiles';
+        const sellHref = signedIn ? '#/sell' : '#/signin?role=seller';
+        const sellNote = signedIn ? 'List a device of your own' : 'List your device and reach all of India';
+
+        root.innerHTML = `
+            <div class="track-stage" id="trackStage">
+                <div class="track-plane">
+                    <div class="strip strip-side left"></div>
+                    <div class="strip strip-side right"></div>
+                    <div class="strip strip-mid">
+                        <span class="lane lane-l"></span>
+                        <span class="lane lane-r"></span>
+                    </div>
+                    <div class="floor-words" aria-hidden="true">
+                        ${FLOOR_WORDS.map((w, i) => `<span class="floor-word${i % 2 ? ' alt' : ''}">${w}</span>`).join('')}
+                    </div>
+                </div>
+
+                <div class="track-haze" aria-hidden="true"></div>
+
+                <div class="track-logo" aria-hidden="true">
+                    <svg class="logo-icon-svg" width="120" height="120" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="50" cy="50" r="22" stroke="#F59E0B" stroke-width="6" fill="none"/>
+                        <path d="M34 34 L 66 66 M 34 66 L 66 34" stroke="#F59E0B" stroke-width="6" stroke-linecap="round"/>
+                        <circle cx="50" cy="20" r="6" fill="#F59E0B"/><circle cx="50" cy="80" r="6" fill="#F59E0B"/>
+                        <circle cx="20" cy="50" r="6" fill="#F59E0B"/><circle cx="80" cy="50" r="6" fill="#F59E0B"/>
+                    </svg>
+                </div>
+
+                <div class="track-intro">
+                    <h2 class="track-headline">India's biggest refurbished market</h2>
+                    <p class="track-sub">${subtitle}</p>
+                    <span class="track-hint">Scroll<svg width="14" height="20" viewBox="0 0 14 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M7 4v12M2.5 11.5L7 16l4.5-4.5"/></svg></span>
+                </div>
+
+                <div class="track-choice" id="trackChoice" data-idle="true">
+                    <a class="choice choice-buy" href="${buyHref}">
+                        <span class="choice-title">I want to buy</span>
+                        <span class="choice-note">${buyNote}</span>
+                    </a>
+                    <a class="choice choice-sell" href="${sellHref}">
+                        <span class="choice-title">I want to sell</span>
+                        <span class="choice-note">${sellNote}</span>
+                    </a>
+                </div>
+
+                <p class="track-tagline">Build for India.</p>
             </div>
         `;
 
-        root.innerHTML = `
-            <div class="landing-left">
-                <div class="hero-content">${heroHtml}</div>
-                <p class="landing-tagline">Build for India.</p>
-            </div>
-            <div class="landing-right" aria-hidden="true">${iconRowsHtml()}</div>
-        `;
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            drawTrack(1);
+        } else {
+            drawTrack(0);
+        }
     }
 
     // ===================================================================
