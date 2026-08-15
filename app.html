@@ -1,0 +1,4072 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bazaarin | Premium Secondhand Electronics</title>
+    <meta name="description" content="Buy and sell premium secondhand laptops, mobiles, and smartwatches.">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.cdnfonts.com/css/samarkan" rel="stylesheet">
+    <style>
+/* --- Design System & Tokens --- */
+:root {
+    --color-bg: #ffffff;
+    --color-surface: #f8fafc;
+    --color-surface-hover: #f1f5f9;
+    --color-primary: #10b981;
+    --color-primary-glow: rgba(16, 185, 129, 0.3);
+    --color-secondary: #8b5cf6;
+    --color-text-main: #0f172a;
+    --color-text-muted: #475569;
+    --color-border: #e2e8f0;
+    --color-success: #059669;
+
+    --font-main: 'Outfit', sans-serif;
+
+    --radius-sm: 0;
+    --radius-md: 0;
+    --radius-lg: 0;
+    --radius-full: 0;
+
+    --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+    --shadow-glow: 0 0 20px var(--color-primary-glow);
+
+    --transition-fast: 0.2s ease;
+    --transition-smooth: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --- Reset & Global --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-main);
+    background-color: var(--color-bg);
+    color: var(--color-text-main);
+    line-height: 1.5;
+    overflow-x: hidden;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+button {
+    font-family: inherit;
+    border: none;
+    cursor: pointer;
+    background: none;
+}
+
+/* --- Typography --- */
+h1, h2, h3, h4 {
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.text-gradient {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* --- Layout --- */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+/* --- Navbar --- */
+.navbar {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 100;
+    background: linear-gradient(100deg, #054636 0%, #0d7a53 30%, #5b21b6 72%, #3b0764 100%);
+    border-bottom: 1px solid rgba(139, 92, 246, 0.4);
+    transition: var(--transition-smooth);
+}
+
+.nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 32px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.logo-icon-svg {
+    filter: drop-shadow(0 2px 4px rgba(245, 158, 11, 0.4));
+    animation: logoSpin 14s linear infinite;
+    transform-origin: 50% 50%;
+}
+@keyframes logoSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .logo-icon-svg {
+        animation: none;
+    }
+}
+.logo-text {
+    font-family: 'Samarkan', 'Dancing Script', cursive;
+    font-size: 2.8rem;
+    margin-left: 4px;
+    font-weight: normal;
+    color: var(--color-text-main);
+    line-height: 1;
+}
+
+/* Indian tricolor applied only to the "in" of "bazaarin", blended as a
+   smooth gradient rather than hard stripes. */
+.logo-in {
+    background: linear-gradient(90deg, #FF9933 0%, #FFFFFF 50%, #138808 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+}
+
+.navbar .logo-text {
+    color: #ffffff;
+}
+
+.search-bar {
+    flex: 1 1 280px;
+    max-width: 560px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.search-bar input {
+    min-width: 0;
+    padding: 12px 20px;
+    border-radius: var(--radius-full);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-main);
+    font-size: 1rem;
+    transition: var(--transition-fast);
+}
+
+.search-input-product {
+    flex: 7 1 200px;
+    min-width: 160px;
+}
+
+.search-input-location {
+    flex: 3 1 120px;
+    min-width: 110px;
+}
+
+.search-bar input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.25);
+}
+
+.autocomplete-wrapper {
+    position: relative;
+    min-width: 0;
+}
+
+.autocomplete-input {
+    width: 100%;
+}
+
+.autocomplete-list {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-md);
+    z-index: 300;
+    max-height: 240px;
+    overflow-y: auto;
+    text-align: left;
+}
+
+.autocomplete-item {
+    padding: 10px 16px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: var(--color-text-main);
+}
+
+.autocomplete-item:hover {
+    background: var(--color-surface-hover);
+    color: var(--color-primary);
+}
+
+.search-btn {
+    flex: 0 0 auto;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.8);
+    transition: var(--transition-fast);
+}
+
+.search-btn:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.nav-link {
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.75);
+    transition: var(--transition-fast);
+}
+
+.nav-link:hover {
+    color: #ffffff;
+}
+
+/* --- Buttons --- */
+.btn-primary {
+    background: var(--color-primary);
+    color: white;
+    padding: 10px 24px;
+    border-radius: var(--radius-full);
+    font-weight: 600;
+    transition: var(--transition-fast);
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:hover {
+    box-shadow: var(--shadow-glow);
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background: var(--color-surface);
+    color: var(--color-text-main);
+    padding: 10px 24px;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--color-border);
+    font-weight: 600;
+    transition: var(--transition-fast);
+}
+
+.btn-secondary:hover {
+    background: var(--color-surface-hover);
+    transform: translateY(-2px);
+}
+
+.large {
+    padding: 16px 36px;
+    font-size: 1.1rem;
+}
+
+.btn-dark-green {
+    background: var(--color-success);
+    color: white;
+    padding: 10px 24px;
+    border-radius: 9999px;
+    font-weight: 600;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition-fast);
+}
+
+.btn-dark-green:hover {
+    box-shadow: var(--shadow-glow);
+    transform: translateY(-2px);
+}
+
+.btn-pale-green {
+    background: rgba(16, 185, 129, 0.12);
+    color: var(--color-success);
+    padding: 10px 24px;
+    border-radius: 9999px;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    font-weight: 600;
+    transition: var(--transition-fast);
+}
+
+.btn-pale-green:hover {
+    background: rgba(16, 185, 129, 0.2);
+    transform: translateY(-2px);
+}
+
+/* --- Categories --- */
+.categories {
+    margin-bottom: 64px;
+}
+
+.section-title {
+    font-size: 1.75rem;
+    margin-bottom: 24px;
+}
+
+.category-grid {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    scrollbar-width: none;
+}
+.category-grid::-webkit-scrollbar {
+    display: none;
+}
+
+.category-card {
+    flex: 0 0 auto;
+    padding: 16px 32px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-full);
+    color: var(--color-text-main);
+    font-size: 1.1rem;
+    font-weight: 500;
+    transition: var(--transition-fast);
+}
+
+.category-card:hover {
+    background: var(--color-surface-hover);
+    transform: translateY(-2px);
+}
+
+.category-card.active {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-glow);
+}
+
+/* --- Products --- */
+.products-section {
+    margin-bottom: 100px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.section-header-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.proximity-status {
+    margin-top: -16px;
+    margin-bottom: 24px;
+    color: var(--color-success);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.sort-dropdown select {
+    background: var(--color-surface);
+    color: var(--color-text-main);
+    border: 1px solid var(--color-border);
+    padding: 10px 16px;
+    border-radius: var(--radius-md);
+    font-family: var(--font-main);
+    cursor: pointer;
+    outline: none;
+}
+
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 32px;
+}
+
+.product-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: var(--transition-smooth);
+    display: flex;
+    flex-direction: column;
+}
+
+.product-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-md);
+    border-color: rgba(139, 92, 246, 0.5);
+}
+
+.product-image {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    border-bottom: 1px solid var(--color-border);
+    background: #000;
+}
+
+.product-details {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.product-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+.product-condition {
+    color: var(--color-secondary);
+}
+.product-location {
+    color: var(--color-text-muted);
+}
+
+.product-distance {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    margin-bottom: 8px;
+}
+
+.product-title {
+    font-size: 1.25rem;
+    margin-bottom: 16px;
+    line-height: 1.3;
+}
+
+.product-footer {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.price-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.original-price {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    text-decoration: line-through;
+}
+
+.current-price {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-success);
+}
+
+.add-btn {
+    width: 40px;
+    height: 40px;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-main);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-fast);
+}
+
+.product-card:hover .add-btn {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+.no-results {
+    text-align: center;
+    padding: 64px 0;
+    color: var(--color-text-muted);
+    font-size: 1.25rem;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* --- Footer --- */
+.footer {
+    border-top: 1px solid var(--color-border);
+    background: var(--color-surface);
+    padding: 48px 24px;
+    text-align: center;
+}
+
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.footer .logo {
+    font-size: 1.25rem;
+}
+
+.footer p {
+    color: var(--color-text-muted);
+}
+
+/* --- Product Page --- */
+.product-page-container {
+    padding-top: 100px;
+    padding-bottom: 60px;
+}
+.product-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 32px;
+}
+.product-image-large {
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin-bottom: 24px;
+    border: 1px solid var(--color-border);
+}
+.product-image-large img {
+    width: 100%;
+    height: auto;
+    max-height: 500px;
+    object-fit: cover;
+    display: block;
+}
+.product-thumbnails {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+.product-thumbnail {
+    width: 80px;
+    height: 80px;
+    padding: 0;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    border: 2px solid var(--color-border);
+    background: var(--color-surface);
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+.product-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.product-thumbnail:hover {
+    border-color: rgba(16, 185, 129, 0.5);
+}
+.product-thumbnail.active {
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-glow);
+}
+.product-info-card {
+    background: var(--color-surface);
+    padding: 32px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+}
+.product-meta.large {
+    font-size: 1rem;
+    margin-top: 12px;
+    margin-bottom: 24px;
+    justify-content: flex-start;
+    gap: 24px;
+}
+.large-price .current-price {
+    font-size: 2.5rem;
+}
+.product-actions {
+    display: flex;
+    gap: 16px;
+    margin-top: 24px;
+}
+.product-actions button {
+    flex: 1;
+    text-align: center;
+}
+.product-actions button:disabled {
+    opacity: 0.7;
+    cursor: default;
+}
+.compare-btn.active {
+    background: rgba(139, 92, 246, 0.12);
+    color: var(--color-secondary);
+    border-color: rgba(139, 92, 246, 0.4);
+}
+.buy-confirmation {
+    margin-top: 16px;
+    color: var(--color-success);
+    font-weight: 600;
+}
+
+.offer-form {
+    margin-top: 16px;
+    padding: 16px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+}
+.offer-range-fields {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+.offer-range-fields .form-field {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+.escalation-banner {
+    background: rgba(220, 38, 38, 0.08);
+    border-bottom: 1px solid rgba(220, 38, 38, 0.3);
+    padding: 12px 16px;
+    font-size: 0.85rem;
+}
+.escalation-banner p {
+    margin-bottom: 8px;
+    color: #b91c1c;
+}
+
+.query-item {
+    padding: 16px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    margin-bottom: 12px;
+}
+.query-meta {
+    font-size: 0.9rem;
+    margin-bottom: 6px;
+}
+.query-meta a {
+    color: var(--color-primary);
+    text-decoration: underline;
+}
+.query-meta .form-hint {
+    display: block;
+    margin-top: 2px;
+    color: var(--color-text-muted);
+}
+.query-message {
+    font-style: italic;
+    margin-bottom: 10px;
+}
+.query-answered {
+    color: var(--color-success);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.specs-section, .reason-section {
+    margin-top: 32px;
+    border-top: 1px solid var(--color-border);
+    padding-top: 24px;
+}
+.specs-section h3, .reason-section h3 {
+    margin-bottom: 16px;
+    color: var(--color-secondary);
+}
+.specs-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+.spec-row {
+    display: flex;
+    flex-direction: column;
+}
+.spec-key {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+}
+.spec-val {
+    font-weight: 600;
+}
+.reason-section p {
+    font-style: italic;
+    color: var(--color-text-main);
+    background: rgba(255,255,255,0.05);
+    padding: 16px;
+    border-radius: var(--radius-md);
+    border-left: 4px solid var(--color-primary);
+}
+
+.emi-section {
+    margin-top: 32px;
+    border-top: 1px solid var(--color-border);
+    padding-top: 24px;
+}
+.emi-section h3 {
+    margin-bottom: 8px;
+    color: var(--color-secondary);
+}
+.emi-table-wrap {
+    overflow-x: auto;
+}
+.emi-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+.emi-table th, .emi-table td {
+    text-align: left;
+    padding: 12px;
+    border-bottom: 1px solid var(--color-border);
+    white-space: nowrap;
+}
+.emi-table th {
+    color: var(--color-text-muted);
+    font-weight: 600;
+}
+.emi-table td:first-child {
+    color: var(--color-text-main);
+    font-weight: 600;
+}
+.emi-table tbody tr:hover {
+    background: rgba(16, 185, 129, 0.06);
+}
+
+/* --- Sidebar & Chat Widget --- */
+.seller-card {
+    background: var(--color-surface);
+    padding: 24px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+    margin-bottom: 24px;
+}
+.seller-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+.seller-avatar {
+    width: 50px;
+    height: 50px;
+    background: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+.seller-history {
+    font-size: 0.875rem;
+    color: var(--color-success);
+}
+.chat-widget {
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    height: 500px;
+    overflow: hidden;
+}
+.chat-header {
+    display: flex;
+    border-bottom: 1px solid var(--color-border);
+}
+.chat-tab {
+    flex: 1;
+    padding: 16px;
+    text-align: center;
+    color: var(--color-text-muted);
+    font-weight: 600;
+    border-bottom: 2px solid transparent;
+}
+.chat-tab.active {
+    color: var(--color-primary);
+    border-bottom-color: var(--color-primary);
+    background: rgba(139, 92, 246, 0.08);
+}
+.chat-body {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.chat-message {
+    padding: 10px 16px;
+    border-radius: var(--radius-md);
+    max-width: 85%;
+    font-size: 0.9rem;
+}
+.chat-message.received {
+    background: var(--color-surface-hover);
+    align-self: flex-start;
+    border: 1px solid var(--color-border);
+}
+.chat-message.received.support-msg {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid var(--color-primary-glow);
+}
+.chat-message.sent {
+    background: var(--color-primary);
+    color: white;
+    align-self: flex-end;
+}
+.chat-input-area {
+    padding: 16px;
+    border-top: 1px solid var(--color-border);
+    display: flex;
+    gap: 8px;
+}
+.chat-input-area input {
+    flex: 1;
+    padding: 10px 16px;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--color-border);
+    background: var(--color-bg);
+    color: var(--color-text-main);
+    outline: none;
+}
+.chat-input-area input:focus {
+    border-color: var(--color-primary);
+}
+
+/* --- Dropdown Menu --- */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+.kebab-menu {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    color: #ffffff;
+    transition: var(--transition-fast);
+}
+.kebab-menu:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+.dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 40px;
+    background-color: var(--color-surface);
+    min-width: 200px;
+    box-shadow: var(--shadow-md);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    z-index: 200;
+    overflow: hidden;
+}
+.dropdown-content a {
+    color: var(--color-text-main);
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    font-size: 0.95rem;
+    transition: var(--transition-fast);
+}
+.dropdown-content a:hover {
+    background-color: var(--color-surface-hover);
+    color: var(--color-primary);
+}
+.dropdown-content.show {
+    display: block;
+}
+
+/* --- Compare Bar & Page --- */
+.compare-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(100deg, #054636 0%, #0d7a53 30%, #5b21b6 72%, #3b0764 100%);
+    color: white;
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    z-index: 150;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.25);
+}
+.compare-bar-items {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.compare-bar-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.14);
+    padding: 6px 10px;
+    font-size: 0.85rem;
+}
+.compare-bar-remove {
+    color: white;
+    font-size: 1.1rem;
+    line-height: 1;
+    opacity: 0.75;
+}
+.compare-bar-remove:hover {
+    opacity: 1;
+}
+.compare-bar-btn {
+    white-space: nowrap;
+}
+
+.compare-table-wrap {
+    overflow-x: auto;
+    margin-bottom: 80px;
+}
+.compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+}
+.compare-table th, .compare-table td {
+    padding: 16px;
+    border: 1px solid var(--color-border);
+    text-align: left;
+    vertical-align: top;
+    min-width: 180px;
+}
+.compare-table thead th {
+    background: var(--color-bg);
+    text-align: center;
+}
+.compare-thumb {
+    width: 100%;
+    max-width: 140px;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border: 1px solid var(--color-border);
+    margin: 0 auto 8px;
+    display: block;
+}
+.compare-title {
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+.compare-th-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    font-size: 0.85rem;
+}
+.compare-remove-btn {
+    color: #dc2626;
+    font-weight: 600;
+}
+.compare-row-label {
+    font-weight: 600;
+    color: var(--color-text-muted);
+    background: var(--color-bg);
+    white-space: nowrap;
+}
+
+/* --- Forms (Sign In / Sell) --- */
+.auth-page {
+    display: flex;
+    justify-content: center;
+    padding-top: 140px;
+    padding-bottom: 80px;
+}
+.auth-card {
+    width: 100%;
+    max-width: 420px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    padding: 40px;
+}
+.auth-card h2 {
+    margin-bottom: 8px;
+}
+.auth-card .hero-subtitle {
+    font-size: 1rem;
+    margin-bottom: 24px;
+}
+
+.auth-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.auth-provider-btn {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    padding: 14px 18px;
+    font-size: 1rem;
+    font-weight: 600;
+    font-family: var(--font-main);
+    border: 1px solid var(--color-border);
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+.auth-provider-btn:hover {
+    transform: translateY(-2px);
+}
+.auth-provider-icon {
+    width: 26px;
+    height: 26px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1rem;
+    background: var(--color-surface);
+}
+.google-btn {
+    background: #ffffff;
+    color: #1f1f1f;
+}
+.google-btn .auth-provider-icon {
+    color: #4285f4;
+}
+.apple-btn {
+    background: #000000;
+    color: #ffffff;
+    border-color: #000000;
+}
+.apple-btn .auth-provider-icon {
+    background: transparent;
+    color: #ffffff;
+}
+.mobile-btn {
+    background: var(--color-primary);
+    color: #ffffff;
+    border-color: var(--color-primary);
+}
+.mobile-btn .auth-provider-icon {
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+}
+
+.auth-connecting {
+    text-align: center;
+    padding: 32px 0;
+    color: var(--color-text-muted);
+    font-weight: 600;
+}
+
+.auth-back-link {
+    display: block;
+    margin: 16px auto 0;
+    background: none;
+    border: none;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    cursor: pointer;
+    text-align: center;
+    width: 100%;
+}
+.auth-back-link:hover {
+    color: var(--color-primary);
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 20px;
+}
+.form-field label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+}
+.form-field input[type="text"],
+.form-field input[type="number"],
+.form-field select,
+.form-field textarea {
+    padding: 12px 16px;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg);
+    color: var(--color-text-main);
+    font-family: var(--font-main);
+    font-size: 1rem;
+    outline: none;
+}
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+}
+.form-field textarea {
+    resize: vertical;
+}
+.form-hint {
+    font-size: 0.85rem;
+    color: var(--color-success);
+}
+
+.sell-gate {
+    max-width: 480px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 64px 24px;
+}
+.sell-section {
+    margin-bottom: 32px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid var(--color-border);
+}
+.sell-section:last-of-type {
+    border-bottom: none;
+}
+.sell-section h3 {
+    margin-bottom: 16px;
+    color: var(--color-secondary);
+    font-size: 1.1rem;
+}
+
+/* --- Admin Dashboard --- */
+.admin-dept-badge {
+    display: inline-block;
+    background: rgba(139, 92, 246, 0.1);
+    color: var(--color-secondary);
+    padding: 4px 12px;
+    border-radius: var(--radius-full);
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+}
+.admin-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 16px;
+}
+.stat-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-primary);
+}
+.stat-label {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+}
+.sell-category-option {
+    cursor: pointer;
+}
+.auto-specs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+.auto-spec-pill {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    padding: 10px 16px;
+    font-size: 0.9rem;
+}
+.auto-spec-pill strong {
+    color: var(--color-secondary);
+}
+.auto-spec-pill .form-hint {
+    display: block;
+    font-size: 0.75rem;
+    margin-top: 2px;
+}
+
+.camera-preview,
+.captured-preview {
+    width: 100%;
+    max-width: 360px;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border: 1px solid var(--color-border);
+    background: #000;
+    display: block;
+}
+.sell-photo-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+}
+.camera-error {
+    color: #dc2626;
+    margin-top: 8px;
+    font-size: 0.9rem;
+}
+
+/* --- Landing Split (home route): white login panel + purple panel with
+   drifting laptop/mobile icons, per the Stripe-style split layout. --- */
+.landing-split {
+    display: flex;
+    min-height: 100vh;
+    padding-top: 96px;
+}
+.landing-left {
+    flex: 1 1 58%;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    padding: 60px 40px;
+    text-align: center;
+}
+.landing-tagline {
+    color: var(--color-text-muted);
+    font-size: 0.95rem;
+    letter-spacing: 0.4px;
+}
+.landing-right {
+    flex: 1 1 42%;
+    background: linear-gradient(160deg, #5b21b6 0%, #3b0764 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 32px;
+    padding: 40px 0;
+    overflow: hidden;
+}
+.icon-row {
+    overflow: hidden;
+}
+.icon-row-track {
+    display: flex;
+    width: max-content;
+    animation: iconScrollRight 24s linear infinite;
+}
+.icon-row.reverse .icon-row-track {
+    animation-name: iconScrollLeft;
+}
+.icon-group {
+    display: flex;
+    align-items: center;
+    gap: 44px;
+    padding-right: 44px;
+    flex-shrink: 0;
+}
+.icon-group svg {
+    opacity: 0.55;
+    flex-shrink: 0;
+}
+@keyframes iconScrollRight {
+    from { transform: translateX(-50%); }
+    to { transform: translateX(0%); }
+}
+@keyframes iconScrollLeft {
+    from { transform: translateX(0%); }
+    to { transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .icon-row-track {
+        animation: none;
+    }
+}
+@media (max-width: 900px) {
+    .landing-split {
+        flex-direction: column;
+        padding-top: 90px;
+    }
+    .landing-left {
+        padding: 48px 24px;
+    }
+    .landing-right {
+        min-height: 220px;
+        padding: 28px 0;
+    }
+}
+
+/* --- Access Portal --- */
+.portal-page {
+    display: flex;
+    justify-content: center;
+    padding-top: 140px;
+    padding-bottom: 80px;
+}
+.portal-card {
+    width: 100%;
+    max-width: 480px;
+    text-align: center;
+}
+.portal-card .badge {
+    margin-bottom: 16px;
+}
+.portal-card .hero-title {
+    font-size: 2.5rem;
+    margin-bottom: 8px;
+}
+.portal-card .hero-subtitle {
+    margin-bottom: 32px;
+}
+.portal-options {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    text-align: left;
+}
+.portal-option {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 20px;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-text-main);
+    transition: var(--transition-fast);
+}
+.portal-option:hover {
+    transform: translateY(-2px);
+    border-color: var(--color-primary);
+}
+.portal-option-icon {
+    font-size: 1.6rem;
+    flex-shrink: 0;
+}
+.portal-option-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.portal-option-text small {
+    color: var(--color-text-muted);
+    font-weight: 400;
+}
+.portal-option.staff {
+    border-color: rgba(139, 92, 246, 0.3);
+    background: rgba(139, 92, 246, 0.05);
+}
+.portal-option.staff:hover {
+    border-color: var(--color-secondary);
+}
+.portal-note {
+    margin-top: 28px;
+    color: var(--color-text-muted);
+}
+
+@media (max-width: 480px) {
+    .portal-page {
+        padding-top: 160px;
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+    .portal-card .hero-title {
+        font-size: 1.9rem;
+    }
+    .portal-option {
+        padding: 14px 16px;
+        gap: 12px;
+    }
+    .portal-option-icon {
+        font-size: 1.4rem;
+    }
+}
+
+/* --- Responsive --- */
+@media (max-width: 900px) {
+    .product-layout {
+        grid-template-columns: 1fr;
+    }
+}
+@media (max-width: 768px) {
+    .nav-container {
+        flex-wrap: wrap;
+    }
+    .search-bar {
+        order: 3;
+        max-width: 100%;
+        margin-top: 16px;
+    }
+    .hero-title {
+        font-size: 2.5rem;
+    }
+    .hero-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+    .hero-actions a {
+        width: 100%;
+    }
+}
+
+/* --- Hero (used by landing-left content + portal) --- */
+.hero-content {
+    position: relative;
+    z-index: 10;
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+}
+.badge {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--color-success);
+    padding: 6px 16px;
+    border-radius: var(--radius-full);
+    font-size: 0.875rem;
+    font-weight: 600;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+.hero-title {
+    font-size: 4rem;
+    letter-spacing: -1px;
+}
+.hero-subtitle {
+    font-size: 1.25rem;
+    color: var(--color-text-muted);
+    max-width: 600px;
+}
+.hero-actions {
+    display: flex;
+    gap: 16px;
+    margin-top: 16px;
+}
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#/" class="logo">
+                <svg class="logo-icon-svg" width="32" height="32" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="50" cy="50" r="22" stroke="#F59E0B" stroke-width="6" fill="none"/>
+                    <path d="M34 34 L 66 66 M 34 66 L 66 34" stroke="#F59E0B" stroke-width="6" stroke-linecap="round"/>
+                    <circle cx="50" cy="20" r="6" fill="#F59E0B"/><circle cx="50" cy="80" r="6" fill="#F59E0B"/>
+                    <circle cx="20" cy="50" r="6" fill="#F59E0B"/><circle cx="80" cy="50" r="6" fill="#F59E0B"/>
+                </svg>
+                <h1 class="logo-text">bazaar<span class="logo-in">in</span></h1>
+            </a>
+            <div class="search-bar hidden" id="navSearchBar">
+                <input type="text" id="searchInput" class="search-input-product" placeholder="Search laptops, phones...">
+                <input type="text" id="locationInput" class="search-input-location" placeholder="Location...">
+                <button class="search-btn" id="searchBtn" type="button">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                </button>
+            </div>
+            <div class="nav-links" id="navLinks">
+                <!-- Injected per route by the router -->
+            </div>
+        </div>
+    </nav>
+
+    <main id="appRoot">
+        <!-- Injected per route by the router -->
+    </main>
+
+    <footer class="footer hidden" id="appFooter">
+        <div class="footer-content">
+            <div class="logo">
+                <svg class="logo-icon-svg" width="24" height="24" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="50" cy="50" r="22" stroke="#F59E0B" stroke-width="6" fill="none"/>
+                    <path d="M34 34 L 66 66 M 34 66 L 66 34" stroke="#F59E0B" stroke-width="6" stroke-linecap="round"/>
+                    <circle cx="50" cy="20" r="6" fill="#F59E0B"/><circle cx="50" cy="80" r="6" fill="#F59E0B"/>
+                    <circle cx="20" cy="50" r="6" fill="#F59E0B"/><circle cx="80" cy="50" r="6" fill="#F59E0B"/>
+                </svg>
+                <h2 class="logo-text" style="font-size: 1.8rem;">bazaar<span class="logo-in">in</span></h2>
+            </div>
+            <p>&copy; 2026 bazaarin. Build for India.</p>
+        </div>
+    </footer>
+
+    <script>
+    // ===================================================================
+    // DATA — product catalog (from data.js)
+    // ===================================================================
+    const products = [];
+    let currentId = 1;
+
+    const cities = [
+        'Mumbai, India', 'Delhi, India', 'Bangalore, India', 'Chennai, India', 'Hyderabad, India', 'Pune, India', 'Ahmedabad, India', 'Kolkata, India',
+        'Jaipur, India', 'Lucknow, India', 'Surat, India', 'Nagpur, India', 'Indore, India', 'Bhopal, India', 'Patna, India', 'Vadodara, India', 'Coimbatore, India', 'Kochi, India', 'Chandigarh, India', 'Nashik, India', 'Ludhiana, India', 'Visakhapatnam, India', 'Bhubaneswar, India', 'Guwahati, India', 'Thiruvananthapuram, India', 'Mysuru, India', 'Amritsar, India', 'Agra, India',
+        'Meerut, India', 'Rajkot, India', 'Varanasi, India', 'Jodhpur, India', 'Ranchi, India', 'Raipur, India', 'Dehradun, India', 'Gwalior, India', 'Jabalpur, India', 'Vijayawada, India', 'Madurai, India', 'Jamshedpur, India', 'Siliguri, India', 'Warangal, India', 'Kota, India'
+    ];
+
+    const laptopReasonsFresh = [
+        "Got this as a work bonus but I already had a laptop I'm happy with.",
+        "Barely used it — kept it as a backup and just want the space back.",
+        "Won it in a company raffle, never really needed a second machine.",
+        "Bought it for a course that got cancelled, still practically new.",
+        "Gift from a relative, but the specs don't suit my work."
+    ];
+    const laptopReasonsGeneral = [
+        "Upgrading to a newer model with better battery life.",
+        "Switched to a desktop setup for gaming, this one's just collecting dust.",
+        "Battery backup has dropped a lot with daily use, need something fresher.",
+        "Moving abroad for studies and can't carry everything, selling a few things.",
+        "Freelance project ended, don't need a second machine anymore.",
+        "Upgrading to a model with a better GPU for video editing work.",
+        "Selling to fund a new gaming PC build.",
+        "It's a great laptop, just too heavy for my daily commute.",
+        "Need the cash for some urgent expenses.",
+        "Switching to a different operating system for work.",
+        "Screen has a few scratches from travel, upgrading to a cleaner unit.",
+        "Fan's gotten noisy after years of daily use, time to upgrade."
+    ];
+
+    const mobileReasonsFresh = [
+        "Got this as a gift but already had the same model.",
+        "Barely used — kept it as a backup phone, decided to just sell it.",
+        "Won this in a company raffle, already happy with my current phone.",
+        "Bought on impulse during a sale, realized I didn't need it.",
+        "Screen protector cracked but the phone itself is basically untouched."
+    ];
+    const mobileReasonsGeneral = [
+        "Upgraded to the newer model through a work contract, this one's spare.",
+        "Switched to a different ecosystem, adjusting to the new one.",
+        "Battery health has dropped noticeably, upgrading to something fresher.",
+        "Selling to help cover some family expenses this month.",
+        "Camera isn't good enough for the content I create now, need an upgrade.",
+        "Moving to a different network and picked up a new phone with the plan.",
+        "Minor wear from daily use, want a sturdier one for myself.",
+        "Traveling light for a while, decided to simplify and sell what I don't need.",
+        "Upgrading to a model with more storage, always running out of space.",
+        "Back button's a bit finicky now, rather sell before it gets worse.",
+        "Needed a bigger screen for reading, so picked up a new one.",
+        "Selling this to help fund a family member's college fees."
+    ];
+
+    function reasonsFor(category, monthsUsed) {
+        const fresh = category === 'Laptops' ? laptopReasonsFresh : mobileReasonsFresh;
+        const general = category === 'Laptops' ? laptopReasonsGeneral : mobileReasonsGeneral;
+        return monthsUsed <= 4 ? fresh.concat(general) : general;
+    }
+
+    const laptopModels = [
+        { brand: 'Apple', line: 'MacBook Air M2' },
+        { brand: 'Apple', line: 'MacBook Pro 14' },
+        { brand: 'Asus', line: 'ROG Strix G15' },
+        { brand: 'Asus', line: 'TUF Gaming A15' },
+        { brand: 'Lenovo', line: 'ThinkPad X1 Carbon' },
+        { brand: 'Lenovo', line: 'Legion 5' },
+        { brand: 'Dell', line: 'XPS 13' },
+        { brand: 'HP', line: 'Spectre x360' },
+        { brand: 'Acer', line: 'Predator Helios 300' },
+        { brand: 'MSI', line: 'Stealth 15M' },
+        { brand: 'Apple', line: 'MacBook Pro 16' },
+        { brand: 'Dell', line: 'Inspiron 15' },
+        { brand: 'HP', line: 'Pavilion 15' },
+        { brand: 'Lenovo', line: 'IdeaPad Slim 5' },
+        { brand: 'Asus', line: 'Vivobook Pro 15' }
+    ];
+
+    const mobileModels = [
+        { brand: 'Apple', line: 'iPhone 13' },
+        { brand: 'Apple', line: 'iPhone 12 Mini' },
+        { brand: 'Apple', line: 'iPhone 11' },
+        { brand: 'Samsung', line: 'Galaxy S21' },
+        { brand: 'Samsung', line: 'Galaxy A52' },
+        { brand: 'Samsung', line: 'Galaxy M32' },
+        { brand: 'OnePlus', line: '9' },
+        { brand: 'OnePlus', line: 'Nord 2' },
+        { brand: 'OnePlus', line: '10R' },
+        { brand: 'Nothing', line: 'Phone 1' },
+        { brand: 'Nothing', line: 'Phone 2' },
+        { brand: 'iQOO', line: '9' },
+        { brand: 'iQOO', line: 'Neo 6' },
+        { brand: 'Vivo', line: 'V23' },
+        { brand: 'Oppo', line: 'Reno 6' },
+        { brand: 'HTC', line: 'Desire 21' },
+        { brand: 'Redmi', line: 'Note 11' },
+        { brand: 'Samsung', line: 'Galaxy S22' },
+        { brand: 'Apple', line: 'iPhone 14' },
+        { brand: 'Redmi', line: 'Note 12 Pro' },
+        { brand: 'Vivo', line: 'Y100' },
+        { brand: 'OnePlus', line: '11R' }
+    ];
+
+    const modelMRP = {
+        'Apple MacBook Air M2': 114900,
+        'Apple MacBook Pro 14': 194900,
+        'Asus ROG Strix G15': 99990,
+        'Asus TUF Gaming A15': 74990,
+        'Lenovo ThinkPad X1 Carbon': 149990,
+        'Lenovo Legion 5': 84990,
+        'Dell XPS 13': 129990,
+        'HP Spectre x360': 139990,
+        'Acer Predator Helios 300': 119990,
+        'MSI Stealth 15M': 109990,
+        'Apple MacBook Pro 16': 239900,
+        'Dell Inspiron 15': 54990,
+        'HP Pavilion 15': 64990,
+        'Lenovo IdeaPad Slim 5': 59990,
+        'Asus Vivobook Pro 15': 69990,
+        'Apple iPhone 13': 69900,
+        'Apple iPhone 12 Mini': 69900,
+        'Apple iPhone 11': 54900,
+        'Samsung Galaxy S21': 69999,
+        'Samsung Galaxy A52': 34999,
+        'Samsung Galaxy M32': 16999,
+        'OnePlus 9': 49999,
+        'OnePlus Nord 2': 29999,
+        'OnePlus 10R': 38999,
+        'Nothing Phone 1': 32999,
+        'Nothing Phone 2': 44999,
+        'iQOO 9': 44990,
+        'iQOO Neo 6': 34990,
+        'Vivo V23': 35990,
+        'Oppo Reno 6': 32990,
+        'HTC Desire 21': 16990,
+        'Redmi Note 11': 14999,
+        'Samsung Galaxy S22': 72999,
+        'Apple iPhone 14': 79900,
+        'Redmi Note 12 Pro': 24999,
+        'Vivo Y100': 20999,
+        'OnePlus 11R': 39999
+    };
+
+    function priceFromMRP(mrp, monthsUsed) {
+        const raw = mrp * Math.pow(0.95, monthsUsed);
+        return Math.max(1000, Math.round(raw / 500) * 500);
+    }
+
+    const laptopSpecPools = {
+        Apple:  { Processor: ['Apple M1', 'Apple M2'], RAM: ['8GB', '16GB'], Storage: ['256GB SSD', '512GB SSD', '1TB SSD'], GPU: ['Integrated'] },
+        Asus:   { Processor: ['Intel Core i7', 'Intel Core i9', 'AMD Ryzen 7'], RAM: ['16GB', '32GB'], Storage: ['512GB SSD', '1TB SSD'], GPU: ['RTX 3060', 'RTX 3070', 'RTX 4060'] },
+        Lenovo: { Processor: ['Intel Core i5', 'Intel Core i7', 'AMD Ryzen 5'], RAM: ['8GB', '16GB'], Storage: ['256GB SSD', '512GB SSD'], GPU: ['Integrated', 'RTX 3050'] },
+        Dell:   { Processor: ['Intel Core i5', 'Intel Core i7'], RAM: ['8GB', '16GB'], Storage: ['512GB SSD', '1TB SSD'], GPU: ['Integrated'] },
+        HP:     { Processor: ['Intel Core i5', 'Intel Core i7'], RAM: ['8GB', '16GB'], Storage: ['256GB SSD', '512GB SSD'], GPU: ['Integrated'] },
+        Acer:   { Processor: ['Intel Core i7', 'AMD Ryzen 7', 'AMD Ryzen 9'], RAM: ['16GB', '32GB'], Storage: ['512GB SSD', '1TB SSD'], GPU: ['RTX 3060', 'RTX 3070'] },
+        MSI:    { Processor: ['Intel Core i7', 'Intel Core i9'], RAM: ['16GB', '32GB'], Storage: ['512GB SSD', '1TB SSD'], GPU: ['RTX 3060', 'RTX 4060'] }
+    };
+
+    const mobileSpecPools = {
+        Apple:   { Processor: ['Apple A15 Bionic', 'Apple A16 Bionic'], RAM: ['4GB', '6GB'], Storage: ['128GB', '256GB'], Camera: ['12MP Dual'] },
+        Samsung: { Processor: ['Exynos 2200', 'Snapdragon 8 Gen 2'], RAM: ['6GB', '8GB', '12GB'], Storage: ['128GB', '256GB'], Camera: ['50MP Triple', '108MP'] },
+        OnePlus: { Processor: ['Snapdragon 8 Gen 2', 'Snapdragon 8+ Gen 1'], RAM: ['8GB', '12GB'], Storage: ['128GB', '256GB'], Camera: ['50MP Triple'] },
+        Nothing: { Processor: ['Snapdragon 8+ Gen 1', 'Dimensity 9000'], RAM: ['8GB', '12GB'], Storage: ['128GB', '256GB'], Camera: ['50MP Dual'] },
+        iQOO:    { Processor: ['Snapdragon 8 Gen 2', 'Dimensity 9000'], RAM: ['8GB', '12GB'], Storage: ['128GB', '256GB'], Camera: ['50MP Triple'] },
+        Vivo:    { Processor: ['Snapdragon 8+ Gen 1', 'Dimensity 9000'], RAM: ['8GB', '12GB'], Storage: ['128GB', '256GB'], Camera: ['50MP Triple'] },
+        Oppo:    { Processor: ['Snapdragon 8+ Gen 1', 'Dimensity 9000'], RAM: ['8GB', '12GB'], Storage: ['128GB', '256GB'], Camera: ['50MP Triple'] },
+        HTC:     { Processor: ['Snapdragon 8 Gen 1'], RAM: ['6GB', '8GB'], Storage: ['128GB'], Camera: ['48MP Triple'] },
+        Redmi:   { Processor: ['Dimensity 9000', 'Snapdragon 8+ Gen 1'], RAM: ['6GB', '8GB'], Storage: ['128GB', '256GB'], Camera: ['108MP'] }
+    };
+
+    let seed = 20260814;
+    function seededRandom() {
+        seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+        let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    }
+    function randomChoice(arr) { return arr[Math.floor(seededRandom() * arr.length)]; }
+    function randomInt(min, max) { return Math.floor(seededRandom() * (max - min + 1)) + min; }
+    function shuffle(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(seededRandom() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    const availableCities = shuffle([...cities]);
+    let cityCursor = 0;
+    function nextCity() { return availableCities[cityCursor++]; }
+
+    laptopModels.forEach(({ brand, line }) => {
+        const pool = laptopSpecPools[brand];
+        const title = `${brand} ${line}`;
+        const monthsUsed = randomInt(1, 36);
+        const mrp = modelMRP[title];
+        products.push({
+            id: currentId++,
+            title,
+            brand,
+            category: 'Laptops',
+            monthsUsed,
+            location: nextCity(),
+            price: priceFromMRP(mrp, monthsUsed),
+            originalPrice: mrp,
+            specs: {
+                Processor: randomChoice(pool.Processor),
+                RAM: randomChoice(pool.RAM),
+                Storage: randomChoice(pool.Storage),
+                GPU: randomChoice(pool.GPU)
+            },
+            reasonForSelling: randomChoice(reasonsFor('Laptops', monthsUsed)),
+            sellerName: 'Seller ' + randomInt(100, 999),
+            sellerHistory: randomInt(0, 20)
+        });
+    });
+
+    mobileModels.forEach(({ brand, line }) => {
+        const pool = mobileSpecPools[brand];
+        const title = `${brand} ${line}`;
+        const monthsUsed = randomInt(1, 36);
+        const mrp = modelMRP[title];
+        products.push({
+            id: currentId++,
+            title,
+            brand,
+            category: 'Mobiles',
+            monthsUsed,
+            location: nextCity(),
+            price: priceFromMRP(mrp, monthsUsed),
+            originalPrice: mrp,
+            specs: {
+                Processor: randomChoice(pool.Processor),
+                RAM: randomChoice(pool.RAM),
+                Storage: randomChoice(pool.Storage),
+                Camera: randomChoice(pool.Camera)
+            },
+            reasonForSelling: randomChoice(reasonsFor('Mobiles', monthsUsed)),
+            sellerName: 'Seller ' + randomInt(100, 999),
+            sellerHistory: randomInt(0, 20)
+        });
+    });
+
+    try {
+        const userListings = JSON.parse(localStorage.getItem('bazaarin_user_listings')) || [];
+        userListings.forEach(listing => {
+            products.push(Object.assign({}, listing, { id: currentId++ }));
+        });
+    } catch (e) {
+        // Corrupt/blocked storage — just skip user listings for this load.
+    }
+
+    shuffle(products);
+
+    // ===================================================================
+    // UTILS — shared display helpers (from utils.js)
+    // ===================================================================
+    function formatDuration(months) {
+        const m = Math.max(0, Math.round(months));
+        if (m <= 11) return `${m} Month${m === 1 ? '' : 's'}`;
+        const years = Math.floor(m / 12);
+        const rem = m % 12;
+        let label = `${years} Year${years === 1 ? '' : 's'}`;
+        if (rem > 0) label += ` ${rem} Month${rem === 1 ? '' : 's'}`;
+        return label;
+    }
+
+    function hashText(str) {
+        let h = 2166136261;
+        for (let i = 0; i < str.length; i++) {
+            h ^= str.charCodeAt(i);
+            h = Math.imul(h, 16777619);
+        }
+        return Math.abs(h >>> 0);
+    }
+
+    function pickDeterministic(text, options) {
+        if (!options || options.length === 0) return '';
+        return options[hashText(text) % options.length];
+    }
+
+    function formatRelativeTime(timestamp) {
+        const mins = Math.floor((Date.now() - timestamp) / 60000);
+        if (mins < 1) return 'just now';
+        if (mins < 60) return `${mins} minute${mins === 1 ? '' : 's'} ago`;
+        const hours = Math.floor(mins / 60);
+        if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`;
+        const days = Math.floor(hours / 24);
+        return `${days} day${days === 1 ? '' : 's'} ago`;
+    }
+
+    function isUsableToken(t) {
+        if (/^[0-9]+$/.test(t)) return t.length >= 3;
+        return t.length >= 2;
+    }
+
+    function matchOptionFromText(text, options) {
+        const lower = (text || '').toLowerCase();
+        if (!lower) return null;
+        const tokenSets = options.map(opt => new Set((opt.toLowerCase().match(/[a-z0-9]+/g) || []).filter(isUsableToken)));
+        const tokenCounts = {};
+        tokenSets.forEach(set => set.forEach(t => { tokenCounts[t] = (tokenCounts[t] || 0) + 1; }));
+        for (let i = 0; i < options.length; i++) {
+            const uniqueTokens = Array.from(tokenSets[i]).filter(t => tokenCounts[t] === 1);
+            if (uniqueTokens.some(t => lower.includes(t))) return options[i];
+        }
+        return null;
+    }
+
+    const emiFinanciers = [
+        { name: 'Bajaj Finserv', rate: 4 },
+        { name: 'HDFC Bank', rate: 5 },
+        { name: 'IDFC First Bank', rate: 6 },
+        { name: 'ZestMoney', rate: 7 },
+        { name: 'Home Credit', rate: 8 }
+    ];
+    const emiTenures = [6, 12, 24];
+
+    function calculateEMI(principal, annualRatePercent, months) {
+        const r = annualRatePercent / 12 / 100;
+        const emi = principal * r * Math.pow(1 + r, months) / (Math.pow(1 + r, months) - 1);
+        return Math.round(emi);
+    }
+
+    // ===================================================================
+    // GEO — city coordinates + distance (from geo.js)
+    // ===================================================================
+    const cityCoordinates = {
+        'Mumbai': { lat: 19.0760, lng: 72.8777 },
+        'Delhi': { lat: 28.7041, lng: 77.1025 },
+        'Bangalore': { lat: 12.9716, lng: 77.5946 },
+        'Chennai': { lat: 13.0827, lng: 80.2707 },
+        'Hyderabad': { lat: 17.3850, lng: 78.4867 },
+        'Pune': { lat: 18.5204, lng: 73.8567 },
+        'Ahmedabad': { lat: 23.0225, lng: 72.5714 },
+        'Kolkata': { lat: 22.5726, lng: 88.3639 },
+        'Jaipur': { lat: 26.9124, lng: 75.7873 },
+        'Lucknow': { lat: 26.8467, lng: 80.9462 },
+        'Surat': { lat: 21.1702, lng: 72.8311 },
+        'Nagpur': { lat: 21.1458, lng: 79.0882 },
+        'Indore': { lat: 22.7196, lng: 75.8577 },
+        'Bhopal': { lat: 23.2599, lng: 77.4126 },
+        'Patna': { lat: 25.5941, lng: 85.1376 },
+        'Vadodara': { lat: 22.3072, lng: 73.1812 },
+        'Coimbatore': { lat: 11.0168, lng: 76.9558 },
+        'Kochi': { lat: 9.9312, lng: 76.2673 },
+        'Chandigarh': { lat: 30.7333, lng: 76.7794 },
+        'Nashik': { lat: 19.9975, lng: 73.7898 },
+        'Ludhiana': { lat: 30.9010, lng: 75.8573 },
+        'Visakhapatnam': { lat: 17.6868, lng: 83.2185 },
+        'Bhubaneswar': { lat: 20.2961, lng: 85.8245 },
+        'Guwahati': { lat: 26.1445, lng: 91.7362 },
+        'Thiruvananthapuram': { lat: 8.5241, lng: 76.9366 },
+        'Mysuru': { lat: 12.2958, lng: 76.6394 },
+        'Amritsar': { lat: 31.6340, lng: 74.8723 },
+        'Agra': { lat: 27.1767, lng: 78.0081 },
+        'Meerut': { lat: 28.9845, lng: 77.7064 },
+        'Rajkot': { lat: 22.3039, lng: 70.8022 },
+        'Varanasi': { lat: 25.3176, lng: 82.9739 },
+        'Jodhpur': { lat: 26.2389, lng: 73.0243 },
+        'Ranchi': { lat: 23.3441, lng: 85.3096 },
+        'Raipur': { lat: 21.2514, lng: 81.6296 },
+        'Dehradun': { lat: 30.3165, lng: 78.0322 },
+        'Gwalior': { lat: 26.2183, lng: 78.1828 },
+        'Jabalpur': { lat: 23.1815, lng: 79.9864 },
+        'Vijayawada': { lat: 16.5062, lng: 80.6480 },
+        'Madurai': { lat: 9.9252, lng: 78.1198 },
+        'Jamshedpur': { lat: 22.8046, lng: 86.2029 },
+        'Siliguri': { lat: 26.7271, lng: 88.3953 },
+        'Warangal': { lat: 17.9689, lng: 79.5941 },
+        'Kota': { lat: 25.2138, lng: 75.8648 }
+    };
+
+    function coordsForLocation(location) {
+        const city = location.split(',')[0].trim();
+        return cityCoordinates[city] || null;
+    }
+
+    function haversineKm(lat1, lng1, lat2, lng2) {
+        const R = 6371;
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLng = (lng2 - lng1) * Math.PI / 180;
+        const a = Math.sin(dLat / 2) ** 2 +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    // ===================================================================
+    // DEVICE ART — generated SVG product photography (from deviceArt.js)
+    // ===================================================================
+    let getProductImages, getProductThumbnail;
+    (function () {
+        function mulberry32(seed) {
+            let a = seed >>> 0;
+            return function () {
+                a |= 0; a = (a + 0x6D2B79F5) | 0;
+                let t = Math.imul(a ^ (a >>> 15), 1 | a);
+                t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+                return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+            };
+        }
+
+        function hashSeed(str) {
+            let h = 2166136261;
+            for (let i = 0; i < str.length; i++) {
+                h ^= str.charCodeAt(i);
+                h = Math.imul(h, 16777619);
+            }
+            return h >>> 0;
+        }
+
+        function angleOffset(angle) {
+            const map = { open: 1, closed: 2, keyboard: 3, front: 11, back: 12, held: 13 };
+            return (map[angle] || 0) * 7919;
+        }
+
+        function luminance(hex) {
+            const n = parseInt(hex.slice(1), 16);
+            const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+            return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+        }
+
+        function wordmarkColor(bodyHex) {
+            return luminance(bodyHex) > 0.55 ? 'rgba(15,23,42,0.45)' : 'rgba(255,255,255,0.55)';
+        }
+
+        function svgToDataUri(svg) {
+            return 'data:image/svg+xml,' + encodeURIComponent(svg);
+        }
+
+        function wrapSvg(w, h, inner) {
+            return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">${inner}</svg>`;
+        }
+
+        const LAPTOP_PALETTES = {
+            Apple:  { body: '#d6d8da', dark: '#9ea3a8', screenA: '#1e3a8a', screenB: '#38bdf8' },
+            Asus:   { body: '#17181a', dark: '#050506', screenA: '#7f1d1d', screenB: '#111827' },
+            Lenovo: { body: '#141517', dark: '#000000', screenA: '#0f172a', screenB: '#1e3a8a' },
+            Dell:   { body: '#c9cbce', dark: '#8b8f94', screenA: '#0f172a', screenB: '#2563eb' },
+            HP:     { body: '#2c2620', dark: '#171310', screenA: '#1e1b4b', screenB: '#6d28d9' },
+            Acer:   { body: '#1a1c1f', dark: '#020203', screenA: '#052e2b', screenB: '#0891b2' },
+            MSI:    { body: '#2b2b2f', dark: '#131316', screenA: '#1e1033', screenB: '#7c3aed' }
+        };
+
+        const MOBILE_PALETTES = {
+            Apple:   { body: '#e2e4e6', dark: '#aeb2b6', screenA: '#1d4ed8', screenB: '#38bdf8' },
+            Samsung: { body: '#0f1b2d', dark: '#000000', screenA: '#4c1d95', screenB: '#7c3aed' },
+            OnePlus: { body: '#111113', dark: '#000000', screenA: '#7f1d1d', screenB: '#dc2626' },
+            Nothing: { body: '#f2f2f2', dark: '#c7c7c7', screenA: '#0b0b0b', screenB: '#2c2c2c' },
+            iQOO:    { body: '#0c1a2b', dark: '#000000', screenA: '#083344', screenB: '#06b6d4' },
+            Vivo:    { body: '#1a1f3d', dark: '#05070f', screenA: '#1e3a8a', screenB: '#3b82f6' },
+            Oppo:    { body: '#0b6e5a', dark: '#04352a', screenA: '#064e3b', screenB: '#10b981' },
+            HTC:     { body: '#3a3a3a', dark: '#1c1c1c', screenA: '#334155', screenB: '#64748b' },
+            Redmi:   { body: '#13233f', dark: '#050b16', screenA: '#7c2d12', screenB: '#f97316' }
+        };
+
+        function scratches(rand, count, w, h) {
+            let s = '';
+            for (let i = 0; i < count; i++) {
+                const x1 = rand() * w, y1 = rand() * h;
+                const len = 20 + rand() * 60;
+                const ang = rand() * Math.PI;
+                const x2 = x1 + Math.cos(ang) * len, y2 = y1 + Math.sin(ang) * len;
+                s += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="white" stroke-opacity="${(0.05 + rand() * 0.1).toFixed(2)}" stroke-width="${(1 + rand()).toFixed(1)}" stroke-linecap="round"/>`;
+            }
+            return s;
+        }
+
+        function screenContent(rand, x, y, w, h, palette, rId) {
+            let icons = '';
+            const cols = 4, rows = 2;
+            const pad = w * 0.08;
+            const cellW = (w - pad * 2) / cols;
+            const cellH = (h * 0.42) / rows;
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    if (rand() > 0.25) {
+                        const ix = x + pad + c * cellW + cellW * 0.2;
+                        const iy = y + h * 0.5 + r * cellH + cellH * 0.15;
+                        const size = Math.min(cellW, cellH) * 0.55;
+                        icons += `<rect x="${ix.toFixed(1)}" y="${iy.toFixed(1)}" width="${size.toFixed(1)}" height="${size.toFixed(1)}" rx="${(size * 0.28).toFixed(1)}" fill="rgba(255,255,255,${(0.5 + rand() * 0.4).toFixed(2)})"/>`;
+                    }
+                }
+            }
+            return `
+                <defs><linearGradient id="scr${rId}" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0" stop-color="${palette.screenA}"/>
+                    <stop offset="1" stop-color="${palette.screenB}"/>
+                </linearGradient></defs>
+                <rect x="${x}" y="${y}" width="${w}" height="${h}" fill="url(#scr${rId})"/>
+                <rect x="${x}" y="${y}" width="${w}" height="${(h * 0.12).toFixed(1)}" fill="rgba(0,0,0,0.15)"/>
+                ${icons}
+            `;
+        }
+
+        function keyboardGrid(rand, x, y, w, h) {
+            let out = '';
+            const cols = 12, rows = 4;
+            const gap = 4;
+            const cw = (w - gap * (cols - 1)) / cols;
+            const ch = (h - gap * (rows - 1)) / rows;
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    const kx = x + c * (cw + gap);
+                    const ky = y + r * (ch + gap);
+                    out += `<rect x="${kx.toFixed(1)}" y="${ky.toFixed(1)}" width="${cw.toFixed(1)}" height="${ch.toFixed(1)}" rx="3" fill="#000" opacity="${(0.35 + rand() * 0.15).toFixed(2)}"/>`;
+                }
+            }
+            return out;
+        }
+
+        function laptopSVG(seed, palette, angle, brand) {
+            const rand = mulberry32(seed + angleOffset(angle));
+            const W = 480, H = 480;
+            const deskTone = `hsl(${Math.floor(rand() * 360)},12%,${88 + rand() * 6}%)`;
+            let body;
+
+            if (angle === 'open') {
+                const baseY = 300, baseH = 60, baseW = 340, baseX = (W - baseW) / 2;
+                const screenW = 320, screenH = 200, screenX = (W - screenW) / 2, screenY = baseY - screenH + 14;
+                body = `
+                    <rect x="0" y="0" width="${W}" height="${H}" fill="${deskTone}"/>
+                    <ellipse cx="${W / 2}" cy="${baseY + baseH + 10}" rx="190" ry="18" fill="black" opacity="0.12"/>
+                    <rect x="${screenX}" y="${screenY}" width="${screenW}" height="${screenH}" rx="10" fill="${palette.dark}"/>
+                    <rect x="${screenX + 8}" y="${screenY + 8}" width="${screenW - 16}" height="${screenH - 16}" rx="4" fill="#000"/>
+                    ${screenContent(rand, screenX + 8, screenY + 8, screenW - 16, screenH - 16, palette, 1)}
+                    <rect x="${baseX}" y="${baseY}" width="${baseW}" height="${baseH}" rx="8" fill="${palette.body}"/>
+                    <rect x="${baseX + baseW / 2 - 45}" y="${baseY + 10}" width="90" height="34" rx="6" fill="${palette.dark}" opacity="0.5"/>
+                    ${scratches(rand, 5, W, H)}
+                `;
+            } else if (angle === 'closed') {
+                const lidW = 300, lidH = 210, lidX = (W - lidW) / 2, lidY = (H - lidH) / 2;
+                body = `
+                    <rect x="0" y="0" width="${W}" height="${H}" fill="${deskTone}"/>
+                    <ellipse cx="${W / 2}" cy="${lidY + lidH + 20}" rx="170" ry="16" fill="black" opacity="0.12"/>
+                    <rect x="${lidX}" y="${lidY}" width="${lidW}" height="${lidH}" rx="14" fill="${palette.body}"/>
+                    <rect x="${lidX}" y="${lidY}" width="${lidW}" height="${lidH}" rx="14" fill="white" opacity="0.06"/>
+                    <text x="${W / 2}" y="${lidY + lidH / 2}" font-family="Arial, sans-serif" font-size="20" fill="${wordmarkColor(palette.body)}" text-anchor="middle">${brand}</text>
+                    ${scratches(rand, 6, W, H)}
+                `;
+            } else {
+                body = `
+                    <rect x="0" y="0" width="${W}" height="${H}" fill="${deskTone}"/>
+                    <rect x="20" y="40" width="440" height="300" rx="16" fill="${palette.body}"/>
+                    ${keyboardGrid(rand, 50, 70, 380, 160)}
+                    <rect x="${W / 2 - 70}" y="260" width="140" height="90" rx="14" fill="${palette.dark}" opacity="0.35"/>
+                    <circle cx="130" cy="415" r="30" fill="#fff" opacity="0.7"/>
+                    <rect x="115" y="405" width="30" height="42" rx="4" fill="#8b5e34" opacity="0.6"/>
+                    ${scratches(rand, 8, W, H)}
+                `;
+            }
+            return wrapSvg(W, H, body);
+        }
+
+        function heldPhoneSVG(rand, palette) {
+            const W = 480, H = 480;
+            const bgHue = Math.floor(rand() * 360);
+            let bokeh = '';
+            for (let i = 0; i < 6; i++) {
+                const cx = rand() * W, cy = rand() * H * 0.6, r = 40 + rand() * 70;
+                bokeh += `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${r.toFixed(1)}" fill="hsl(${(bgHue + rand() * 60).toFixed(0)},60%,${(55 + rand() * 20).toFixed(0)}%)" opacity="${(0.15 + rand() * 0.15).toFixed(2)}"/>`;
+            }
+            const pw = 150, ph = 300;
+            const cx = W / 2 - 10, cy = H / 2 + 6;
+            const rot = (-8 + rand() * 16).toFixed(1);
+            const skin = `hsl(28, ${40 + rand() * 10}%, ${55 + rand() * 15}%)`;
+            return `
+                <rect x="0" y="0" width="${W}" height="${H}" fill="hsl(${bgHue},25%,80%)"/>
+                ${bokeh}
+                <g transform="translate(${cx},${cy}) rotate(${rot})">
+                    <rect x="${-pw / 2 - 6}" y="${-ph / 2 - 6}" width="${pw + 12}" height="${ph + 12}" rx="26" fill="${palette.body}"/>
+                    <rect x="${-pw / 2}" y="${-ph / 2}" width="${pw}" height="${ph}" rx="20" fill="#000"/>
+                    ${screenContent(rand, -pw / 2 + 5, -ph / 2 + 5, pw - 10, ph - 10, palette, 3)}
+                    <circle cx="0" cy="${-ph / 2 + 16}" r="4" fill="#111"/>
+                    <path d="M ${pw / 2 - 4} ${-ph / 2 + 50} q 58 8 58 62 v 66 q 0 42 -52 42 h -10 v -170 z" fill="${skin}"/>
+                    <path d="M ${pw / 2 - 4} ${-ph / 2 + 128} q 62 4 62 52 q 0 46 -58 46 h -6 z" fill="${skin}" opacity="0.95"/>
+                    <path d="M ${-pw / 2 + 14} ${ph / 2 - 74} q -42 -8 -52 32 q -8 30 32 44 q 60 14 88 -18 z" fill="${skin}"/>
+                </g>
+            `;
+        }
+
+        function mobileSVG(seed, palette, angle, brand) {
+            const rand = mulberry32(seed + angleOffset(angle));
+            const W = 480, H = 480;
+            let body;
+
+            if (angle === 'front') {
+                const pw = 200, ph = 400, px = (W - pw) / 2, py = (H - ph) / 2;
+                body = `
+                    <rect x="0" y="0" width="${W}" height="${H}" fill="hsl(${Math.floor(rand() * 360)},10%,90%)"/>
+                    <ellipse cx="${W / 2}" cy="${py + ph + 14}" rx="110" ry="14" fill="black" opacity="0.12"/>
+                    <rect x="${px - 8}" y="${py - 8}" width="${pw + 16}" height="${ph + 16}" rx="34" fill="${palette.body}"/>
+                    <rect x="${px}" y="${py}" width="${pw}" height="${ph}" rx="26" fill="#000"/>
+                    ${screenContent(rand, px + 6, py + 6, pw - 12, ph - 12, palette, 2)}
+                    <circle cx="${W / 2}" cy="${py + 22}" r="5" fill="#111"/>
+                    <rect x="${W / 2 - 30}" y="${py + ph - 14}" width="60" height="5" rx="2.5" fill="#fff" opacity="0.6"/>
+                    ${scratches(rand, 4, W, H)}
+                `;
+            } else if (angle === 'back') {
+                const pw = 200, ph = 400, px = (W - pw) / 2, py = (H - ph) / 2;
+                body = `
+                    <rect x="0" y="0" width="${W}" height="${H}" fill="hsl(${Math.floor(rand() * 360)},10%,90%)"/>
+                    <ellipse cx="${W / 2}" cy="${py + ph + 14}" rx="110" ry="14" fill="black" opacity="0.12"/>
+                    <rect x="${px - 8}" y="${py - 8}" width="${pw + 16}" height="${ph + 16}" rx="34" fill="${palette.body}"/>
+                    <rect x="${px - 8}" y="${py - 8}" width="${pw + 16}" height="${ph + 16}" rx="34" fill="white" opacity="0.05"/>
+                    <rect x="${px + 18}" y="${py + 24}" width="60" height="60" rx="16" fill="${palette.dark}" opacity="0.6"/>
+                    <circle cx="${px + 38}" cy="${py + 44}" r="12" fill="#111"/>
+                    <circle cx="${px + 66}" cy="${py + 44}" r="12" fill="#111"/>
+                    <circle cx="${px + 38}" cy="${py + 70}" r="12" fill="#111"/>
+                    <circle cx="${px + 52}" cy="${py + 34}" r="4" fill="#fbbf24"/>
+                    <text x="${px + pw / 2}" y="${py + ph - 30}" font-family="Arial, sans-serif" font-size="13" fill="${wordmarkColor(palette.body)}" text-anchor="middle">${brand}</text>
+                    ${scratches(rand, 5, W, H)}
+                `;
+            } else {
+                body = heldPhoneSVG(rand, palette);
+            }
+            return wrapSvg(W, H, body);
+        }
+
+        function paletteFor(product) {
+            const table = product.category === 'Laptops' ? LAPTOP_PALETTES : MOBILE_PALETTES;
+            return table[product.brand] || { body: '#333', dark: '#111', screenA: '#333', screenB: '#666' };
+        }
+
+        getProductImages = function (product) {
+            if (product.userImage) {
+                return [{ label: 'Seller photo', src: product.userImage }];
+            }
+            const seed = hashSeed(product.id + '|' + product.title);
+            const palette = paletteFor(product);
+            if (product.category === 'Laptops') {
+                return [
+                    { label: 'Open — front view', src: svgToDataUri(laptopSVG(seed, palette, 'open', product.brand)) },
+                    { label: 'Closed lid', src: svgToDataUri(laptopSVG(seed, palette, 'closed', product.brand)) },
+                    { label: 'Keyboard close-up', src: svgToDataUri(laptopSVG(seed, palette, 'keyboard', product.brand)) }
+                ];
+            }
+            return [
+                { label: 'Screen on', src: svgToDataUri(mobileSVG(seed, palette, 'front', product.brand)) },
+                { label: 'Back panel', src: svgToDataUri(mobileSVG(seed, palette, 'back', product.brand)) },
+                { label: 'Held in hand', src: svgToDataUri(mobileSVG(seed, palette, 'held', product.brand)) }
+            ];
+        };
+
+        getProductThumbnail = function (product) {
+            if (product.userImage) return product.userImage;
+            const images = getProductImages(product);
+            if (product.category === 'Mobiles' && product.id % 2 === 0) {
+                return images[2].src;
+            }
+            return images[0].src;
+        };
+    })();
+
+    // ===================================================================
+    // AUTOCOMPLETE (from autocomplete.js)
+    // ===================================================================
+    function attachAutocomplete(input, getSuggestions, onSelect) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'autocomplete-wrapper ' + input.className;
+        input.parentNode.insertBefore(wrapper, input);
+        wrapper.appendChild(input);
+        input.className = 'autocomplete-input';
+        input.setAttribute('autocomplete', 'off');
+
+        const list = document.createElement('div');
+        list.className = 'autocomplete-list hidden';
+        wrapper.appendChild(list);
+
+        function hide() { list.classList.add('hidden'); list.innerHTML = ''; }
+
+        function render(items) {
+            list.innerHTML = '';
+            if (items.length === 0) { hide(); return; }
+            items.slice(0, 6).forEach(item => {
+                const opt = document.createElement('div');
+                opt.className = 'autocomplete-item';
+                opt.textContent = item;
+                opt.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    input.value = item;
+                    hide();
+                    onSelect(item);
+                });
+                list.appendChild(opt);
+            });
+            list.classList.remove('hidden');
+        }
+
+        input.addEventListener('input', () => {
+            const q = input.value.trim().toLowerCase();
+            if (!q) { hide(); return; }
+            render(getSuggestions(q));
+        });
+        input.addEventListener('focus', () => {
+            const q = input.value.trim().toLowerCase();
+            if (q) render(getSuggestions(q));
+        });
+        input.addEventListener('blur', () => setTimeout(hide, 120));
+    }
+
+    function locationSuggestions(query) {
+        return cities.filter(c => c.toLowerCase().includes(query));
+    }
+
+    function productSuggestions(query) {
+        const brands = products.map(p => p.brand);
+        const titles = products.map(p => p.title);
+        const pool = Array.from(new Set([...brands, ...titles]));
+        return pool
+            .filter(t => t.toLowerCase().includes(query))
+            .sort((a, b) => a.length - b.length);
+    }
+
+    // ===================================================================
+    // SUPPORT BOT (from supportBot.js)
+    // ===================================================================
+    function getSupportReply(message) {
+        const m = message.toLowerCase();
+        const rules = [
+            { keys: ['refund', 'return', 'money back'], reply: "Refunds are available within 7 days of delivery if the device doesn't match the listed condition — open a dispute from your Orders page and our team steps in." },
+            { keys: ['deliver', 'shipping', 'ship', 'when will i get', 'arrive'], reply: "Most orders are delivered within 3-5 business days. You'll get a tracking link by SMS and email once the seller ships it." },
+            { keys: ['payment', 'cod', 'cash on delivery', 'upi', 'pay', 'emi'], reply: "We support UPI, cards, and Cash on Delivery for orders under ₹50,000. Payment is only released to the seller after you confirm the device works." },
+            { keys: ['warranty', 'guarantee'], reply: "Every listing marked 'Verified Refurbished' comes with a 6-month Bazaarin warranty covering hardware defects." },
+            { keys: ['seller', 'trust', 'genuine', 'fake', 'scam', 'verified'], reply: "All sellers are ID-verified and rated by past buyers — check the seller card on this page for their sale history before you buy." },
+            { keys: ['negotiate', 'price', 'discount', 'lower', 'cheap'], reply: "You're welcome to negotiate directly with the seller in the 'Chat with Seller' tab — most sellers do accept reasonable offers." },
+            { keys: ['cancel'], reply: "You can cancel an order for free before it ships, from the Orders page. After that it falls under our return policy." },
+            { keys: ['damage', 'broken', 'not working', 'defect'], reply: "Sorry to hear that. If a device arrives damaged or not as described, open a dispute within 48 hours of delivery and we'll arrange a replacement or refund." },
+            { keys: ['not replying', "hasn't replied", 'no reply', 'no response', 'ignoring'], reply: "Sorry about the wait — if a seller goes quiet for more than a day, we can step in directly. Share the product name and we'll follow up with them on your behalf." },
+            { keys: ['listing', 'my product', 'my item', 'edit my'], reply: "You can manage your listings and see buyer messages from your Seller Dashboard — the link's in the menu once you're signed in as a seller." },
+            { keys: ['hi', 'hello', 'hey'], reply: "Hi there! I'm the Bazaarin Support assistant. Ask me about returns, payments, delivery, or seller verification." },
+            { keys: ['human', 'agent', 'person', 'talk to someone'], reply: "I can loop in a human teammate — drop your email or phone number and someone from our team will reach out within a few hours." }
+        ];
+        const hit = rules.find(rule => rule.keys.some(k => m.includes(k)));
+        if (hit) return hit.reply;
+        return "Thanks for reaching out! I've noted your message — for anything I can't answer here, our human support team will follow up by email shortly.";
+    }
+
+    // ===================================================================
+    // QUERIES — buyer-to-seller message store (from queries.js)
+    // ===================================================================
+    const QUERIES_KEY = 'bazaarin_customer_queries';
+
+    function getQueries() {
+        try {
+            return JSON.parse(localStorage.getItem(QUERIES_KEY)) || [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function saveQueries(list) {
+        localStorage.setItem(QUERIES_KEY, JSON.stringify(list));
+    }
+
+    function recordBuyerMessage(product, buyerName, message) {
+        const list = getQueries();
+        list.push({
+            id: Date.now() + '-' + Math.random().toString(36).slice(2, 8),
+            productId: product.id,
+            productTitle: product.title,
+            sellerName: product.sellerName,
+            buyerName: buyerName || 'A buyer (not signed in)',
+            message,
+            timestamp: Date.now(),
+            answered: false
+        });
+        saveQueries(list);
+    }
+
+    function markQueryReplied(queryId) {
+        const list = getQueries();
+        const q = list.find(q => q.id === queryId);
+        if (q) {
+            q.answered = true;
+            saveQueries(list);
+        }
+    }
+
+    function queriesForSeller(sellerName) {
+        return getQueries()
+            .filter(q => q.sellerName === sellerName)
+            .sort((a, b) => b.timestamp - a.timestamp);
+    }
+
+    function hasStaleUnansweredQuery(productId, hoursThreshold) {
+        const pending = getQueries().filter(q => q.productId === productId && !q.answered);
+        if (pending.length === 0) return false;
+        const oldest = Math.min(...pending.map(q => q.timestamp));
+        return (Date.now() - oldest) / (1000 * 60 * 60) >= hoursThreshold;
+    }
+
+    // ===================================================================
+    // COMPARE — shared "compare list" state (from compare.js)
+    // ===================================================================
+    const COMPARE_KEY = 'bazaarin_compare';
+    const COMPARE_LIMIT = 3;
+
+    function getCompareIds() {
+        try {
+            return JSON.parse(localStorage.getItem(COMPARE_KEY)) || [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function saveCompareIds(ids) {
+        localStorage.setItem(COMPARE_KEY, JSON.stringify(ids));
+        renderCompareBar();
+    }
+
+    function isInCompare(id) {
+        return getCompareIds().includes(id);
+    }
+
+    function addToCompare(id) {
+        const ids = getCompareIds();
+        if (ids.includes(id)) return true;
+        if (ids.length >= COMPARE_LIMIT) return false;
+        ids.push(id);
+        saveCompareIds(ids);
+        return true;
+    }
+
+    function removeFromCompare(id) {
+        saveCompareIds(getCompareIds().filter(x => x !== id));
+    }
+
+    function renderCompareBar() {
+        const ids = getCompareIds();
+        let bar = document.getElementById('compareBar');
+
+        if (ids.length === 0) {
+            if (bar) bar.remove();
+            return;
+        }
+
+        if (!bar) {
+            bar = document.createElement('div');
+            bar.id = 'compareBar';
+            bar.className = 'compare-bar';
+            document.body.appendChild(bar);
+        }
+
+        const items = ids.map(id => products.find(p => p.id === id)).filter(Boolean);
+        bar.innerHTML = `
+            <div class="compare-bar-items">
+                ${items.map(p => `
+                    <div class="compare-bar-item">
+                        <span>${p.title}</span>
+                        <button data-id="${p.id}" class="compare-bar-remove" aria-label="Remove ${p.title} from compare">&times;</button>
+                    </div>
+                `).join('')}
+            </div>
+            <a href="#/compare" class="btn-primary compare-bar-btn">Compare (${items.length})</a>
+        `;
+        bar.querySelectorAll('.compare-bar-remove').forEach(btn => {
+            btn.addEventListener('click', () => removeFromCompare(parseInt(btn.dataset.id)));
+        });
+    }
+
+    function renderComparePage(container) {
+        const ids = getCompareIds();
+        const items = ids.map(id => products.find(p => p.id === id)).filter(Boolean);
+
+        if (items.length === 0) {
+            container.innerHTML = `<p class="no-results">No products selected yet. Head to the <a href="#/shop">shop</a> and tap "Add to Compare" on a couple of listings.</p>`;
+            return;
+        }
+
+        const specKeys = Array.from(new Set(items.flatMap(p => Object.keys(p.specs))));
+        const rows = [
+            { label: 'Price', render: p => `₹${p.price}` },
+            { label: 'Condition', render: p => `${formatDuration(p.monthsUsed)} used` },
+            { label: 'Location', render: p => p.location },
+            ...specKeys.map(key => ({ label: key, render: p => p.specs[key] || '—' })),
+            { label: 'Reason for Selling', render: p => `"${p.reasonForSelling}"` },
+            { label: 'Seller', render: p => `${p.sellerName} (${p.sellerHistory} sales)` }
+        ];
+
+        container.innerHTML = `
+            <div class="compare-table-wrap">
+                <table class="compare-table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            ${items.map(p => `
+                                <th>
+                                    <img src="${getProductThumbnail(p)}" alt="${p.title}" class="compare-thumb">
+                                    <div class="compare-title">${p.title}</div>
+                                    <div class="compare-th-actions">
+                                        <a href="#/product?id=${p.id}" class="nav-link">View</a>
+                                        <button class="compare-remove-btn" data-id="${p.id}">Remove</button>
+                                    </div>
+                                </th>
+                            `).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rows.map(row => `
+                            <tr>
+                                <td class="compare-row-label">${row.label}</td>
+                                ${items.map(p => `<td>${row.render(p)}</td>`).join('')}
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+
+        container.querySelectorAll('.compare-remove-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                removeFromCompare(parseInt(btn.dataset.id));
+                renderComparePage(container);
+            });
+        });
+    }
+
+    // ===================================================================
+    // AUTH — mock account system (from auth.js)
+    // ===================================================================
+    const AUTH_KEY = 'bazaarin_user';
+
+    function getCurrentUser() {
+        try {
+            return JSON.parse(localStorage.getItem(AUTH_KEY));
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function isLoggedIn() {
+        return !!getCurrentUser();
+    }
+
+    function isSeller() {
+        const user = getCurrentUser();
+        return !!user && user.accountType === 'seller';
+    }
+
+    function isAdmin() {
+        const user = getCurrentUser();
+        return !!user && user.accountType === 'admin';
+    }
+
+    function login(name, accountType, department) {
+        const type = accountType === 'seller' ? 'seller' : accountType === 'admin' ? 'admin' : 'customer';
+        const user = { name, accountType: type };
+        if (type === 'admin') user.department = department;
+        localStorage.setItem(AUTH_KEY, JSON.stringify(user));
+    }
+
+    function logout() {
+        localStorage.removeItem(AUTH_KEY);
+    }
+
+    // Syncs the navbar's Sign In button / Logout link / Dashboard link with the
+    // current mock session. Called after every route render (fresh DOM nodes
+    // each time, so no duplicate listeners pile up).
+    function applyAuthUI() {
+        const signInBtn = document.getElementById('signInBtn');
+        const logoutLink = document.getElementById('logoutLink');
+        const dashboardLink = document.getElementById('dashboardLink');
+        const user = getCurrentUser();
+
+        if (signInBtn) {
+            if (user) {
+                signInBtn.textContent = `Hi, ${user.name}`;
+                signInBtn.href = user.accountType === 'seller' ? '#/seller' : user.accountType === 'admin' ? '#/admin' : '#/';
+            } else {
+                signInBtn.textContent = 'Sign In';
+                signInBtn.href = '#/signin';
+            }
+        }
+
+        if (dashboardLink) {
+            dashboardLink.classList.toggle('hidden', !(user && user.accountType === 'seller'));
+        }
+
+        if (logoutLink) {
+            logoutLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                logout();
+                navigate();
+            });
+        }
+    }
+
+    // Department labels shared by the admin-login and admin routes.
+    const deptLabels = {
+        stats: 'Stats & Analytics',
+        techsupport: 'Tech Support',
+        finance: 'Finance Department'
+    };
+
+    // Dropdown menu logic — defined once globally since #myDropdown is
+    // re-rendered fresh on every route change.
+    function toggleMenu() {
+        const el = document.getElementById('myDropdown');
+        if (el) el.classList.toggle('show');
+    }
+    window.onclick = function (event) {
+        if (!event.target.closest('.kebab-menu')) {
+            const dropdowns = document.getElementsByClassName('dropdown-content');
+            for (let i = 0; i < dropdowns.length; i++) {
+                const openDropdown = dropdowns[i];
+                if (openDropdown.classList.contains('show')) {
+                    openDropdown.classList.remove('show');
+                }
+            }
+        }
+    };
+
+    // ===================================================================
+    // ROUTER — hash-based navigation across every former page
+    // ===================================================================
+    function kebabMenuHtml(itemsHtml) {
+        return `
+            <div class="dropdown">
+                <button class="kebab-menu" onclick="toggleMenu()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+                </button>
+                <div class="dropdown-content" id="myDropdown">
+                    ${itemsHtml}
+                </div>
+            </div>
+        `;
+    }
+
+    const CUSTOMER_SERVICE_LINK = `<a href="javascript:void(0)">Customer Service</a>`;
+    const DASHBOARD_LINK = `<a href="#/seller" id="dashboardLink" class="hidden">Seller Dashboard</a>`;
+    const LOGOUT_LINK = `<a href="javascript:void(0)" id="logoutLink">Logout</a>`;
+
+    function navHome() {
+        return kebabMenuHtml(`${CUSTOMER_SERVICE_LINK}<a href="#/sell">Sell an Item</a>${DASHBOARD_LINK}${LOGOUT_LINK}`);
+    }
+    function navShop() {
+        return `
+            <a href="#/" class="nav-link">Back to Home</a>
+            <a href="#/sell" class="nav-link">Sell</a>
+            <a href="#/signin" id="signInBtn" class="btn-primary">Sign In</a>
+            ${kebabMenuHtml(`${CUSTOMER_SERVICE_LINK}${DASHBOARD_LINK}${LOGOUT_LINK}`)}
+        `;
+    }
+    function navProduct() {
+        return `
+            <a href="#/shop" class="nav-link">Back to Shop</a>
+            ${kebabMenuHtml(`${CUSTOMER_SERVICE_LINK}${DASHBOARD_LINK}${LOGOUT_LINK}`)}
+        `;
+    }
+    const navCompare = navProduct;
+    const navSell = navProduct;
+    function navSeller() {
+        return `
+            <a href="#/sell" class="nav-link">List an Item</a>
+            <a href="#/shop" class="nav-link">Back to Shop</a>
+            ${kebabMenuHtml(`${CUSTOMER_SERVICE_LINK}${LOGOUT_LINK}`)}
+        `;
+    }
+    function navSignin() {
+        return `<a href="#/" class="nav-link">Back to Home</a>`;
+    }
+    const navAdminLogin = navSignin;
+    const navPortal = navSignin;
+    function navAdmin() {
+        return `
+            <a href="#/" class="nav-link">Back to Home</a>
+            ${kebabMenuHtml(LOGOUT_LINK)}
+        `;
+    }
+
+    const ROUTES = {
+        home:          { nav: navHome,        render: renderHomeRoute,       wrapperClass: 'landing-split',                     showFooter: true,  showSearchBar: false },
+        shop:          { nav: navShop,        render: renderShopRoute,       wrapperClass: 'container product-page-container',  showFooter: true,  showSearchBar: true },
+        product:       { nav: navProduct,     render: renderProductRoute,    wrapperClass: 'container product-page-container',  showFooter: false, showSearchBar: false },
+        compare:       { nav: navCompare,     render: renderCompareRoute,    wrapperClass: 'container product-page-container',  showFooter: true,  showSearchBar: false },
+        sell:          { nav: navSell,        render: renderSellRoute,       wrapperClass: 'container product-page-container',  showFooter: false, showSearchBar: false },
+        seller:        { nav: navSeller,      render: renderSellerRoute,     wrapperClass: 'container product-page-container',  showFooter: false, showSearchBar: false },
+        signin:        { nav: navSignin,      render: renderSigninRoute,     wrapperClass: 'container auth-page',               showFooter: false, showSearchBar: false },
+        'admin-login': { nav: navAdminLogin,  render: renderAdminLoginRoute, wrapperClass: 'container auth-page',               showFooter: false, showSearchBar: false },
+        admin:         { nav: navAdmin,       render: renderAdminRoute,      wrapperClass: 'container product-page-container',  showFooter: false, showSearchBar: false },
+        portal:        { nav: navPortal,      render: renderPortalRoute,     wrapperClass: 'container portal-page',             showFooter: false, showSearchBar: false }
+    };
+
+    function parseHash() {
+        const raw = (location.hash || '#/').slice(1);
+        const [path, query] = raw.split('?');
+        const name = path.replace(/^\//, '') || 'home';
+        return { name, params: new URLSearchParams(query || '') };
+    }
+
+    function navigate() {
+        const { name, params } = parseHash();
+        const route = ROUTES[name] || ROUTES.home;
+
+        document.getElementById('navLinks').innerHTML = route.nav(params);
+        document.getElementById('navSearchBar').classList.toggle('hidden', !route.showSearchBar);
+
+        const root = document.getElementById('appRoot');
+        root.className = route.wrapperClass;
+        root.innerHTML = '';
+
+        document.getElementById('appFooter').classList.toggle('hidden', !route.showFooter);
+
+        route.render(root, params);
+
+        applyAuthUI();
+        renderCompareBar();
+        window.scrollTo(0, 0);
+    }
+
+    // ===================================================================
+    // PAGE: home (from index.html + home.js)
+    // ===================================================================
+    function deviceIconSvg(type) {
+        if (type === 'laptop') {
+            return `<svg width="36" height="27" viewBox="0 0 24 18" fill="none" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="1" width="20" height="12" rx="1"/><path d="M1 16h22l-1.6 2.4a1 1 0 0 1-.9.6H3.5a1 1 0 0 1-.9-.6L1 16z"/></svg>`;
+        }
+        return `<svg width="20" height="30" viewBox="0 0 16 24" fill="none" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="1" width="12" height="22" rx="2"/><line x1="6.5" y1="19" x2="9.5" y2="19"/></svg>`;
+    }
+    function iconGroupHtml(startWithLaptop) {
+        const seq = startWithLaptop ? ['laptop', 'mobile', 'laptop', 'mobile'] : ['mobile', 'laptop', 'mobile', 'laptop'];
+        return `<span class="icon-group">${seq.map(deviceIconSvg).join('')}</span>`;
+    }
+    function iconRowHtml(reverse, startWithLaptop) {
+        return `
+            <div class="icon-row${reverse ? ' reverse' : ''}">
+                <div class="icon-row-track">
+                    ${iconGroupHtml(startWithLaptop)}
+                    ${iconGroupHtml(startWithLaptop)}
+                </div>
+            </div>
+        `;
+    }
+    function iconRowsHtml() {
+        return iconRowHtml(false, true) + iconRowHtml(true, false) + iconRowHtml(false, true) + iconRowHtml(true, false);
+    }
+
+    function renderHomeRoute(root) {
+        const user = getCurrentUser();
+        if (user && user.accountType === 'seller') { location.hash = '#/seller'; return; }
+        if (user && user.accountType === 'admin') { location.hash = '#/admin'; return; }
+
+        const heroHtml = !user ? `
+            <span class="badge">Sign In to Bazaarin</span>
+            <h2 class="hero-title">Are You Buying,<br><span class="text-gradient">Or Selling?</span></h2>
+            <p class="hero-subtitle">Choose how you'd like to use Bazaarin — buy certified refurbished electronics, or list your own to sell.</p>
+            <div class="hero-actions">
+                <a href="#/signin?role=customer" class="btn-dark-green large">I'm a Buyer</a>
+                <a href="#/signin?role=seller" class="btn-pale-green large">I'm a Seller</a>
+            </div>
+        ` : `
+            <span class="badge">Welcome back, ${user.name}!</span>
+            <h2 class="hero-title">Build for India,<br><span class="text-gradient">Priced for Everyone.</span></h2>
+            <p class="hero-subtitle">From Mumbai to Kochi, shop certified secondhand laptops and phones from sellers across the country. Save money and reduce e-waste with India's most trusted refurbished marketplace.</p>
+            <div class="hero-actions">
+                <a href="#/shop?category=Laptops" class="btn-dark-green large">Shop Laptops</a>
+                <a href="#/shop?category=Mobiles" class="btn-pale-green large">Shop Mobiles</a>
+            </div>
+        `;
+
+        root.innerHTML = `
+            <div class="landing-left">
+                <div class="hero-content">${heroHtml}</div>
+                <p class="landing-tagline">Build for India.</p>
+            </div>
+            <div class="landing-right" aria-hidden="true">${iconRowsHtml()}</div>
+        `;
+    }
+
+    // ===================================================================
+    // PAGE: shop (from shop.html + shop.js)
+    // ===================================================================
+    function resetNavSearchBar() {
+        const bar = document.getElementById('navSearchBar');
+        bar.innerHTML = `
+            <input type="text" id="searchInput" class="search-input-product" placeholder="Search laptops, phones...">
+            <input type="text" id="locationInput" class="search-input-location" placeholder="Location...">
+            <button class="search-btn" id="searchBtn" type="button">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            </button>
+        `;
+    }
+
+    function renderShopRoute(root, params) {
+        resetNavSearchBar();
+
+        root.innerHTML = `
+            <section class="categories">
+                <h3 class="section-title">Browse by Category</h3>
+                <div class="category-grid" id="categoryFilter">
+                    <button class="category-card active" data-category="all">All Devices</button>
+                    <button class="category-card" data-category="Laptops">Laptops</button>
+                    <button class="category-card" data-category="Mobiles">Mobiles</button>
+                </div>
+            </section>
+            <section class="products-section">
+                <div class="section-header">
+                    <h3 class="section-title">Trending Now</h3>
+                    <div class="section-header-controls">
+                        <button id="nearMeBtn" class="btn-secondary" type="button">📍 Use My Location</button>
+                        <div class="sort-dropdown">
+                            <select id="sortSelect">
+                                <option value="newest">Newest Arrivals</option>
+                                <option value="price-low">Price: Low to High</option>
+                                <option value="price-high">Price: High to Low</option>
+                                <option value="nearest">Nearest First</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <p id="proximityStatus" class="proximity-status hidden"></p>
+                <div class="product-grid" id="productGrid"></div>
+                <div id="noResults" class="no-results hidden"><p>No products found matching your criteria.</p></div>
+            </section>
+        `;
+
+        const productGrid = document.getElementById('productGrid');
+        const searchInput = document.getElementById('searchInput');
+        const locationInput = document.getElementById('locationInput');
+        const categoryButtons = root.querySelectorAll('.category-card');
+        const sortSelect = document.getElementById('sortSelect');
+        const noResults = document.getElementById('noResults');
+        const nearMeBtn = document.getElementById('nearMeBtn');
+        const proximityStatus = document.getElementById('proximityStatus');
+
+        let currentCategory = params.get('category') || 'all';
+        let currentSearch = params.get('search') || '';
+        let currentLocation = params.get('location') || '';
+        let currentSort = 'newest';
+        let originCoords = null;
+
+        function setOrigin(coords, label) {
+            originCoords = coords;
+            proximityStatus.textContent = `📍 Showing distance from ${label}`;
+            proximityStatus.classList.remove('hidden');
+        }
+
+        function distanceForProduct(product) {
+            if (!originCoords) return null;
+            const coords = coordsForLocation(product.location);
+            if (!coords) return null;
+            return haversineKm(originCoords.lat, originCoords.lng, coords.lat, coords.lng);
+        }
+
+        function renderProducts() {
+            let filtered = products.filter(p => {
+                const matchesCategory = currentCategory === 'all' || p.category === currentCategory;
+                const matchesSearch = p.title.toLowerCase().includes(currentSearch.toLowerCase());
+                const matchesLocation = currentSort === 'nearest'
+                    ? true
+                    : p.location.toLowerCase().includes(currentLocation.toLowerCase());
+                return matchesCategory && matchesSearch && matchesLocation;
+            });
+
+            filtered.sort((a, b) => {
+                if (currentSort === 'price-low') return a.price - b.price;
+                if (currentSort === 'price-high') return b.price - a.price;
+                if (currentSort === 'nearest' && originCoords) {
+                    const da = distanceForProduct(a);
+                    const db = distanceForProduct(b);
+                    return (da === null ? Infinity : da) - (db === null ? Infinity : db);
+                }
+                return 0;
+            });
+
+            productGrid.innerHTML = '';
+
+            if (filtered.length === 0) {
+                noResults.classList.remove('hidden');
+            } else {
+                noResults.classList.add('hidden');
+                filtered.forEach(product => {
+                    const card = document.createElement('a');
+                    card.href = `#/product?id=${product.id}`;
+                    card.className = 'product-card';
+                    card.style.textDecoration = 'none';
+                    card.style.color = 'inherit';
+
+                    const dist = currentSort === 'nearest' ? distanceForProduct(product) : null;
+                    const distanceBadge = dist !== null ? `<div class="product-distance">${Math.round(dist)} km away</div>` : '';
+
+                    card.innerHTML = `
+                        <img src="${getProductThumbnail(product)}" alt="${product.title}" class="product-image">
+                        <div class="product-details">
+                            <div class="product-meta">
+                                <span class="product-condition">${formatDuration(product.monthsUsed)} Used</span>
+                                <span class="product-location">📍 ${product.location}</span>
+                            </div>
+                            ${distanceBadge}
+                            <h4 class="product-title">${product.title}</h4>
+                            <div class="product-footer">
+                                <div class="price-container"><span class="current-price">₹${product.price}</span></div>
+                                <button class="add-btn" aria-label="View details">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    productGrid.appendChild(card);
+                });
+            }
+        }
+
+        searchInput.value = currentSearch;
+        locationInput.value = currentLocation;
+        categoryButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.category === currentCategory));
+
+        attachAutocomplete(searchInput, productSuggestions, (value) => { currentSearch = value; renderProducts(); });
+        attachAutocomplete(locationInput, locationSuggestions, (value) => {
+            currentLocation = value;
+            const coords = coordsForLocation(value);
+            if (coords) setOrigin(coords, value);
+            renderProducts();
+        });
+
+        searchInput.addEventListener('input', (e) => { currentSearch = e.target.value; renderProducts(); });
+        locationInput.addEventListener('input', (e) => { currentLocation = e.target.value; renderProducts(); });
+
+        categoryButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                categoryButtons.forEach(b => b.classList.remove('active'));
+                const target = e.currentTarget;
+                target.classList.add('active');
+                currentCategory = target.dataset.category;
+                renderProducts();
+            });
+        });
+
+        sortSelect.addEventListener('change', (e) => {
+            currentSort = e.target.value;
+            if (currentSort === 'nearest' && !originCoords) {
+                proximityStatus.textContent = '📍 Pick "Use My Location" or type a city in Location to sort by proximity.';
+                proximityStatus.classList.remove('hidden');
+            }
+            renderProducts();
+        });
+
+        nearMeBtn.addEventListener('click', () => {
+            if (!navigator.geolocation) {
+                proximityStatus.textContent = "Geolocation isn't supported by this browser — try picking a city in Location instead.";
+                proximityStatus.classList.remove('hidden');
+                return;
+            }
+            nearMeBtn.textContent = '📍 Locating…';
+            nearMeBtn.disabled = true;
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    setOrigin({ lat: pos.coords.latitude, lng: pos.coords.longitude }, 'your current location');
+                    currentSort = 'nearest';
+                    sortSelect.value = 'nearest';
+                    nearMeBtn.textContent = '📍 Use My Location';
+                    nearMeBtn.disabled = false;
+                    renderProducts();
+                },
+                () => {
+                    proximityStatus.textContent = "Couldn't access your location — pick a city in Location to sort by proximity instead.";
+                    proximityStatus.classList.remove('hidden');
+                    nearMeBtn.textContent = '📍 Use My Location';
+                    nearMeBtn.disabled = false;
+                },
+                { timeout: 8000 }
+            );
+        });
+
+        renderProducts();
+    }
+
+    // ===================================================================
+    // PAGE: product (from product.html + product.js)
+    // ===================================================================
+    function buildEmiSectionHtml(price) {
+        if (price < 20000) return '';
+        const bodyRows = emiFinanciers.map(f => `
+            <tr>
+                <td>${f.name}<br><span class="spec-key">${f.rate}% p.a.</span></td>
+                ${emiTenures.map(m => `<td>₹${calculateEMI(price, f.rate, m).toLocaleString('en-IN')}/mo</td>`).join('')}
+            </tr>
+        `).join('');
+        return `
+            <div class="emi-section">
+                <h3>EMI Options</h3>
+                <p class="form-hint" style="margin-bottom:12px;">Estimated monthly instalments for ₹${price.toLocaleString('en-IN')} across partnered financiers.</p>
+                <div class="emi-table-wrap">
+                    <table class="emi-table">
+                        <thead>
+                            <tr><th>Financier</th><th>6 months</th><th>1 year</th><th>2 years</th></tr>
+                        </thead>
+                        <tbody>${bodyRows}</tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderProductRoute(root, params) {
+        const productId = parseInt(params.get('id'));
+        const product = products.find(p => p.id === productId);
+
+        if (!product) {
+            root.innerHTML = '<h2>Product not found</h2><a href="#/" class="btn-primary" style="display:inline-block; margin-top:16px;">Go Back</a>';
+            return;
+        }
+
+        let specsHtml = '';
+        for (const [key, value] of Object.entries(product.specs)) {
+            specsHtml += `<div class="spec-row"><span class="spec-key">${key}</span><span class="spec-val">${value}</span></div>`;
+        }
+
+        const images = getProductImages(product);
+        const thumbsHtml = images.map((img, idx) => `
+            <button class="product-thumbnail${idx === 0 ? ' active' : ''}" data-idx="${idx}" aria-label="${img.label}">
+                <img src="${img.src}" alt="${img.label}">
+            </button>
+        `).join('');
+
+        root.innerHTML = `
+            <div class="product-layout">
+                <div class="product-main-col">
+                    <div class="product-image-large">
+                        <img id="mainProductImage" src="${images[0].src}" alt="${product.title} - ${images[0].label}">
+                    </div>
+                    <div class="product-thumbnails" id="productThumbnails">${thumbsHtml}</div>
+
+                    <div class="product-info-card">
+                        <h2>${product.title}</h2>
+                        <div class="product-meta large">
+                            <span class="product-condition">${formatDuration(product.monthsUsed)} Used</span>
+                            <span class="product-location">📍 ${product.location}</span>
+                        </div>
+
+                        <div class="price-container large-price">
+                            <span class="current-price">₹${product.price}</span>
+                        </div>
+
+                        <div class="product-actions">
+                            <button id="buyBtn" class="btn-primary">Buy Now</button>
+                            <button id="compareBtn" class="btn-secondary compare-btn">Add to Compare</button>
+                        </div>
+                        <form id="offerForm" class="offer-form hidden">
+                            <p class="form-hint" style="margin-bottom:8px;">Give the seller a price range you're comfortable with — they'll pick a price within it.</p>
+                            <div class="offer-range-fields">
+                                <div class="form-field">
+                                    <label for="offerMin">Min (₹)</label>
+                                    <input type="number" id="offerMin" min="0" required>
+                                </div>
+                                <div class="form-field">
+                                    <label for="offerMax">Max (₹)</label>
+                                    <input type="number" id="offerMax" min="0" required>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn-primary">Send Offer to Seller</button>
+                        </form>
+                        <p id="buyConfirmation" class="buy-confirmation hidden"></p>
+
+                        <div class="specs-section">
+                            <h3>Specifications</h3>
+                            <div class="specs-grid">${specsHtml}</div>
+                        </div>
+
+                        ${buildEmiSectionHtml(product.price)}
+
+                        <div class="reason-section">
+                            <h3>Reason for Selling</h3>
+                            <p>"${product.reasonForSelling}"</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="product-sidebar">
+                    <div class="seller-card">
+                        <div class="seller-header">
+                            <div class="seller-avatar">${product.sellerName.charAt(0)}</div>
+                            <div>
+                                <h3>${product.sellerName}</h3>
+                                <p class="seller-history">Sold ${product.sellerHistory} items previously</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chat-widget">
+                        <div class="chat-header">
+                            <button class="chat-tab active" id="tabSeller">Chat with Seller</button>
+                            <button class="chat-tab" id="tabSupport">Bazaarin Support</button>
+                        </div>
+                        <div id="sellerEscalation" class="escalation-banner hidden">
+                            <p>It's been over a day since you messaged ${product.sellerName} with no reply.</p>
+                            <button type="button" id="escalateBtn" class="btn-secondary">Get Help from Bazaarin Support</button>
+                        </div>
+                        <div class="chat-body" id="chatBody"></div>
+                        <div class="chat-input-area">
+                            <input type="text" id="chatInput" placeholder="Type a message...">
+                            <button id="sendBtn" class="btn-primary">Send</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        const buyBtn = document.getElementById('buyBtn');
+        const compareBtn = document.getElementById('compareBtn');
+        const buyConfirmation = document.getElementById('buyConfirmation');
+        const offerForm = document.getElementById('offerForm');
+
+        buyBtn.addEventListener('click', () => {
+            buyBtn.disabled = true;
+            offerForm.classList.remove('hidden');
+        });
+
+        function updateCompareBtn() {
+            const added = isInCompare(product.id);
+            compareBtn.textContent = added ? '✓ Added to Compare' : 'Add to Compare';
+            compareBtn.classList.toggle('active', added);
+        }
+        updateCompareBtn();
+
+        compareBtn.addEventListener('click', () => {
+            if (isInCompare(product.id)) {
+                removeFromCompare(product.id);
+            } else if (!addToCompare(product.id)) {
+                alert(`You can compare up to ${COMPARE_LIMIT} products at a time — remove one from the compare bar first.`);
+            }
+            updateCompareBtn();
+        });
+
+        const mainImage = document.getElementById('mainProductImage');
+        document.querySelectorAll('.product-thumbnail').forEach(thumb => {
+            thumb.addEventListener('click', () => {
+                const idx = parseInt(thumb.dataset.idx);
+                mainImage.src = images[idx].src;
+                mainImage.alt = `${product.title} - ${images[idx].label}`;
+                document.querySelectorAll('.product-thumbnail').forEach(t => t.classList.remove('active'));
+                thumb.classList.add('active');
+            });
+        });
+
+        const tabSeller = document.getElementById('tabSeller');
+        const tabSupport = document.getElementById('tabSupport');
+        const chatBody = document.getElementById('chatBody');
+        const sendBtn = document.getElementById('sendBtn');
+        const chatInput = document.getElementById('chatInput');
+        const sellerEscalation = document.getElementById('sellerEscalation');
+        const escalateBtn = document.getElementById('escalateBtn');
+
+        const sellerGreeting = { role: 'received', text: `Hi! I'm ${product.sellerName}. Feel free to ask me anything about the ${product.title}.` };
+        const supportGreeting = { role: 'received support-msg', text: 'Hello! Bazaarin Support here. How can we help you with this transaction?' };
+        let sellerThread = [sellerGreeting];
+        let supportThread = [supportGreeting];
+        let activeTab = 'seller';
+
+        function renderChat() {
+            const thread = activeTab === 'seller' ? sellerThread : supportThread;
+            chatBody.innerHTML = thread.map(m => `<div class="chat-message ${m.role}">${m.text}</div>`).join('');
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        function updateEscalation() {
+            if (activeTab === 'seller' && hasStaleUnansweredQuery(product.id, 24)) {
+                sellerEscalation.classList.remove('hidden');
+            } else {
+                sellerEscalation.classList.add('hidden');
+            }
+        }
+
+        renderChat();
+        updateEscalation();
+
+        tabSeller.addEventListener('click', () => {
+            activeTab = 'seller';
+            tabSeller.classList.add('active');
+            tabSupport.classList.remove('active');
+            chatInput.value = '';
+            renderChat();
+            updateEscalation();
+        });
+
+        tabSupport.addEventListener('click', () => {
+            activeTab = 'support';
+            tabSupport.classList.add('active');
+            tabSeller.classList.remove('active');
+            chatInput.value = '';
+            renderChat();
+            updateEscalation();
+        });
+
+        escalateBtn.addEventListener('click', () => {
+            tabSupport.click();
+            chatInput.value = `I haven't heard back from the seller about the ${product.title} in over a day — can you help?`;
+            chatInput.focus();
+        });
+
+        function sendMessage(text, options) {
+            options = options || {};
+            if (!text.trim()) return;
+            const isSupport = activeTab === 'support';
+            const thread = isSupport ? supportThread : sellerThread;
+            thread.push({ role: 'sent', text });
+            renderChat();
+
+            if (!isSupport) {
+                const buyer = getCurrentUser() ? getCurrentUser().name : null;
+                recordBuyerMessage(product, buyer, text);
+            }
+
+            if (options.skipAutoReply) return;
+
+            setTimeout(() => {
+                const replyText = isSupport
+                    ? getSupportReply(text)
+                    : "Thanks for reaching out! We'll get back to you shortly.";
+                thread.push({ role: isSupport ? 'received support-msg' : 'received', text: replyText });
+                renderChat();
+                updateEscalation();
+            }, 1000);
+        }
+
+        sendBtn.addEventListener('click', () => {
+            const text = chatInput.value;
+            chatInput.value = '';
+            sendMessage(text);
+        });
+        chatInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const text = chatInput.value;
+                chatInput.value = '';
+                sendMessage(text);
+            }
+        });
+
+        offerForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const min = parseInt(document.getElementById('offerMin').value) || 0;
+            const max = parseInt(document.getElementById('offerMax').value) || 0;
+            if (min <= 0 || max <= 0 || max < min) {
+                alert('Enter a valid price range (max should be at least your min).');
+                return;
+            }
+
+            offerForm.classList.add('hidden');
+            buyBtn.textContent = '✅ Offer Sent';
+            buyConfirmation.textContent = `Your offer of ₹${min}–₹${max} was sent to ${product.sellerName} — check "Chat with Seller" for their response. (This is a demo — no real order or payment is processed.)`;
+            buyConfirmation.classList.remove('hidden');
+
+            tabSeller.click();
+            sendMessage(`Hi, I'd like to buy this — my budget is ₹${min} to ₹${max}. Could we settle on a price in that range?`, { skipAutoReply: true });
+
+            const chosen = Math.max(min, Math.min(max, Math.round((min + (max - min) * 0.65) / 500) * 500));
+            setTimeout(() => {
+                sellerThread.push({ role: 'received', text: `Thanks for the offer! I can do ₹${chosen} for this — let's go ahead at that price.` });
+                renderChat();
+            }, 1600);
+        });
+    }
+
+    // ===================================================================
+    // PAGE: compare (from compare.html + compare.js)
+    // ===================================================================
+    function renderCompareRoute(root) {
+        root.innerHTML = `
+            <h3 class="section-title">Compare Products</h3>
+            <div id="compareContent"></div>
+        `;
+        renderComparePage(document.getElementById('compareContent'));
+    }
+
+    // ===================================================================
+    // PAGE: sell (from sell.html + sell.js)
+    // ===================================================================
+    function renderSellRoute(root) {
+        const user = getCurrentUser();
+        if (!user) {
+            root.innerHTML = `
+                <div class="sell-gate">
+                    <h2>Sign in as a Seller to sell</h2>
+                    <p class="hero-subtitle">You need a Seller account before you can list a device on Bazaarin.</p>
+                    <a href="#/signin?redirect=sell&role=seller" class="btn-primary large" style="display:inline-block; margin-top:16px;">Sign In as a Seller</a>
+                </div>
+            `;
+            return;
+        }
+        if (user.accountType !== 'seller') {
+            root.innerHTML = `
+                <div class="sell-gate">
+                    <h2>This is a seller-only area</h2>
+                    <p class="hero-subtitle">You're signed in as ${user.name} (Customer account). Bazaarin keeps Customer and Seller accounts separate — switch to a Seller account to list an item.</p>
+                    <button type="button" id="switchToSellerBtn" class="btn-primary large" style="margin-top:16px;">Switch to Seller Account</button>
+                </div>
+            `;
+            document.getElementById('switchToSellerBtn').addEventListener('click', () => {
+                logout();
+                location.hash = '#/signin?redirect=sell&role=seller';
+            });
+            return;
+        }
+
+        root.innerHTML = `
+            <h2 class="section-title">Sell Your Device</h2>
+            <form id="sellForm" class="sell-form" style="max-width:640px;">
+                <div class="sell-section">
+                    <h3>1. What are you selling?</h3>
+                    <div class="category-grid">
+                        <button type="button" class="category-card sell-category-option" data-category="Laptops">Laptop</button>
+                        <button type="button" class="category-card sell-category-option" data-category="Mobiles">Mobile</button>
+                    </div>
+                </div>
+
+                <div class="sell-section">
+                    <h3>2. Brand</h3>
+                    <div class="form-field">
+                        <select id="sellBrand" disabled required>
+                            <option value="">Choose Laptop or Mobile first</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="sell-section">
+                    <h3>3. Model</h3>
+                    <div class="form-field">
+                        <input type="text" id="sellModel" placeholder="e.g. MacBook Air M2 or iPhone 13" required>
+                    </div>
+                </div>
+
+                <div class="sell-section">
+                    <h3>4. Specifications</h3>
+                    <div class="auto-specs" id="sellAutoSpecs">
+                        <p class="no-results" style="padding:0;">Pick a brand and model to auto-fill the rest of the spec sheet.</p>
+                    </div>
+                    <div class="specs-grid">
+                        <div class="spec-row">
+                            <label class="spec-key" for="sellRam">RAM</label>
+                            <select id="sellRam" disabled required>
+                                <option value="">Pick a brand first</option>
+                            </select>
+                        </div>
+                        <div class="spec-row">
+                            <label class="spec-key" for="sellStorage">Storage</label>
+                            <select id="sellStorage" disabled required>
+                                <option value="">Pick a brand first</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sell-section">
+                    <h3>5. Time Used</h3>
+                    <div class="form-field">
+                        <label for="sellMonths">Months used</label>
+                        <input type="number" id="sellMonths" min="0" max="240" placeholder="e.g. 14" required>
+                    </div>
+                    <p id="sellMonthsPreview" class="form-hint hidden"></p>
+                </div>
+
+                <div class="sell-section">
+                    <h3>6. Asking Price</h3>
+                    <div class="form-field">
+                        <label for="sellPrice">Price (₹)</label>
+                        <input type="number" id="sellPrice" min="0" placeholder="e.g. 45000" required>
+                    </div>
+                </div>
+
+                <div class="sell-section">
+                    <h3>7. Location</h3>
+                    <div class="form-field">
+                        <select id="sellLocation" required></select>
+                    </div>
+                </div>
+
+                <div class="sell-section">
+                    <h3>8. Reason for Selling</h3>
+                    <div class="form-field">
+                        <textarea id="sellReason" rows="3" placeholder="Tell buyers why you're selling..." required></textarea>
+                    </div>
+                </div>
+
+                <div class="sell-section">
+                    <h3>9. Upload a Live Photo</h3>
+                    <p class="hero-subtitle" style="font-size:0.9rem; margin-bottom:0;">Take a photo with your camera, or upload one if the camera isn't available.</p>
+                    <video id="cameraPreview" autoplay playsinline class="camera-preview hidden"></video>
+                    <img id="capturedPreview" class="captured-preview hidden" alt="Captured device photo">
+                    <canvas id="captureCanvas" class="hidden"></canvas>
+                    <div class="sell-photo-actions">
+                        <button type="button" id="startCameraBtn" class="btn-secondary">📷 Take Live Photo</button>
+                        <button type="button" id="captureBtn" class="btn-primary hidden">Capture</button>
+                        <button type="button" id="retakeBtn" class="btn-secondary hidden">Retake</button>
+                        <label for="fileUploadInput" class="btn-secondary" style="cursor:pointer;">Upload a File Instead</label>
+                        <input type="file" id="fileUploadInput" accept="image/*" class="hidden">
+                    </div>
+                    <p id="cameraError" class="camera-error hidden"></p>
+                </div>
+
+                <button type="submit" class="btn-primary large">List My Item</button>
+            </form>
+        `;
+
+        let selectedCategory = null;
+        let capturedImageData = null;
+        let mediaStream = null;
+
+        const categoryButtons = document.querySelectorAll('.sell-category-option');
+        const brandSelect = document.getElementById('sellBrand');
+        const modelInput = document.getElementById('sellModel');
+        const autoSpecsEl = document.getElementById('sellAutoSpecs');
+        const ramSelect = document.getElementById('sellRam');
+        const storageSelect = document.getElementById('sellStorage');
+        const monthsInput = document.getElementById('sellMonths');
+        const monthsPreview = document.getElementById('sellMonthsPreview');
+        const locationSelect = document.getElementById('sellLocation');
+
+        locationSelect.innerHTML = cities.map(c => `<option value="${c}">${c}</option>`).join('');
+
+        let autoSpecs = {};
+
+        function specPoolFor(category, brand) {
+            const pools = category === 'Laptops' ? laptopSpecPools : mobileSpecPools;
+            return pools[brand];
+        }
+
+        function updateAutoSpecs() {
+            const pool = specPoolFor(selectedCategory, brandSelect.value);
+            if (!pool) {
+                autoSpecsEl.innerHTML = '<p class="no-results" style="padding:0;">Pick a brand and model to auto-fill the rest of the spec sheet.</p>';
+                autoSpecs = {};
+                return;
+            }
+            const modelText = modelInput.value.trim();
+            const seedBase = `${brandSelect.value}|${modelText.toLowerCase()}`;
+            autoSpecs = {};
+            Object.keys(pool).forEach(key => {
+                if (key === 'RAM' || key === 'Storage') return;
+                autoSpecs[key] = matchOptionFromText(modelText, pool[key]) || pickDeterministic(seedBase + '|' + key, pool[key]);
+            });
+            autoSpecsEl.innerHTML = Object.entries(autoSpecs).map(([key, val]) => `
+                <div class="auto-spec-pill"><strong>${key}:</strong> ${val} <span class="form-hint">(auto-detected)</span></div>
+            `).join('');
+        }
+
+        function populateRamStorage() {
+            const pool = specPoolFor(selectedCategory, brandSelect.value);
+            if (!pool) {
+                ramSelect.disabled = true;
+                storageSelect.disabled = true;
+                ramSelect.innerHTML = '<option value="">Pick a brand first</option>';
+                storageSelect.innerHTML = '<option value="">Pick a brand first</option>';
+                return;
+            }
+            ramSelect.disabled = false;
+            storageSelect.disabled = false;
+            ramSelect.innerHTML = pool.RAM.map(opt => `<option value="${opt}">${opt}</option>`).join('');
+            storageSelect.innerHTML = pool.Storage.map(opt => `<option value="${opt}">${opt}</option>`).join('');
+        }
+
+        categoryButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                categoryButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedCategory = btn.dataset.category;
+
+                const pools = selectedCategory === 'Laptops' ? laptopSpecPools : mobileSpecPools;
+                brandSelect.disabled = false;
+                brandSelect.innerHTML = '<option value="">Select a brand</option>' +
+                    Object.keys(pools).map(b => `<option value="${b}">${b}</option>`).join('');
+                populateRamStorage();
+                updateAutoSpecs();
+            });
+        });
+
+        brandSelect.addEventListener('change', () => {
+            populateRamStorage();
+            updateAutoSpecs();
+        });
+        modelInput.addEventListener('input', updateAutoSpecs);
+
+        monthsInput.addEventListener('input', (e) => {
+            const val = parseInt(e.target.value);
+            if (isNaN(val) || val < 0) { monthsPreview.classList.add('hidden'); return; }
+            monthsPreview.textContent = `Will show as "${formatDuration(val)} Used" on your listing.`;
+            monthsPreview.classList.remove('hidden');
+        });
+
+        const video = document.getElementById('cameraPreview');
+        const canvas = document.getElementById('captureCanvas');
+        const capturedPreview = document.getElementById('capturedPreview');
+        const startCameraBtn = document.getElementById('startCameraBtn');
+        const captureBtn = document.getElementById('captureBtn');
+        const retakeBtn = document.getElementById('retakeBtn');
+        const fileInput = document.getElementById('fileUploadInput');
+        const cameraError = document.getElementById('cameraError');
+
+        function stopCamera() {
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(t => t.stop());
+                mediaStream = null;
+            }
+        }
+
+        function squareDataUrlFromSource(source, sw, sh) {
+            const size = 480;
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            const side = Math.min(sw, sh);
+            ctx.drawImage(source, (sw - side) / 2, (sh - side) / 2, side, side, 0, 0, size, size);
+            return canvas.toDataURL('image/jpeg', 0.7);
+        }
+
+        function showCaptured(dataUrl) {
+            capturedImageData = dataUrl;
+            capturedPreview.src = dataUrl;
+            capturedPreview.classList.remove('hidden');
+            video.classList.add('hidden');
+            captureBtn.classList.add('hidden');
+            startCameraBtn.classList.add('hidden');
+            retakeBtn.classList.remove('hidden');
+            stopCamera();
+        }
+
+        startCameraBtn.addEventListener('click', async () => {
+            cameraError.classList.add('hidden');
+            try {
+                mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                video.srcObject = mediaStream;
+                video.classList.remove('hidden');
+                startCameraBtn.classList.add('hidden');
+                captureBtn.classList.remove('hidden');
+            } catch (err) {
+                cameraError.textContent = "Couldn't access your camera — use \"Upload a File Instead\" below.";
+                cameraError.classList.remove('hidden');
+            }
+        });
+
+        captureBtn.addEventListener('click', () => {
+            showCaptured(squareDataUrlFromSource(video, video.videoWidth, video.videoHeight));
+        });
+
+        retakeBtn.addEventListener('click', () => {
+            capturedImageData = null;
+            capturedPreview.classList.add('hidden');
+            retakeBtn.classList.add('hidden');
+            startCameraBtn.classList.remove('hidden');
+            fileInput.value = '';
+        });
+
+        fileInput.addEventListener('change', () => {
+            const file = fileInput.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => showCaptured(squareDataUrlFromSource(img, img.width, img.height));
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        document.getElementById('sellForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            if (!selectedCategory) { alert('Please choose Laptop or Mobile.'); return; }
+            if (!brandSelect.value) { alert('Please choose a brand.'); return; }
+            if (!capturedImageData) { alert('Please add a photo of your device.'); return; }
+
+            const specs = Object.assign({}, autoSpecs, {
+                RAM: ramSelect.value,
+                Storage: storageSelect.value
+            });
+
+            const monthsUsed = parseInt(monthsInput.value) || 0;
+            const price = parseInt(document.getElementById('sellPrice').value) || 0;
+            const model = document.getElementById('sellModel').value.trim();
+
+            const listing = {
+                title: `${brandSelect.value} ${model}`,
+                brand: brandSelect.value,
+                category: selectedCategory,
+                monthsUsed,
+                location: locationSelect.value,
+                price,
+                originalPrice: price,
+                specs,
+                reasonForSelling: document.getElementById('sellReason').value.trim(),
+                sellerName: getCurrentUser().name,
+                sellerHistory: 0,
+                userImage: capturedImageData
+            };
+
+            const existingBefore = JSON.parse(localStorage.getItem('bazaarin_user_listings') || '[]');
+            const baseCatalogCount = products.length - existingBefore.length;
+            existingBefore.push(listing);
+            localStorage.setItem('bazaarin_user_listings', JSON.stringify(existingBefore));
+
+            const newId = baseCatalogCount + existingBefore.length;
+            // The in-memory catalog is only built once at page load in this
+            // single-page app (unlike the old multi-page site, where every
+            // navigation re-ran data.js) — push the new listing in directly so
+            // it's there the instant we jump to its product page below.
+            products.push(Object.assign({}, listing, { id: newId }));
+            location.hash = `#/product?id=${newId}`;
+        });
+    }
+
+    // ===================================================================
+    // PAGE: seller dashboard (from seller.html + seller.js)
+    // ===================================================================
+    function renderSellerRoute(root) {
+        const user = getCurrentUser();
+        if (!user) {
+            root.innerHTML = `
+                <div class="sell-gate">
+                    <h2>Sign in as a Seller</h2>
+                    <p class="hero-subtitle">The Seller Dashboard is only available to Seller accounts.</p>
+                    <a href="#/signin?redirect=seller&role=seller" class="btn-primary large" style="display:inline-block; margin-top:16px;">Sign In as a Seller</a>
+                </div>
+            `;
+            return;
+        }
+        if (user.accountType !== 'seller') {
+            root.innerHTML = `
+                <div class="sell-gate">
+                    <h2>This is a seller-only area</h2>
+                    <p class="hero-subtitle">You're signed in as ${user.name} (Customer account). Bazaarin keeps Customer and Seller accounts separate — switch to a Seller account to see your dashboard.</p>
+                    <button type="button" id="switchToSellerBtn" class="btn-primary large" style="margin-top:16px;">Switch to Seller Account</button>
+                </div>
+            `;
+            document.getElementById('switchToSellerBtn').addEventListener('click', () => {
+                logout();
+                location.hash = '#/signin?redirect=seller&role=seller';
+            });
+            return;
+        }
+
+        renderSellerDashboard(root, user);
+    }
+
+    function renderSellerDashboard(root, user) {
+        const myListings = products.filter(p => p.sellerName === user.name);
+        const myQueries = queriesForSeller(user.name);
+
+        root.innerHTML = `
+            <h2 class="section-title">Seller Dashboard</h2>
+            <p class="hero-subtitle">Welcome back, ${user.name}.</p>
+
+            <div class="sell-section">
+                <h3>Your Listings (${myListings.length})</h3>
+                ${myListings.length === 0 ? `
+                    <p class="no-results" style="padding:24px 0;">You haven't listed anything yet. <a href="#/sell">List your first item</a>.</p>
+                ` : `
+                    <div class="product-grid">
+                        ${myListings.map(p => `
+                            <a href="#/product?id=${p.id}" class="product-card" style="text-decoration:none; color:inherit;">
+                                <img src="${getProductThumbnail(p)}" alt="${p.title}" class="product-image">
+                                <div class="product-details">
+                                    <div class="product-meta">
+                                        <span class="product-condition">${formatDuration(p.monthsUsed)} Used</span>
+                                        <span class="product-location">📍 ${p.location}</span>
+                                    </div>
+                                    <h4 class="product-title">${p.title}</h4>
+                                    <div class="product-footer">
+                                        <div class="price-container"><span class="current-price">₹${p.price}</span></div>
+                                    </div>
+                                </div>
+                            </a>
+                        `).join('')}
+                    </div>
+                `}
+            </div>
+
+            <div class="sell-section">
+                <h3>Customer Queries (${myQueries.length})</h3>
+                ${myQueries.length === 0 ? `
+                    <p class="no-results" style="padding:24px 0;">No customer messages yet.</p>
+                ` : `
+                    <div id="queriesList">
+                        ${myQueries.map(q => `
+                            <div class="query-item">
+                                <div class="query-meta">
+                                    <strong>${q.buyerName}</strong> asked about <a href="#/product?id=${q.productId}">${q.productTitle}</a>
+                                    <span class="form-hint">${formatRelativeTime(q.timestamp)}</span>
+                                </div>
+                                <p class="query-message">"${q.message}"</p>
+                                ${q.answered
+                                    ? '<span class="query-answered">✓ Marked as replied</span>'
+                                    : `<button type="button" class="btn-secondary query-reply-btn" data-query-id="${q.id}">Mark as Replied</button>`
+                                }
+                            </div>
+                        `).join('')}
+                    </div>
+                `}
+            </div>
+
+            <div class="sell-section">
+                <h3>Bazaarin Support for Sellers</h3>
+                <p class="hero-subtitle" style="margin-bottom:16px; font-size:0.95rem;">Questions about your listings or the platform? Chat with us here.</p>
+                <div class="chat-widget" style="max-width:500px; height:400px;">
+                    <div class="chat-body" id="sellerChatBody">
+                        <div class="chat-message received support-msg">Hi ${user.name}, this is Bazaarin Support for sellers. How can we help?</div>
+                    </div>
+                    <div class="chat-input-area">
+                        <input type="text" id="sellerChatInput" placeholder="Type a message...">
+                        <button id="sellerChatSend" class="btn-primary">Send</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.querySelectorAll('.query-reply-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                markQueryReplied(btn.dataset.queryId);
+                renderSellerDashboard(root, user);
+            });
+        });
+
+        const chatBody = document.getElementById('sellerChatBody');
+        const chatInput = document.getElementById('sellerChatInput');
+
+        function sendSellerMessage() {
+            const text = chatInput.value.trim();
+            if (!text) return;
+            chatBody.innerHTML += `<div class="chat-message sent">${text}</div>`;
+            chatInput.value = '';
+            chatBody.scrollTop = chatBody.scrollHeight;
+            setTimeout(() => {
+                chatBody.innerHTML += `<div class="chat-message received support-msg">${getSupportReply(text)}</div>`;
+                chatBody.scrollTop = chatBody.scrollHeight;
+            }, 1000);
+        }
+
+        document.getElementById('sellerChatSend').addEventListener('click', sendSellerMessage);
+        chatInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') sendSellerMessage();
+        });
+    }
+
+    // ===================================================================
+    // PAGE: sign in (from signin.html + signin.js)
+    // ===================================================================
+    function renderSigninRoute(root, params) {
+        root.innerHTML = `
+            <div class="auth-card">
+                <h2>Sign in to Bazaarin</h2>
+                <p id="introSubtitle" class="hero-subtitle">Are you here to buy or to sell?</p>
+
+                <div id="roleOptions" class="auth-options">
+                    <button type="button" id="roleCustomerBtn" class="auth-provider-btn mobile-btn">
+                        <span class="auth-provider-icon">B</span> I'm a Customer — I want to buy
+                    </button>
+                    <button type="button" id="roleSellerBtn" class="auth-provider-btn apple-btn">
+                        <span class="auth-provider-icon">S</span> I'm a Seller — I want to list items
+                    </button>
+                </div>
+
+                <div id="authOptions" class="auth-options hidden">
+                    <button type="button" id="googleBtn" class="auth-provider-btn google-btn">
+                        <span class="auth-provider-icon">G</span> Continue with Google
+                    </button>
+                    <button type="button" id="appleBtn" class="auth-provider-btn apple-btn">
+                        <span class="auth-provider-icon">A</span> Continue with Apple
+                    </button>
+                    <button type="button" id="mobileBtn" class="auth-provider-btn mobile-btn">
+                        <span class="auth-provider-icon">#</span> Continue with Mobile Number
+                    </button>
+                    <button type="button" class="auth-back-link" data-back-role>&larr; Back</button>
+                </div>
+
+                <div id="authConnecting" class="auth-connecting hidden">
+                    <p id="connectingText">Connecting…</p>
+                </div>
+
+                <form id="mobileForm" class="hidden">
+                    <div class="form-field">
+                        <label for="mobileNumber">Mobile Number</label>
+                        <input type="tel" id="mobileNumber" placeholder="e.g. 98765 43210" required>
+                    </div>
+                    <button type="submit" class="btn-primary large">Send OTP</button>
+                    <button type="button" class="auth-back-link" data-back>&larr; Use a different method</button>
+                </form>
+
+                <form id="otpForm" class="hidden">
+                    <div class="form-field">
+                        <label for="otpCode">Enter OTP</label>
+                        <input type="text" id="otpCode" placeholder="e.g. 1234" maxlength="6" required autocomplete="off">
+                    </div>
+                    <p class="form-hint">Demo mode — any code works, no OTP is actually sent.</p>
+                    <button type="submit" class="btn-primary large">Verify &amp; Continue</button>
+                    <button type="button" class="auth-back-link" data-back>&larr; Use a different method</button>
+                </form>
+
+                <form id="nameForm" class="hidden">
+                    <p id="nameFormNote" class="form-hint" style="margin-bottom:16px;"></p>
+                    <div class="form-field">
+                        <label for="displayName">Display Name</label>
+                        <input type="text" id="displayName" placeholder="e.g. Priya Sharma" required autocomplete="off">
+                    </div>
+                    <button type="submit" class="btn-primary large">Continue</button>
+                    <button type="button" class="auth-back-link" data-back>&larr; Use a different method</button>
+                </form>
+
+                <p class="form-hint" style="margin-top:24px;">This is a demo account system — no real Google or Apple sign-in happens, no OTP is sent, and no password is ever collected.</p>
+            </div>
+        `;
+
+        const introSubtitle = document.getElementById('introSubtitle');
+        const roleOptions = document.getElementById('roleOptions');
+        const authOptions = document.getElementById('authOptions');
+        const authConnecting = document.getElementById('authConnecting');
+        const connectingText = document.getElementById('connectingText');
+        const mobileForm = document.getElementById('mobileForm');
+        const otpForm = document.getElementById('otpForm');
+        const nameForm = document.getElementById('nameForm');
+        const nameFormNote = document.getElementById('nameFormNote');
+
+        const steps = [roleOptions, authOptions, authConnecting, mobileForm, otpForm, nameForm];
+        function showOnly(el) {
+            steps.forEach(s => s.classList.add('hidden'));
+            el.classList.remove('hidden');
+        }
+
+        let selectedRole = null;
+
+        function chooseRole(role) {
+            selectedRole = role;
+            introSubtitle.textContent = role === 'seller'
+                ? "Signing in as a Seller — choose how you'd like to continue."
+                : "Signing in as a Customer — choose how you'd like to continue.";
+            showOnly(authOptions);
+        }
+
+        document.getElementById('roleCustomerBtn').addEventListener('click', () => chooseRole('customer'));
+        document.getElementById('roleSellerBtn').addEventListener('click', () => chooseRole('seller'));
+
+        const presetRole = params.get('role');
+        if (presetRole === 'seller' || presetRole === 'customer') {
+            chooseRole(presetRole);
+        }
+
+        function goToNameStep(note) {
+            nameFormNote.textContent = note;
+            showOnly(nameForm);
+        }
+
+        document.getElementById('googleBtn').addEventListener('click', () => {
+            connectingText.textContent = 'Connecting to Google…';
+            showOnly(authConnecting);
+            setTimeout(() => {
+                goToNameStep("This demo can't pull a real Google profile — just confirm a display name to finish.");
+            }, 1000);
+        });
+
+        document.getElementById('appleBtn').addEventListener('click', () => {
+            connectingText.textContent = 'Connecting to Apple…';
+            showOnly(authConnecting);
+            setTimeout(() => {
+                goToNameStep("This demo can't pull a real Apple profile — just confirm a display name to finish.");
+            }, 1000);
+        });
+
+        document.getElementById('mobileBtn').addEventListener('click', () => {
+            showOnly(mobileForm);
+        });
+
+        mobileForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            showOnly(otpForm);
+        });
+
+        otpForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const phone = document.getElementById('mobileNumber').value.trim();
+            goToNameStep(`Verified ${phone} — enter a display name to finish.`);
+        });
+
+        nameForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('displayName').value.trim();
+            if (!name) return;
+            login(name, selectedRole);
+            const redirect = params.get('redirect');
+            location.hash = '#/' + (redirect || (selectedRole === 'seller' ? 'seller' : ''));
+        });
+
+        document.querySelectorAll('[data-back]').forEach(btn => {
+            btn.addEventListener('click', () => showOnly(authOptions));
+        });
+        document.querySelectorAll('[data-back-role]').forEach(btn => {
+            btn.addEventListener('click', () => showOnly(roleOptions));
+        });
+    }
+
+    // ===================================================================
+    // PAGE: staff login (from admin-login.html + admin-login.js)
+    // ===================================================================
+    function renderAdminLoginRoute(root) {
+        root.innerHTML = `
+            <div class="auth-card">
+                <h2>Bazaarin Staff Login</h2>
+                <p id="introSubtitle" class="hero-subtitle">Select your department to continue.</p>
+
+                <div id="deptOptions" class="auth-options">
+                    <button type="button" id="deptStatsBtn" class="auth-provider-btn mobile-btn">
+                        <span class="auth-provider-icon">📊</span> Stats & Analytics
+                    </button>
+                    <button type="button" id="deptSupportBtn" class="auth-provider-btn google-btn">
+                        <span class="auth-provider-icon">🎧</span> Tech Support
+                    </button>
+                    <button type="button" id="deptFinanceBtn" class="auth-provider-btn apple-btn">
+                        <span class="auth-provider-icon">💰</span> Finance Department
+                    </button>
+                </div>
+
+                <form id="nameForm" class="hidden">
+                    <p id="nameFormNote" class="form-hint" style="margin-bottom:16px;"></p>
+                    <div class="form-field">
+                        <label for="displayName">Staff Name</label>
+                        <input type="text" id="displayName" placeholder="e.g. Anita Rao" required autocomplete="off">
+                    </div>
+                    <button type="submit" class="btn-primary large">Continue</button>
+                    <button type="button" class="auth-back-link" id="backBtn">&larr; Back</button>
+                </form>
+
+                <p class="form-hint" style="margin-top:24px;">This is a demo account system — no real credential is collected.</p>
+            </div>
+        `;
+
+        const deptOptions = document.getElementById('deptOptions');
+        const nameForm = document.getElementById('nameForm');
+        const nameFormNote = document.getElementById('nameFormNote');
+
+        let selectedDept = null;
+
+        function chooseDept(dept) {
+            selectedDept = dept;
+            nameFormNote.textContent = `Signing in to ${deptLabels[dept]} — confirm a staff name to finish.`;
+            deptOptions.classList.add('hidden');
+            nameForm.classList.remove('hidden');
+        }
+
+        document.getElementById('deptStatsBtn').addEventListener('click', () => chooseDept('stats'));
+        document.getElementById('deptSupportBtn').addEventListener('click', () => chooseDept('techsupport'));
+        document.getElementById('deptFinanceBtn').addEventListener('click', () => chooseDept('finance'));
+
+        document.getElementById('backBtn').addEventListener('click', () => {
+            nameForm.classList.add('hidden');
+            deptOptions.classList.remove('hidden');
+        });
+
+        nameForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('displayName').value.trim();
+            if (!name) return;
+            login(name, 'admin', selectedDept);
+            location.hash = '#/admin';
+        });
+    }
+
+    // ===================================================================
+    // PAGE: admin dashboard (from admin.html + admin.js)
+    // ===================================================================
+    const DEMO_TOTAL_USERS = 8624;
+
+    function distinctSellerCount() {
+        return new Set(products.map(p => p.sellerName)).size;
+    }
+
+    function renderAdminRoute(root) {
+        const user = getCurrentUser();
+        if (!user) {
+            root.innerHTML = `
+                <div class="sell-gate">
+                    <h2>Staff Sign In Required</h2>
+                    <p class="hero-subtitle">The Admin area is only available to Bazaarin staff accounts.</p>
+                    <a href="#/admin-login" class="btn-primary large" style="display:inline-block; margin-top:16px;">Staff Sign In</a>
+                </div>
+            `;
+            return;
+        }
+        if (user.accountType !== 'admin') {
+            const accountLabel = user.accountType === 'seller' ? 'Seller' : 'Customer';
+            root.innerHTML = `
+                <div class="sell-gate">
+                    <h2>This is a staff-only area</h2>
+                    <p class="hero-subtitle">You're signed in as ${user.name} (${accountLabel} account). Sign in with a staff account to continue.</p>
+                    <button type="button" id="switchToStaffBtn" class="btn-primary large" style="margin-top:16px;">Switch to Staff Account</button>
+                </div>
+            `;
+            document.getElementById('switchToStaffBtn').addEventListener('click', () => {
+                logout();
+                location.hash = '#/admin-login';
+            });
+            return;
+        }
+
+        if (user.department === 'techsupport') renderTechSupport(root, user);
+        else if (user.department === 'finance') renderFinance(root, user);
+        else renderStats(root, user);
+    }
+
+    function renderStats(root, user) {
+        const totalFeedback = getQueries().length;
+        root.innerHTML = `
+            <span class="admin-dept-badge">${deptLabels[user.department]}</span>
+            <h2 class="section-title">Platform Stats</h2>
+            <p class="hero-subtitle" style="margin-bottom:24px;">Signed in as ${user.name}.</p>
+            <div class="admin-stats-grid">
+                <div class="stat-card">
+                    <span class="stat-value">${DEMO_TOTAL_USERS.toLocaleString('en-IN')}</span>
+                    <span class="stat-label">Registered Users</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value">${distinctSellerCount()}</span>
+                    <span class="stat-label">Active Sellers</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value">${products.length}</span>
+                    <span class="stat-label">Listed Products</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value">${totalFeedback}</span>
+                    <span class="stat-label">Buyer Feedback / Queries</span>
+                </div>
+            </div>
+            <p class="form-hint">Registered Users is a simulated platform-wide figure — this demo has no real backend or user registry. Sellers, Products, and Feedback are computed live from this session's catalog and query data.</p>
+        `;
+    }
+
+    function renderTechSupport(root, user) {
+        const allQueries = getQueries().slice().sort((a, b) => b.timestamp - a.timestamp);
+        root.innerHTML = `
+            <span class="admin-dept-badge">${deptLabels[user.department]}</span>
+            <h2 class="section-title">Tech Support Queue</h2>
+            <p class="hero-subtitle" style="margin-bottom:24px;">Signed in as ${user.name}.</p>
+            <div class="sell-section">
+                <h3>All Buyer Queries (${allQueries.length})</h3>
+                ${allQueries.length === 0 ? `
+                    <p class="no-results" style="padding:24px 0;">No queries yet.</p>
+                ` : `
+                    <div id="queriesList">
+                        ${allQueries.map(q => `
+                            <div class="query-item">
+                                <div class="query-meta">
+                                    <strong>${q.buyerName}</strong> asked <strong>${q.sellerName}</strong> about <a href="#/product?id=${q.productId}">${q.productTitle}</a>
+                                    <span class="form-hint">${formatRelativeTime(q.timestamp)}</span>
+                                </div>
+                                <p class="query-message">"${q.message}"</p>
+                                ${q.answered
+                                    ? '<span class="query-answered">✓ Resolved</span>'
+                                    : `<button type="button" class="btn-secondary query-reply-btn" data-query-id="${q.id}">Mark Resolved</button>`
+                                }
+                            </div>
+                        `).join('')}
+                    </div>
+                `}
+            </div>
+        `;
+        document.querySelectorAll('.query-reply-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                markQueryReplied(btn.dataset.queryId);
+                renderTechSupport(root, user);
+            });
+        });
+    }
+
+    function renderFinance(root, user) {
+        const laptops = products.filter(p => p.category === 'Laptops');
+        const mobiles = products.filter(p => p.category === 'Mobiles');
+        const totalValue = products.reduce((sum, p) => sum + p.price, 0);
+        const laptopValue = laptops.reduce((sum, p) => sum + p.price, 0);
+        const mobileValue = mobiles.reduce((sum, p) => sum + p.price, 0);
+        const emiEligible = products.filter(p => p.price >= 20000);
+        const avgEmi1yr = emiEligible.length
+            ? Math.round(emiEligible.reduce((sum, p) => sum + calculateEMI(p.price, 6, 12), 0) / emiEligible.length)
+            : 0;
+
+        root.innerHTML = `
+            <span class="admin-dept-badge">${deptLabels[user.department]}</span>
+            <h2 class="section-title">Finance Overview</h2>
+            <p class="hero-subtitle" style="margin-bottom:24px;">Signed in as ${user.name}.</p>
+            <div class="admin-stats-grid">
+                <div class="stat-card">
+                    <span class="stat-value">₹${totalValue.toLocaleString('en-IN')}</span>
+                    <span class="stat-label">Total Catalog Value</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value">₹${laptopValue.toLocaleString('en-IN')}</span>
+                    <span class="stat-label">Laptop Value (${laptops.length})</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value">₹${mobileValue.toLocaleString('en-IN')}</span>
+                    <span class="stat-label">Mobile Value (${mobiles.length})</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value">${emiEligible.length}</span>
+                    <span class="stat-label">EMI-Eligible Listings (&ge;₹20k)</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value">₹${avgEmi1yr.toLocaleString('en-IN')}/mo</span>
+                    <span class="stat-label">Avg. 1-Year EMI (6% p.a.)</span>
+                </div>
+            </div>
+            <p class="form-hint">Figures are computed live from this session's product catalog.</p>
+        `;
+    }
+
+    // ===================================================================
+    // PAGE: access portal (from portal.html) — deliberately not linked
+    // from anywhere in the app's nav or footer.
+    // ===================================================================
+    function renderPortalRoute(root) {
+        root.innerHTML = `
+            <div class="portal-card">
+                <span class="badge">Access Portal</span>
+                <h2 class="hero-title">Continue as&hellip;</h2>
+                <p class="hero-subtitle">Pick how you'd like to use Bazaarin.</p>
+
+                <div class="portal-options">
+                    <a href="#/signin?role=customer" class="portal-option buyer">
+                        <span class="portal-option-icon" aria-hidden="true">🛍️</span>
+                        <span class="portal-option-text">
+                            <strong>I'm a Buyer</strong>
+                            <small>Browse and buy certified refurbished electronics</small>
+                        </span>
+                    </a>
+                    <a href="#/signin?role=seller" class="portal-option seller">
+                        <span class="portal-option-icon" aria-hidden="true">🏷️</span>
+                        <span class="portal-option-text">
+                            <strong>I'm a Seller</strong>
+                            <small>List items and manage your Seller Dashboard</small>
+                        </span>
+                    </a>
+                    <a href="#/admin-login" class="portal-option staff">
+                        <span class="portal-option-icon" aria-hidden="true">🔐</span>
+                        <span class="portal-option-text">
+                            <strong>Staff Login</strong>
+                            <small>Tech Support, Finance, or Stats &amp; Analytics</small>
+                        </span>
+                    </a>
+                </div>
+
+                <p class="form-hint portal-note">This page is intentionally not linked from Bazaarin's public site. Real marketplaces (OLX included) don't put staff/admin sign-in on the customer-facing landing page either — it lives at a separate URL that only staff are given, so it never shows up for an ordinary visitor. Bookmark this page if you're on the Bazaarin team.</p>
+            </div>
+        `;
+    }
+
+    // ===================================================================
+    // INIT
+    // ===================================================================
+    window.addEventListener('hashchange', navigate);
+    document.addEventListener('DOMContentLoaded', navigate);
+    </script>
+</body>
+</html>
