@@ -77,7 +77,12 @@ const laptopModels = [
     { brand: 'Dell', line: 'XPS 13' },
     { brand: 'HP', line: 'Spectre x360' },
     { brand: 'Acer', line: 'Predator Helios 300' },
-    { brand: 'MSI', line: 'Stealth 15M' }
+    { brand: 'MSI', line: 'Stealth 15M' },
+    { brand: 'Apple', line: 'MacBook Pro 16' },
+    { brand: 'Dell', line: 'Inspiron 15' },
+    { brand: 'HP', line: 'Pavilion 15' },
+    { brand: 'Lenovo', line: 'IdeaPad Slim 5' },
+    { brand: 'Asus', line: 'Vivobook Pro 15' }
 ];
 
 // 17 distinct mobile listings, same guarantee.
@@ -98,7 +103,12 @@ const mobileModels = [
     { brand: 'Vivo', line: 'V23' },
     { brand: 'Oppo', line: 'Reno 6' },
     { brand: 'HTC', line: 'Desire 21' },
-    { brand: 'Redmi', line: 'Note 11' }
+    { brand: 'Redmi', line: 'Note 11' },
+    { brand: 'Samsung', line: 'Galaxy S22' },
+    { brand: 'Apple', line: 'iPhone 14' },
+    { brand: 'Redmi', line: 'Note 12 Pro' },
+    { brand: 'Vivo', line: 'Y100' },
+    { brand: 'OnePlus', line: '11R' }
 ];
 
 // Approximate real Indian launch MRP (₹) per model — the baseline that gets
@@ -114,6 +124,11 @@ const modelMRP = {
     'HP Spectre x360': 139990,
     'Acer Predator Helios 300': 119990,
     'MSI Stealth 15M': 109990,
+    'Apple MacBook Pro 16': 239900,
+    'Dell Inspiron 15': 54990,
+    'HP Pavilion 15': 64990,
+    'Lenovo IdeaPad Slim 5': 59990,
+    'Asus Vivobook Pro 15': 69990,
     'Apple iPhone 13': 69900,
     'Apple iPhone 12 Mini': 69900,
     'Apple iPhone 11': 54900,
@@ -130,7 +145,12 @@ const modelMRP = {
     'Vivo V23': 35990,
     'Oppo Reno 6': 32990,
     'HTC Desire 21': 16990,
-    'Redmi Note 11': 14999
+    'Redmi Note 11': 14999,
+    'Samsung Galaxy S22': 72999,
+    'Apple iPhone 14': 79900,
+    'Redmi Note 12 Pro': 24999,
+    'Vivo Y100': 20999,
+    'OnePlus 11R': 39999
 };
 
 // 5% compounding reduction per month of use — e.g. 14 months used on a
