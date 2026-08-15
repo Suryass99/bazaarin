@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Login | Bazaarin</title>
+    <meta name="description" content="Bazaarin staff sign-in for Stats & Analytics, Tech Support, and Finance.">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.cdnfonts.com/css/samarkan" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <svg class="logo-icon-svg" width="32" height="32" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M50 5 C 65 5, 95 35, 95 50 C 95 65, 65 95, 50 95 C 35 95, 5 65, 5 50 C 5 35, 35 5, 50 5 Z" stroke="#F59E0B" stroke-width="6" fill="none"/>
+                    <circle cx="50" cy="50" r="22" stroke="#F59E0B" stroke-width="6" fill="none"/>
+                    <path d="M34 34 L 66 66 M 34 66 L 66 34" stroke="#F59E0B" stroke-width="6" stroke-linecap="round"/>
+                    <circle cx="50" cy="20" r="6" fill="#F59E0B"/><circle cx="50" cy="80" r="6" fill="#F59E0B"/>
+                    <circle cx="20" cy="50" r="6" fill="#F59E0B"/><circle cx="80" cy="50" r="6" fill="#F59E0B"/>
+                </svg>
+                <h1 class="logo-text">bazaar<span class="logo-in">in</span></h1>
+            </a>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Back to Home</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container auth-page">
+        <div class="auth-card">
+            <h2>Bazaarin Staff Login</h2>
+            <p id="introSubtitle" class="hero-subtitle">Select your department to continue.</p>
+
+            <div id="deptOptions" class="auth-options">
+                <button type="button" id="deptStatsBtn" class="auth-provider-btn mobile-btn">
+                    <span class="auth-provider-icon">📊</span> Stats & Analytics
+                </button>
+                <button type="button" id="deptSupportBtn" class="auth-provider-btn google-btn">
+                    <span class="auth-provider-icon">🎧</span> Tech Support
+                </button>
+                <button type="button" id="deptFinanceBtn" class="auth-provider-btn apple-btn">
+                    <span class="auth-provider-icon">💰</span> Finance Department
+                </button>
+            </div>
+
+            <form id="nameForm" class="hidden">
+                <p id="nameFormNote" class="form-hint" style="margin-bottom:16px;"></p>
+                <div class="form-field">
+                    <label for="displayName">Staff Name</label>
+                    <input type="text" id="displayName" placeholder="e.g. Anita Rao" required autocomplete="off">
+                </div>
+                <button type="submit" class="btn-primary large">Continue</button>
+                <button type="button" class="auth-back-link" id="backBtn">&larr; Back</button>
+            </form>
+
+            <p class="form-hint" style="margin-top:24px;">This is a demo account system — no real credential is collected.</p>
+        </div>
+    </main>
+
+    <script src="auth.js"></script>
+    <script src="admin-login.js"></script>
+</body>
+</html>

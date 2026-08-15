@@ -1,9 +1,11 @@
 // Minimal mock auth — this is a static demo with no backend, so "signing in"
 // just stores a display name and an account type locally (no password, no
-// email, nothing resembling a real credential). Customer and Seller are
-// deliberately separate account types: a Customer account can browse, buy,
-// and chat with sellers, while a Seller account gets the Seller Dashboard
-// (their listings + customer queries) and can list items via Sell.
+// email, nothing resembling a real credential). Customer, Seller, and Admin
+// are deliberately separate account types: a Customer account can browse,
+// buy, and chat with sellers; a Seller account gets the Seller Dashboard
+// (their listings + customer queries) and can list items via Sell; an Admin
+// account gets the staff Admin dashboard, scoped to one of three
+// departments (stats, techsupport, finance) chosen at sign-in.
 const AUTH_KEY = 'bazaarin_user';
 
 function getCurrentUser() {
@@ -23,8 +25,16 @@ function isSeller() {
     return !!user && user.accountType === 'seller';
 }
 
-function login(name, accountType) {
-    localStorage.setItem(AUTH_KEY, JSON.stringify({ name, accountType: accountType === 'seller' ? 'seller' : 'customer' }));
+function isAdmin() {
+    const user = getCurrentUser();
+    return !!user && user.accountType === 'admin';
+}
+
+function login(name, accountType, department) {
+    const type = accountType === 'seller' ? 'seller' : accountType === 'admin' ? 'admin' : 'customer';
+    const user = { name, accountType: type };
+    if (type === 'admin') user.department = department;
+    localStorage.setItem(AUTH_KEY, JSON.stringify(user));
 }
 
 function logout() {
@@ -43,7 +53,7 @@ function applyAuthUI() {
     if (signInBtn) {
         if (user) {
             signInBtn.textContent = `Hi, ${user.name}`;
-            signInBtn.href = user.accountType === 'seller' ? 'seller.html' : 'index.html';
+            signInBtn.href = user.accountType === 'seller' ? 'seller.html' : user.accountType === 'admin' ? 'admin.html' : 'index.html';
         } else {
             signInBtn.textContent = 'Sign In';
             signInBtn.href = 'signin.html';

@@ -105,6 +105,17 @@ h1, h2, h3, h4 {
 
 .logo-icon-svg {
     filter: drop-shadow(0 2px 4px rgba(245, 158, 11, 0.4));
+    animation: logoSpin 14s linear infinite;
+    transform-origin: 50% 50%;
+}
+@keyframes logoSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .logo-icon-svg {
+        animation: none;
+    }
 }
 .logo-text {
     font-family: 'Samarkan', 'Dancing Script', cursive;
@@ -113,6 +124,16 @@ h1, h2, h3, h4 {
     font-weight: normal;
     color: var(--color-text-main);
     line-height: 1;
+}
+
+/* Indian tricolor applied only to the "in" of "bazaarin", blended as a
+   smooth gradient rather than hard stripes. */
+.logo-in {
+    background: linear-gradient(90deg, #FF9933 0%, #FFFFFF 50%, #138808 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
 }
 
 .navbar .logo-text {
@@ -626,6 +647,15 @@ h1, h2, h3, h4 {
 
 .footer p {
     color: var(--color-text-muted);
+}
+
+.footer-staff-link {
+    color: var(--color-text-muted);
+    text-decoration: underline;
+    font-size: 0.85rem;
+}
+.footer-staff-link:hover {
+    color: var(--color-primary);
 }
 
 /* --- Product Page --- */
@@ -1244,6 +1274,41 @@ h1, h2, h3, h4 {
     margin-bottom: 16px;
     color: var(--color-secondary);
     font-size: 1.1rem;
+}
+
+/* --- Admin Dashboard --- */
+.admin-dept-badge {
+    display: inline-block;
+    background: rgba(139, 92, 246, 0.1);
+    color: var(--color-secondary);
+    padding: 4px 12px;
+    border-radius: var(--radius-full);
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+}
+.admin-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 16px;
+}
+.stat-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-primary);
+}
+.stat-label {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
 }
 .sell-category-option {
     cursor: pointer;

@@ -1,19 +1,3 @@
-// EMI financiers — annual interest rates spread 4%-8%, reducing-balance EMI.
-const emiFinanciers = [
-    { name: 'Bajaj Finserv', rate: 4 },
-    { name: 'HDFC Bank', rate: 5 },
-    { name: 'IDFC First Bank', rate: 6 },
-    { name: 'ZestMoney', rate: 7 },
-    { name: 'Home Credit', rate: 8 }
-];
-const emiTenures = [6, 12, 24];
-
-function calculateEMI(principal, annualRatePercent, months) {
-    const r = annualRatePercent / 12 / 100;
-    const emi = principal * r * Math.pow(1 + r, months) / (Math.pow(1 + r, months) - 1);
-    return Math.round(emi);
-}
-
 function buildEmiSectionHtml(price) {
     if (price < 20000) return '';
     const bodyRows = emiFinanciers.map(f => `
