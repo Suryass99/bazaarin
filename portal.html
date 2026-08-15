@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Access Portal | Bazaarin</title>
+    <meta name="description" content="Bazaarin access portal — buyer, seller, and staff sign-in in one place.">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.cdnfonts.com/css/samarkan" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <svg class="logo-icon-svg" width="32" height="32" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="50" cy="50" r="22" stroke="#F59E0B" stroke-width="6" fill="none"/>
+                    <path d="M34 34 L 66 66 M 34 66 L 66 34" stroke="#F59E0B" stroke-width="6" stroke-linecap="round"/>
+                    <circle cx="50" cy="20" r="6" fill="#F59E0B"/><circle cx="50" cy="80" r="6" fill="#F59E0B"/>
+                    <circle cx="20" cy="50" r="6" fill="#F59E0B"/><circle cx="80" cy="50" r="6" fill="#F59E0B"/>
+                </svg>
+                <h1 class="logo-text">bazaar<span class="logo-in">in</span></h1>
+            </a>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Back to Home</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container portal-page">
+        <div class="portal-card">
+            <span class="badge">Access Portal</span>
+            <h2 class="hero-title">Continue as&hellip;</h2>
+            <p class="hero-subtitle">Pick how you'd like to use Bazaarin.</p>
+
+            <div class="portal-options">
+                <a href="signin.html?role=customer" class="portal-option buyer">
+                    <span class="portal-option-icon" aria-hidden="true">🛍️</span>
+                    <span class="portal-option-text">
+                        <strong>I'm a Buyer</strong>
+                        <small>Browse and buy certified refurbished electronics</small>
+                    </span>
+                </a>
+                <a href="signin.html?role=seller" class="portal-option seller">
+                    <span class="portal-option-icon" aria-hidden="true">🏷️</span>
+                    <span class="portal-option-text">
+                        <strong>I'm a Seller</strong>
+                        <small>List items and manage your Seller Dashboard</small>
+                    </span>
+                </a>
+                <a href="admin-login.html" class="portal-option staff">
+                    <span class="portal-option-icon" aria-hidden="true">🔐</span>
+                    <span class="portal-option-text">
+                        <strong>Staff Login</strong>
+                        <small>Tech Support, Finance, or Stats &amp; Analytics</small>
+                    </span>
+                </a>
+            </div>
+
+            <p class="form-hint portal-note">This page is intentionally not linked from Bazaarin's public site. Real marketplaces (OLX included) don't put staff/admin sign-in on the customer-facing landing page either — it lives at a separate URL that only staff are given, so it never shows up for an ordinary visitor. Bookmark this page if you're on the Bazaarin team.</p>
+        </div>
+    </main>
+
+    <script src="auth.js"></script>
+</body>
+</html>
