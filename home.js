@@ -1,9 +1,8 @@
-// The landing page is a scroll-driven perspective run, and it doubles as the
-// login gate. Scroll progress drives a camera that descends toward a ground
-// plane carrying three strips (violet centre, green sides); at the end of the
-// run the two account choices take the frame. Sellers and admins never see it
-// — they go straight to their dashboards.
-const landingTrack = document.getElementById('landingTrack');
+// The landing page is a perspective run that plays itself on load, and it
+// doubles as the login gate. A camera descends toward a ground plane carrying
+// three strips (violet centre, green sides); when the run settles, the two
+// account choices take the frame. Sellers and admins never see it — they go
+// straight to their dashboards.
 const trackStage = document.getElementById('trackStage');
 
 const homeUser = getCurrentUser();
@@ -20,9 +19,11 @@ if (homeUser && homeUser.accountType === 'customer') {
         `Welcome back, ${homeUser.name}. Pick up where you left off.`;
     const buy = document.getElementById('choiceBuy');
     buy.href = 'shop.html';
-    document.getElementById('choiceBuyNote').textContent = 'Browse the full catalogue';
+    document.getElementById('choiceBuyNote').textContent =
+        'Browse the full catalogue of tested, certified devices.';
     document.getElementById('choiceSell').href = 'sell.html';
-    document.getElementById('choiceSellNote').textContent = 'List a device of your own';
+    document.getElementById('choiceSellNote').textContent =
+        'List a device of your own and reach buyers across India.';
 }
 
 // --- The run -----------------------------------------------------------
@@ -38,7 +39,11 @@ const CAM_LOW = 0.7;     // camera height at the end (just above the tarmac)
 const DEPTH = 0.75;      // must match `perspective` on .track-stage
 const TRAVEL = 19;       // distance the floor slides toward the camera
 const WORD_GAP = 2.4;    // spacing between floor words along the plane
-const RUN_END = 0.75;    // scroll fraction at which the camera stops moving
+const RUN_END = 0.75;    // point in the run at which the camera stops moving
+
+// The run plays itself on load rather than being driven by scroll.
+const RUN_DURATION = 3400; // ms of camera movement
+const RUN_HOLD = 300;      // ms held on the opening frame before it starts
 
 const floorWords = Array.from(document.querySelectorAll('.floor-word'));
 const trackChoice = document.getElementById('trackChoice');
@@ -85,26 +90,33 @@ function drawTrack(progress) {
     });
 }
 
-if (reduceMotion) {
-    drawTrack(1);
-} else {
-    let queued = false;
-    const onScroll = () => {
-        if (queued) return;
-        queued = true;
-        requestAnimationFrame(() => {
-            queued = false;
-            const span = landingTrack.offsetHeight - window.innerHeight;
-            const progress = span > 0
-                ? clamp(-landingTrack.getBoundingClientRect().top / span, 0, 1)
-                : 1;
-            drawTrack(progress);
-        });
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
-    onScroll();
+// Remember where the run got to, so a resize can redraw the same frame at
+// the new viewport size instead of snapping.
+let runProgress = 0;
+
+function paint(progress) {
+    runProgress = progress;
+    drawTrack(progress);
 }
+
+if (reduceMotion) {
+    paint(1);
+} else {
+    paint(0);
+    // The clock starts on the first frame actually served rather than at
+    // parse time, so a page opened in a background tab still plays the run
+    // when it's brought forward instead of snapping to the finished frame.
+    let start = null;
+    const step = (now) => {
+        if (start === null) start = now;
+        const t = clamp((now - start - RUN_HOLD) / RUN_DURATION, 0, 1);
+        paint(t);
+        if (t < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+}
+
+window.addEventListener('resize', () => paint(runProgress));
 
 // Dropdown Menu Logic
 function toggleMenu() {

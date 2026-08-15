@@ -14,6 +14,32 @@ function formatDuration(months) {
 
 window.formatDuration = formatDuration;
 
+// Condition grade shown on product cards and the product page. Derived from
+// age alone — there's no inspection data behind it, it's just a friendlier
+// reading of "how long has this been in use" than a raw month count.
+function conditionGrade(months) {
+    const m = Math.max(0, Math.round(months));
+    if (m <= 6) return 'Like New';
+    if (m <= 14) return 'Excellent';
+    if (m <= 26) return 'Good';
+    return 'Fair';
+}
+
+window.conditionGrade = conditionGrade;
+
+// The one-line spec summary under a product title, e.g.
+// "16GB RAM • 512GB SSD • 14 Months used".
+function specSummary(product) {
+    const specs = product.specs || {};
+    const parts = [];
+    if (specs.RAM) parts.push(specs.RAM + ' RAM');
+    if (specs.Storage) parts.push(specs.Storage);
+    parts.push(formatDuration(product.monthsUsed) + ' used');
+    return parts.join(' • ');
+}
+
+window.specSummary = specSummary;
+
 // Deterministic (not random) text -> pick, so the same brand/model always
 // auto-fills the same spec instead of jittering on every keystroke.
 function hashText(str) {

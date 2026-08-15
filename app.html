@@ -10,27 +10,48 @@
     <style>
 /* --- Design System & Tokens --- */
 :root {
+    /* Surfaces. The page carries a faint violet-grey tint so that white
+       cards read as cards sitting on it; --color-bg stays pure white for
+       anything that should sit flush. --color-sunken is for the recessed
+       panels behind product photography and table headers. */
+    --color-page: #f4f5fb;
     --color-bg: #ffffff;
-    --color-surface: #f8fafc;
-    --color-surface-hover: #f1f5f9;
+    --color-surface: #ffffff;
+    --color-surface-hover: #f4f5fb;
+    --color-sunken: #e8eafa;
+
     --color-primary: #10b981;
     --color-primary-glow: rgba(16, 185, 129, 0.3);
     --color-secondary: #8b5cf6;
     --color-text-main: #0f172a;
     --color-text-muted: #475569;
-    --color-border: #e2e8f0;
+    --color-border: #e6e8f2;
     --color-success: #059669;
+
+    /* Brand accents, plus the pale tints used for badges and soft fills.
+       These are the same green/violet/orange the site has always used. */
+    --color-violet: #6d28d9;
+    --color-violet-soft: #ede9fe;
+    --color-green-deep: #054636;
+    --color-green-soft: #d6f5e6;
+    --color-orange: #f59e0b;
+    --color-orange-soft: #fef3c7;
 
     --font-main: 'Outfit', sans-serif;
 
-    --radius-sm: 0;
-    --radius-md: 0;
-    --radius-lg: 0;
-    --radius-full: 0;
+    /* Soft-cornered shape language, taken from the reference screens. To go
+       back to the previous fully square look, set all four to 0. */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-full: 9999px;
 
-    --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
-    --shadow-glow: 0 0 20px var(--color-primary-glow);
+    /* Light-theme shadows: these used to be near-black and far too heavy
+       for a white page. */
+    --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.08);
+    --shadow-md: 0 12px 32px rgba(15, 23, 42, 0.10);
+    --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.06);
+    --shadow-glow: 0 8px 22px rgba(5, 150, 105, 0.28);
 
     --transition-fast: 0.2s ease;
     --transition-smooth: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -45,7 +66,7 @@
 
 body {
     font-family: var(--font-main);
-    background-color: var(--color-bg);
+    background-color: var(--color-page);
     color: var(--color-text-main);
     line-height: 1.5;
     overflow-x: hidden;
@@ -170,6 +191,9 @@ h1, h2, h3, h4 {
     transition: var(--transition-fast);
 }
 
+/* 70/30 split: product search gets the lion's share, location is the narrow
+   second field. Both carry a min-width and a pixel flex-basis so they wrap
+   onto their own line instead of shrinking down to an unusable sliver. */
 .search-input-product {
     flex: 7 1 200px;
     min-width: 160px;
@@ -289,34 +313,180 @@ h1, h2, h3, h4 {
     font-size: 1.1rem;
 }
 
+/* The filled/outlined green pair — the primary action and the quieter one
+   sitting beneath it, as on the product page's Buy Now / Compare. */
 .btn-dark-green {
-    background: var(--color-success);
+    background: var(--color-green-deep);
     color: white;
-    padding: 10px 24px;
-    border-radius: 9999px;
+    padding: 12px 26px;
+    border-radius: var(--radius-full);
     font-weight: 600;
     box-shadow: var(--shadow-sm);
     transition: var(--transition-fast);
 }
 
 .btn-dark-green:hover {
+    background: #0a5c46;
     box-shadow: var(--shadow-glow);
     transform: translateY(-2px);
 }
 
 .btn-pale-green {
-    background: rgba(16, 185, 129, 0.12);
-    color: var(--color-success);
-    padding: 10px 24px;
-    border-radius: 9999px;
-    border: 1px solid rgba(16, 185, 129, 0.3);
+    background: var(--color-bg);
+    color: var(--color-green-deep);
+    padding: 12px 26px;
+    border-radius: var(--radius-full);
+    border: 1.5px solid var(--color-green-deep);
     font-weight: 600;
     transition: var(--transition-fast);
 }
 
 .btn-pale-green:hover {
-    background: rgba(16, 185, 129, 0.2);
+    background: var(--color-green-soft);
     transform: translateY(-2px);
+}
+
+/* Violet pill — the secondary accent action, e.g. "Use My Location". */
+.btn-violet {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--color-violet);
+    color: #ffffff;
+    padding: 11px 22px;
+    border-radius: var(--radius-full);
+    font-weight: 600;
+    font-size: 0.9rem;
+    letter-spacing: 0.3px;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition-fast);
+}
+
+.btn-violet:hover {
+    background: #5b21b6;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(109, 40, 217, 0.3);
+}
+
+/* Circular icon button — the arrow that sits in the corner of the landing
+   choice cards and anywhere else a bare directional control is needed. */
+.btn-circle {
+    width: 52px;
+    height: 52px;
+    border-radius: var(--radius-full);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #ffffff;
+    transition: var(--transition-fast);
+}
+
+/* --- Hero Section --- */
+.hero {
+    position: relative;
+    padding: 180px 24px 100px;
+    text-align: center;
+    overflow: hidden;
+    background: var(--color-bg);
+}
+
+.hero-curve {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    opacity: 0.4;
+    pointer-events: none;
+    will-change: transform;
+}
+
+/* Idle drift so the wave always feels like moving water, even before the
+   page scrolls — scroll adds a parallax offset via JS on top of this. */
+.hero-curve .wave-main {
+    animation: waterDriftMain 9s ease-in-out infinite;
+    transform-box: fill-box;
+    transform-origin: center;
+}
+.hero-curve .wave-blob {
+    animation: waterDriftBlob 6.5s ease-in-out infinite;
+    transform-box: fill-box;
+    transform-origin: center;
+}
+@keyframes waterDriftMain {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(-14px, 8px) scale(1.015); }
+}
+@keyframes waterDriftBlob {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(10px, -10px); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .hero-curve .wave-main,
+    .hero-curve .wave-blob {
+        animation: none;
+    }
+}
+
+/* Large faint logo mark slowly spinning behind the hero copy. */
+.hero-logo-spin {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    opacity: 0.08;
+    pointer-events: none;
+    animation: heroLogoSpin 40s linear infinite;
+}
+@keyframes heroLogoSpin {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .hero-logo-spin {
+        animation: none;
+    }
+}
+
+.hero-content {
+    position: relative;
+    z-index: 10;
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+}
+
+.badge {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--color-success);
+    padding: 6px 16px;
+    border-radius: var(--radius-full);
+    font-size: 0.875rem;
+    font-weight: 600;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.hero-title {
+    font-size: 4rem;
+    letter-spacing: -1px;
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+    color: var(--color-text-muted);
+    max-width: 600px;
+}
+
+.hero-actions {
+    display: flex;
+    gap: 16px;
+    margin-top: 16px;
 }
 
 /* --- Categories --- */
@@ -334,33 +504,35 @@ h1, h2, h3, h4 {
     gap: 16px;
     overflow-x: auto;
     padding-bottom: 8px;
-    scrollbar-width: none;
+    scrollbar-width: none; /* Firefox */
 }
 .category-grid::-webkit-scrollbar {
-    display: none;
+    display: none; /* Chrome */
 }
 
+/* Filter chips. The selected one fills with a pale green wash and deep
+   green text rather than a saturated block, so a row of them stays quiet. */
 .category-card {
     flex: 0 0 auto;
-    padding: 16px 32px;
+    padding: 11px 24px;
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-full);
     color: var(--color-text-main);
-    font-size: 1.1rem;
-    font-weight: 500;
+    font-size: 0.95rem;
+    font-weight: 600;
     transition: var(--transition-fast);
 }
 
 .category-card:hover {
     background: var(--color-surface-hover);
-    transform: translateY(-2px);
+    border-color: #cdd2e8;
 }
 
 .category-card.active {
-    background: var(--color-primary);
-    border-color: var(--color-primary);
-    box-shadow: var(--shadow-glow);
+    background: var(--color-green-soft);
+    border-color: rgba(5, 70, 54, 0.35);
+    color: var(--color-green-deep);
 }
 
 /* --- Products --- */
@@ -371,10 +543,16 @@ h1, h2, h3, h4 {
 .section-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-end;
     margin-bottom: 32px;
     flex-wrap: wrap;
     gap: 16px;
+}
+
+.section-subtitle {
+    margin-top: 4px;
+    color: var(--color-text-muted);
+    font-size: 1rem;
 }
 
 .section-header-controls {
@@ -396,11 +574,17 @@ h1, h2, h3, h4 {
     background: var(--color-surface);
     color: var(--color-text-main);
     border: 1px solid var(--color-border);
-    padding: 10px 16px;
+    padding: 11px 18px;
     border-radius: var(--radius-md);
     font-family: var(--font-main);
+    font-weight: 500;
     cursor: pointer;
     outline: none;
+    transition: var(--transition-fast);
+}
+
+.sort-dropdown select:hover {
+    border-color: #cdd2e8;
 }
 
 .product-grid {
@@ -417,24 +601,34 @@ h1, h2, h3, h4 {
     transition: var(--transition-smooth);
     display: flex;
     flex-direction: column;
+    box-shadow: var(--shadow-card);
 }
 
 .product-card:hover {
-    transform: translateY(-8px);
+    transform: translateY(-6px);
     box-shadow: var(--shadow-md);
-    border-color: rgba(139, 92, 246, 0.5);
+    border-color: rgba(109, 40, 217, 0.35);
+}
+
+/* The photo sits on a recessed tinted panel rather than being cropped edge
+   to edge, so devices of different shapes all sit consistently. */
+.product-image-wrap {
+    background: var(--color-sunken);
+    padding: 28px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 210px;
 }
 
 .product-image {
     width: 100%;
-    height: 220px;
-    object-fit: cover;
-    border-bottom: 1px solid var(--color-border);
-    background: #000;
+    max-height: 170px;
+    object-fit: contain;
 }
 
 .product-details {
-    padding: 24px;
+    padding: 20px 22px 22px;
     display: flex;
     flex-direction: column;
     flex-grow: 1;
@@ -443,30 +637,49 @@ h1, h2, h3, h4 {
 .product-meta {
     display: flex;
     justify-content: space-between;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-weight: 700;
-    margin-bottom: 8px;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
 }
 .product-condition {
-    color: var(--color-secondary);
+    background: var(--color-violet-soft);
+    color: var(--color-violet);
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    font-weight: 700;
+    white-space: nowrap;
 }
 .product-location {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
     color: var(--color-text-muted);
+    font-size: 0.8rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .product-distance {
     font-size: 0.75rem;
     font-weight: 700;
-    color: var(--color-primary);
+    color: var(--color-success);
     margin-bottom: 8px;
 }
 
 .product-title {
-    font-size: 1.25rem;
-    margin-bottom: 16px;
+    font-size: 1.15rem;
     line-height: 1.3;
+    margin-bottom: 6px;
+}
+
+.product-spec {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    margin-bottom: 18px;
 }
 
 .product-footer {
@@ -490,24 +703,27 @@ h1, h2, h3, h4 {
 .current-price {
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--color-success);
+    color: var(--color-green-deep);
 }
 
 .add-btn {
-    width: 40px;
-    height: 40px;
-    background: var(--color-bg);
+    width: 38px;
+    height: 38px;
+    background: var(--color-surface-hover);
     border: 1px solid var(--color-border);
+    border-radius: var(--radius-full);
     color: var(--color-text-main);
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
     transition: var(--transition-fast);
 }
 
 .product-card:hover .add-btn {
-    background: var(--color-primary);
-    border-color: var(--color-primary);
+    background: var(--color-violet);
+    border-color: var(--color-violet);
+    color: #ffffff;
 }
 
 .no-results {
@@ -557,18 +773,37 @@ h1, h2, h3, h4 {
     gap: 32px;
 }
 .product-image-large {
-    background: var(--color-surface);
+    position: relative;
+    background: var(--color-sunken);
     border-radius: var(--radius-lg);
     overflow: hidden;
-    margin-bottom: 24px;
+    margin-bottom: 16px;
     border: 1px solid var(--color-border);
+    padding: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .product-image-large img {
     width: 100%;
     height: auto;
-    max-height: 500px;
-    object-fit: cover;
+    max-height: 420px;
+    object-fit: contain;
     display: block;
+}
+.verified-badge {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--color-green-soft);
+    color: var(--color-green-deep);
+    padding: 7px 14px;
+    border-radius: var(--radius-full);
+    font-size: 0.78rem;
+    font-weight: 700;
 }
 .product-thumbnails {
     display: flex;
@@ -592,28 +827,65 @@ h1, h2, h3, h4 {
     object-fit: cover;
     display: block;
 }
+.product-thumbnail img {
+    object-fit: contain;
+    padding: 6px;
+    background: var(--color-sunken);
+}
 .product-thumbnail:hover {
-    border-color: rgba(16, 185, 129, 0.5);
+    border-color: rgba(5, 70, 54, 0.4);
 }
 .product-thumbnail.active {
-    border-color: var(--color-primary);
-    box-shadow: var(--shadow-glow);
+    border-color: var(--color-green-deep);
 }
 .product-info-card {
     background: var(--color-surface);
     padding: 32px;
     border-radius: var(--radius-lg);
     border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-card);
+}
+.product-eyebrow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 10px;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
 }
 .product-meta.large {
     font-size: 1rem;
-    margin-top: 12px;
-    margin-bottom: 24px;
+    margin-top: 14px;
+    margin-bottom: 22px;
     justify-content: flex-start;
-    gap: 24px;
+    align-items: center;
+    gap: 14px;
+}
+.product-meta.large .product-spec {
+    margin-bottom: 0;
+}
+.large-price {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 14px;
+    flex-wrap: wrap;
 }
 .large-price .current-price {
     font-size: 2.5rem;
+}
+.price-compare {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+.save-chip {
+    background: var(--color-green-soft);
+    color: var(--color-green-deep);
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    font-weight: 700;
 }
 .product-actions {
     display: flex;
@@ -629,9 +901,9 @@ h1, h2, h3, h4 {
     cursor: default;
 }
 .compare-btn.active {
-    background: rgba(139, 92, 246, 0.12);
-    color: var(--color-secondary);
-    border-color: rgba(139, 92, 246, 0.4);
+    background: var(--color-violet-soft);
+    color: var(--color-violet);
+    border-color: rgba(109, 40, 217, 0.4);
 }
 .buy-confirmation {
     margin-top: 16px;
@@ -963,6 +1235,8 @@ h1, h2, h3, h4 {
     border-collapse: collapse;
     background: var(--color-surface);
     border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
 }
 .compare-table th, .compare-table td {
     padding: 16px;
@@ -979,8 +1253,11 @@ h1, h2, h3, h4 {
     width: 100%;
     max-width: 140px;
     aspect-ratio: 1;
-    object-fit: cover;
+    object-fit: contain;
+    padding: 10px;
+    background: var(--color-sunken);
     border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
     margin: 0 auto 8px;
     display: block;
 }
@@ -1001,11 +1278,14 @@ h1, h2, h3, h4 {
 .compare-row-label {
     font-weight: 600;
     color: var(--color-text-muted);
-    background: var(--color-bg);
+    background: var(--color-page);
     white-space: nowrap;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
 }
 
-/* --- Forms (Sign In / Sell) --- */
+/* --- Forms (signin / sell routes) --- */
 .auth-page {
     display: flex;
     justify-content: center;
@@ -1017,6 +1297,8 @@ h1, h2, h3, h4 {
     max-width: 420px;
     background: var(--color-surface);
     border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
     padding: 40px;
 }
 .auth-card h2 {
@@ -1042,6 +1324,7 @@ h1, h2, h3, h4 {
     font-weight: 600;
     font-family: var(--font-main);
     border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
     cursor: pointer;
     transition: var(--transition-fast);
 }
@@ -1118,23 +1401,30 @@ h1, h2, h3, h4 {
     font-size: 0.9rem;
     color: var(--color-text-muted);
 }
+.form-field label {
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    font-size: 0.78rem;
+}
 .form-field input[type="text"],
 .form-field input[type="number"],
 .form-field select,
 .form-field textarea {
-    padding: 12px 16px;
+    padding: 13px 16px;
     border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
     background: var(--color-bg);
     color: var(--color-text-main);
     font-family: var(--font-main);
     font-size: 1rem;
     outline: none;
+    transition: var(--transition-fast);
 }
 .form-field input:focus,
 .form-field select:focus,
 .form-field textarea:focus {
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+    border-color: var(--color-green-deep);
+    box-shadow: 0 0 0 3px rgba(5, 70, 54, 0.12);
 }
 .form-field textarea {
     resize: vertical;
@@ -1160,43 +1450,91 @@ h1, h2, h3, h4 {
 }
 .sell-section h3 {
     margin-bottom: 16px;
-    color: var(--color-secondary);
-    font-size: 1.1rem;
+    color: var(--color-text-muted);
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
 }
 
 /* --- Admin Dashboard --- */
 .admin-dept-badge {
     display: inline-block;
-    background: rgba(139, 92, 246, 0.1);
-    color: var(--color-secondary);
-    padding: 4px 12px;
+    background: var(--color-violet-soft);
+    color: var(--color-violet);
+    padding: 5px 14px;
     border-radius: var(--radius-full);
-    font-size: 0.8rem;
-    font-weight: 600;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
     margin-bottom: 16px;
 }
 .admin-stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 16px;
     margin-bottom: 16px;
 }
 .stat-card {
     background: var(--color-surface);
     border: 1px solid var(--color-border);
-    padding: 24px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: 26px;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
+}
+/* One card per grid is filled with the violet accent so the eye has an
+   anchor, rather than every tile carrying equal weight. */
+.stat-card.accent {
+    background: var(--color-violet);
+    border-color: var(--color-violet);
+}
+.stat-card.accent .stat-value,
+.stat-card.accent .stat-label,
+.stat-card.accent .stat-note {
+    color: #ffffff;
+}
+.stat-card.accent .stat-label,
+.stat-card.accent .stat-note {
+    opacity: 0.82;
 }
 .stat-value {
-    font-size: 2rem;
+    font-size: 2.1rem;
     font-weight: 700;
-    color: var(--color-primary);
+    color: var(--color-text-main);
+    line-height: 1.1;
 }
 .stat-label {
-    font-size: 0.9rem;
+    font-size: 0.78rem;
     color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    font-weight: 700;
+    order: -1;
+}
+.stat-note {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+}
+/* Share-of-total bar under a valuation figure. */
+.stat-bar {
+    height: 6px;
+    border-radius: var(--radius-full);
+    background: var(--color-sunken);
+    overflow: hidden;
+    margin-top: 4px;
+}
+.stat-bar span {
+    display: block;
+    height: 100%;
+    border-radius: var(--radius-full);
+    background: var(--color-green-deep);
+}
+.stat-bar.amber span {
+    background: var(--color-orange);
 }
 .sell-category-option {
     cursor: pointer;
@@ -1208,13 +1546,14 @@ h1, h2, h3, h4 {
     margin-bottom: 20px;
 }
 .auto-spec-pill {
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    padding: 10px 16px;
+    background: var(--color-violet-soft);
+    border: 1px solid transparent;
+    border-radius: var(--radius-full);
+    padding: 9px 18px;
     font-size: 0.9rem;
 }
 .auto-spec-pill strong {
-    color: var(--color-secondary);
+    color: var(--color-violet);
 }
 .auto-spec-pill .form-hint {
     display: block;
@@ -1228,8 +1567,9 @@ h1, h2, h3, h4 {
     max-width: 360px;
     aspect-ratio: 1;
     object-fit: cover;
-    border: 1px solid var(--color-border);
-    background: #000;
+    border: 1px dashed rgba(109, 40, 217, 0.35);
+    border-radius: var(--radius-lg);
+    background: var(--color-violet-soft);
     display: block;
 }
 .sell-photo-actions {
@@ -1245,15 +1585,15 @@ h1, h2, h3, h4 {
 }
 
 /* --- Landing Track (home route) ---------------------------------------
-   A scroll-driven perspective run. Three strips lie on a ground plane and
-   converge on a vanishing point — violet down the middle, green either
-   side. Scrolling lowers the camera toward the ground (`--cam-y`), which
-   sweeps the strips outward and pulls the floor lettering past the
+   A perspective run that plays itself on load. Three strips lie on a ground
+   plane and converge on a vanishing point — violet down the middle, green
+   either side. The run lowers the camera toward the ground (`--cam-y`),
+   which sweeps the strips outward and pulls the floor lettering past the
    viewer; `--travel` slides the lane dashes and words along the plane.
    renderHomeRoute writes every custom property below on .track-stage. --------- */
 .landing-track {
     position: relative;
-    height: 340vh;
+    height: 100vh;
 }
 .track-stage {
     --horizon: 34%;
@@ -1267,8 +1607,7 @@ h1, h2, h3, h4 {
     --choice-scale: 0.72;
     --choice-rise: 90px;
 
-    position: sticky;
-    top: 0;
+    position: relative;
     height: 100vh;
     overflow: hidden;
     background: #ffffff;
@@ -1390,24 +1729,6 @@ h1, h2, h3, h4 {
     color: var(--color-text-muted);
     font-size: 1rem;
 }
-.track-hint {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    margin-top: 18px;
-    font-size: 0.8rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--color-text-muted);
-}
-.track-hint svg {
-    animation: hintBob 1.8s ease-in-out infinite;
-}
-@keyframes hintBob {
-    0%, 100% { transform: translateY(-2px); }
-    50% { transform: translateY(3px); }
-}
-
 /* End of the run: the two account choices take the place of the vehicle
    in the reference sequence. */
 .track-choice {
@@ -1423,34 +1744,76 @@ h1, h2, h3, h4 {
 .track-choice[data-idle="true"] {
     pointer-events: none;
 }
+/* Tinted panels rather than saturated blocks: the icon leads, the copy sits
+   in the middle, and a filled circular arrow anchors the bottom-right. */
 .choice {
+    position: relative;
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    min-width: 300px;
-    padding: 34px 44px;
-    color: #ffffff;
+    width: 340px;
+    min-height: 300px;
+    padding: 34px 34px 30px;
+    border-radius: var(--radius-lg);
     text-align: left;
-    box-shadow: 0 26px 60px rgba(15, 23, 42, 0.3);
+    box-shadow: 0 26px 60px rgba(15, 23, 42, 0.16);
     transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 .choice:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 32px 70px rgba(15, 23, 42, 0.38);
+    transform: translateY(-6px);
+    box-shadow: 0 34px 72px rgba(15, 23, 42, 0.22);
 }
 .choice-buy {
-    background: linear-gradient(160deg, #6d28d9 0%, #3b0764 100%);
+    background: linear-gradient(165deg, #f6f2ff 0%, #e6dcfb 100%);
+    color: var(--color-text-main);
+}
+.choice-buy .choice-icon,
+.choice-buy .choice-go {
+    color: var(--color-violet);
+}
+.choice-buy .choice-go {
+    background: var(--color-violet);
+    color: #ffffff;
 }
 .choice-sell {
-    background: linear-gradient(160deg, #0d7a53 0%, #054636 100%);
+    background: linear-gradient(165deg, #e8f9f1 0%, #b6ecd3 100%);
+    color: var(--color-text-main);
+}
+.choice-sell .choice-icon {
+    color: var(--color-green-deep);
+}
+.choice-sell .choice-go {
+    background: var(--color-green-deep);
+    color: #ffffff;
+}
+.choice-icon {
+    display: block;
+    margin-bottom: 26px;
 }
 .choice-title {
-    font-size: 1.7rem;
+    font-size: 1.5rem;
     font-weight: 600;
+    margin-bottom: 12px;
 }
 .choice-note {
-    font-size: 0.95rem;
-    opacity: 0.82;
+    font-size: 0.98rem;
+    line-height: 1.5;
+    color: var(--color-text-muted);
+    max-width: 26ch;
+}
+.choice-go {
+    position: absolute;
+    right: 30px;
+    bottom: 28px;
+    width: 46px;
+    height: 46px;
+    border-radius: var(--radius-full);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-fast);
+}
+.choice:hover .choice-go {
+    transform: translateX(3px);
 }
 
 /* Rides in with the choices, by which point the violet strip is wide enough
@@ -1475,23 +1838,32 @@ h1, h2, h3, h4 {
         gap: 16px;
     }
     .choice {
-        min-width: min(320px, 82vw);
-        padding: 22px 26px;
+        width: min(340px, 86vw);
+        min-height: 0;
+        padding: 22px 24px;
     }
-    .choice-title { font-size: 1.25rem; }
+    .choice-title { font-size: 1.25rem; margin-bottom: 8px; }
+    .choice-icon { margin-bottom: 14px; }
+    .choice-note { font-size: 0.9rem; max-width: none; }
+    /* Stacked cards are too short to park the arrow in the corner, so let
+       it sit in the flow at the end of the card instead. */
+    .choice-go {
+        position: static;
+        align-self: flex-end;
+        margin-top: 16px;
+        width: 38px;
+        height: 38px;
+    }
     /* Keep the opening title clear of both the navbar and the mark that
        sits on the vanishing point. */
     .track-intro { top: 12%; }
     .track-sub { font-size: 0.9rem; }
-    .track-hint { margin-top: 12px; }
     .track-logo svg { width: 84px; height: 84px; }
 }
 
-/* Without motion the run is pointless: collapse it to a single screen
-   holding the finished frame. */
+/* Without motion the run never plays; home.js paints the finished frame
+   straight away, so drop the floor lettering that only reads while moving. */
 @media (prefers-reduced-motion: reduce) {
-    .landing-track { height: 100vh; }
-    .track-hint { display: none; }
     .floor-word { display: none; }
 }
 
@@ -1602,46 +1974,11 @@ h1, h2, h3, h4 {
         flex-direction: column;
         width: 100%;
     }
-    .hero-actions a {
+    .hero-actions button {
         width: 100%;
     }
 }
-
-/* --- Hero (used by landing-left content + portal) --- */
-.hero-content {
-    position: relative;
-    z-index: 10;
-    max-width: 800px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 24px;
-}
-.badge {
-    background: rgba(16, 185, 129, 0.1);
-    color: var(--color-success);
-    padding: 6px 16px;
-    border-radius: var(--radius-full);
-    font-size: 0.875rem;
-    font-weight: 600;
-    border: 1px solid rgba(16, 185, 129, 0.2);
-}
-.hero-title {
-    font-size: 4rem;
-    letter-spacing: -1px;
-}
-.hero-subtitle {
-    font-size: 1.25rem;
-    color: var(--color-text-muted);
-    max-width: 600px;
-}
-.hero-actions {
-    display: flex;
-    gap: 16px;
-    margin-top: 16px;
-}
-    </style>
+</style>
 </head>
 <body>
     <nav class="navbar">
@@ -1955,6 +2292,42 @@ h1, h2, h3, h4 {
         let label = `${years} Year${years === 1 ? '' : 's'}`;
         if (rem > 0) label += ` ${rem} Month${rem === 1 ? '' : 's'}`;
         return label;
+    }
+
+    // Condition grade shown on product cards and the product page. Derived
+    // from age alone — there's no inspection data behind it, it's just a
+    // friendlier reading than a raw month count.
+    function conditionGrade(months) {
+        const m = Math.max(0, Math.round(months));
+        if (m <= 6) return 'Like New';
+        if (m <= 14) return 'Excellent';
+        if (m <= 26) return 'Good';
+        return 'Fair';
+    }
+
+    // The one-line spec summary under a product title, e.g.
+    // "16GB RAM • 512GB SSD • 14 Months used".
+    function specSummary(product) {
+        const specs = product.specs || {};
+        const parts = [];
+        if (specs.RAM) parts.push(specs.RAM + ' RAM');
+        if (specs.Storage) parts.push(specs.Storage);
+        parts.push(formatDuration(product.monthsUsed) + ' used');
+        return parts.join(' • ');
+    }
+
+    // Struck-through original price plus the percentage saved, shown beside
+    // the asking price. Skipped when there's no MRP to compare against.
+    function savingsHtml(product) {
+        const mrp = product.originalPrice;
+        if (!mrp || mrp <= product.price) return '';
+        const saved = Math.round((1 - product.price / mrp) * 100);
+        return `
+            <span class="price-compare">
+                <span class="original-price">₹${mrp.toLocaleString('en-IN')} new</span>
+                <span class="save-chip">Save ${saved}%</span>
+            </span>
+        `;
     }
 
     function hashText(str) {
@@ -2804,15 +3177,18 @@ h1, h2, h3, h4 {
     // ===================================================================
     // PAGE: home (from index.html + home.js)
     // ===================================================================
-    // The home route is a scroll-driven perspective run that doubles as the
-    // login gate. Every distance below is a multiple of the viewport height so
-    // the run frames itself identically on a phone and on a desktop.
+    // The home route is a perspective run that plays itself on load and
+    // doubles as the login gate. Every distance below is a multiple of the
+    // viewport height so the run frames itself identically on a phone and on
+    // a desktop.
     const CAM_HIGH = 2.6;    // camera height at the start of the run
     const CAM_LOW = 0.7;     // camera height at the end (just above the tarmac)
     const DEPTH = 0.75;      // must match `perspective` on .track-stage
     const TRAVEL = 19;       // distance the floor slides toward the camera
     const WORD_GAP = 2.4;    // spacing between floor words along the plane
-    const RUN_END = 0.75;    // scroll fraction at which the camera stops moving
+    const RUN_END = 0.75;    // point in the run at which the camera stops
+    const RUN_DURATION = 3400; // ms of camera movement
+    const RUN_HOLD = 300;      // ms held on the opening frame before it starts
 
     const FLOOR_WORDS = [
         'BUILD FOR INDIA', 'REFURBISHED', 'CERTIFIED', 'SAVE MORE',
@@ -2868,26 +3244,41 @@ h1, h2, h3, h4 {
         });
     }
 
-    // One listener for the life of the page; drawTrack no-ops on other routes.
-    let trackQueued = false;
-    function onTrackScroll() {
-        if (trackQueued) return;
-        trackQueued = true;
-        requestAnimationFrame(() => {
-            trackQueued = false;
-            // The scroll container here is #appRoot itself, wearing the
-            // route's .landing-track class.
-            const track = document.querySelector('.landing-track');
-            if (!track) return;
-            const span = track.offsetHeight - window.innerHeight;
-            const progress = span > 0
-                ? clamp(-track.getBoundingClientRect().top / span, 0, 1)
-                : 1;
-            drawTrack(progress);
-        });
+    // Remember where the run got to, so a resize redraws the same frame at
+    // the new viewport size instead of snapping. Cleared on every navigation
+    // away from home, so coming back replays the run from the top.
+    let runProgress = 0;
+    let runToken = 0;
+
+    function paintTrack(progress) {
+        runProgress = progress;
+        drawTrack(progress);
     }
-    window.addEventListener('scroll', onTrackScroll, { passive: true });
-    window.addEventListener('resize', onTrackScroll);
+
+    function playRun() {
+        const token = ++runToken;
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            paintTrack(1);
+            return;
+        }
+        paintTrack(0);
+        // The clock starts on the first frame actually served rather than at
+        // call time, so a page opened in a background tab still plays the run
+        // when it's brought forward instead of snapping to the finished frame.
+        let start = null;
+        const step = (now) => {
+            // A newer run (or a route change) supersedes this one.
+            if (token !== runToken || !document.getElementById('trackStage')) return;
+            if (start === null) start = now;
+            const t = clamp((now - start - RUN_HOLD) / RUN_DURATION, 0, 1);
+            paintTrack(t);
+            if (t < 1) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+    }
+
+    // drawTrack no-ops when the home route isn't mounted.
+    window.addEventListener('resize', () => paintTrack(runProgress));
 
     function renderHomeRoute(root) {
         const user = getCurrentUser();
@@ -2901,9 +3292,13 @@ h1, h2, h3, h4 {
             ? `Welcome back, ${user.name}. Pick up where you left off.`
             : `Certified secondhand laptops and phones, from sellers across the country.`;
         const buyHref = signedIn ? '#/shop' : '#/signin?role=customer';
-        const buyNote = signedIn ? 'Browse the full catalogue' : 'Shop certified laptops &amp; mobiles';
+        const buyNote = signedIn
+            ? 'Browse the full catalogue of tested, certified devices.'
+            : 'Premium refurbished electronics. Tested, certified, and ready for a second life.';
         const sellHref = signedIn ? '#/sell' : '#/signin?role=seller';
-        const sellNote = signedIn ? 'List a device of your own' : 'List your device and reach all of India';
+        const sellNote = signedIn
+            ? 'List a device of your own and reach buyers across India.'
+            : 'Turn your unused devices into value instantly. Fair pricing, seamless process.';
 
         root.innerHTML = `
             <div class="track-stage" id="trackStage">
@@ -2933,17 +3328,28 @@ h1, h2, h3, h4 {
                 <div class="track-intro">
                     <h2 class="track-headline">India's biggest refurbished market</h2>
                     <p class="track-sub">${subtitle}</p>
-                    <span class="track-hint">Scroll<svg width="14" height="20" viewBox="0 0 14 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M7 4v12M2.5 11.5L7 16l4.5-4.5"/></svg></span>
                 </div>
 
                 <div class="track-choice" id="trackChoice" data-idle="true">
                     <a class="choice choice-buy" href="${buyHref}">
+                        <span class="choice-icon">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                        </span>
                         <span class="choice-title">I want to buy</span>
                         <span class="choice-note">${buyNote}</span>
+                        <span class="choice-go" aria-hidden="true">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                        </span>
                     </a>
                     <a class="choice choice-sell" href="${sellHref}">
+                        <span class="choice-icon">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4 12 22l-9-9V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>
+                        </span>
                         <span class="choice-title">I want to sell</span>
                         <span class="choice-note">${sellNote}</span>
+                        <span class="choice-go" aria-hidden="true">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                        </span>
                     </a>
                 </div>
 
@@ -2951,11 +3357,7 @@ h1, h2, h3, h4 {
             </div>
         `;
 
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-            drawTrack(1);
-        } else {
-            drawTrack(0);
-        }
+        playRun();
     }
 
     // ===================================================================
@@ -2986,9 +3388,15 @@ h1, h2, h3, h4 {
             </section>
             <section class="products-section">
                 <div class="section-header">
-                    <h3 class="section-title">Trending Now</h3>
+                    <div class="section-heading">
+                        <h3 class="section-title">Trending Now</h3>
+                        <p class="section-subtitle">Refurbished tech near you.</p>
+                    </div>
                     <div class="section-header-controls">
-                        <button id="nearMeBtn" class="btn-secondary" type="button">📍 Use My Location</button>
+                        <button id="nearMeBtn" class="btn-violet" type="button">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><path d="M12 1v3M12 20v3M1 12h3M20 12h3"/></svg>
+                            Use My Location
+                        </button>
                         <div class="sort-dropdown">
                             <select id="sortSelect">
                                 <option value="newest">Newest Arrivals</option>
@@ -3071,19 +3479,25 @@ h1, h2, h3, h4 {
                     const distanceBadge = dist !== null ? `<div class="product-distance">${Math.round(dist)} km away</div>` : '';
 
                     card.innerHTML = `
-                        <img src="${getProductThumbnail(product)}" alt="${product.title}" class="product-image">
+                        <div class="product-image-wrap">
+                            <img src="${getProductThumbnail(product)}" alt="${product.title}" class="product-image">
+                        </div>
                         <div class="product-details">
                             <div class="product-meta">
-                                <span class="product-condition">${formatDuration(product.monthsUsed)} Used</span>
-                                <span class="product-location">📍 ${product.location}</span>
+                                <span class="product-condition">${conditionGrade(product.monthsUsed)}</span>
+                                <span class="product-location">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                                    ${product.location.replace(', India', '')}
+                                </span>
                             </div>
                             ${distanceBadge}
                             <h4 class="product-title">${product.title}</h4>
+                            <p class="product-spec">${specSummary(product)}</p>
                             <div class="product-footer">
-                                <div class="price-container"><span class="current-price">₹${product.price}</span></div>
-                                <button class="add-btn" aria-label="View details">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                                </button>
+                                <div class="price-container"><span class="current-price">₹${product.price.toLocaleString('en-IN')}</span></div>
+                                <span class="add-btn" aria-hidden="true">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                </span>
                             </div>
                         </div>
                     `;
@@ -3208,24 +3622,36 @@ h1, h2, h3, h4 {
             <div class="product-layout">
                 <div class="product-main-col">
                     <div class="product-image-large">
+                        <span class="verified-badge">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                            Verified Condition
+                        </span>
                         <img id="mainProductImage" src="${images[0].src}" alt="${product.title} - ${images[0].label}">
                     </div>
                     <div class="product-thumbnails" id="productThumbnails">${thumbsHtml}</div>
 
                     <div class="product-info-card">
+                        <div class="product-eyebrow">
+                            <span>${product.category}</span>
+                            <span class="product-location">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                                ${product.location.replace(', India', '')}
+                            </span>
+                        </div>
                         <h2>${product.title}</h2>
                         <div class="product-meta large">
-                            <span class="product-condition">${formatDuration(product.monthsUsed)} Used</span>
-                            <span class="product-location">📍 ${product.location}</span>
+                            <span class="product-condition">${conditionGrade(product.monthsUsed)}</span>
+                            <span class="product-spec">${specSummary(product)}</span>
                         </div>
 
                         <div class="price-container large-price">
-                            <span class="current-price">₹${product.price}</span>
+                            <span class="current-price">₹${product.price.toLocaleString('en-IN')}</span>
+                            ${savingsHtml(product)}
                         </div>
 
                         <div class="product-actions">
-                            <button id="buyBtn" class="btn-primary">Buy Now</button>
-                            <button id="compareBtn" class="btn-secondary compare-btn">Add to Compare</button>
+                            <button id="buyBtn" class="btn-dark-green">Buy Now</button>
+                            <button id="compareBtn" class="btn-pale-green compare-btn">Add to Compare</button>
                         </div>
                         <form id="offerForm" class="offer-form hidden">
                             <p class="form-hint" style="margin-bottom:8px;">Give the seller a price range you're comfortable with — they'll pick a price within it.</p>
@@ -4271,14 +4697,19 @@ h1, h2, h3, h4 {
                 <div class="stat-card">
                     <span class="stat-value">₹${laptopValue.toLocaleString('en-IN')}</span>
                     <span class="stat-label">Laptop Value (${laptops.length})</span>
+                    <div class="stat-bar"><span style="width:${Math.round(laptopValue / totalValue * 100)}%"></span></div>
+                    <span class="stat-note">${Math.round(laptopValue / totalValue * 100)}% of total</span>
                 </div>
                 <div class="stat-card">
                     <span class="stat-value">₹${mobileValue.toLocaleString('en-IN')}</span>
                     <span class="stat-label">Mobile Value (${mobiles.length})</span>
+                    <div class="stat-bar amber"><span style="width:${Math.round(mobileValue / totalValue * 100)}%"></span></div>
+                    <span class="stat-note">${Math.round(mobileValue / totalValue * 100)}% of total</span>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card accent">
                     <span class="stat-value">${emiEligible.length}</span>
                     <span class="stat-label">EMI-Eligible Listings (&ge;₹20k)</span>
+                    <span class="stat-note">${Math.round(emiEligible.length / products.length * 100)}% of all listings</span>
                 </div>
                 <div class="stat-card">
                     <span class="stat-value">₹${avgEmi1yr.toLocaleString('en-IN')}/mo</span>

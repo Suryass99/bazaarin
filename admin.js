@@ -128,14 +128,19 @@ function renderFinance(user) {
             <div class="stat-card">
                 <span class="stat-value">₹${laptopValue.toLocaleString('en-IN')}</span>
                 <span class="stat-label">Laptop Value (${laptops.length})</span>
+                <div class="stat-bar"><span style="width:${Math.round(laptopValue / totalValue * 100)}%"></span></div>
+                <span class="stat-note">${Math.round(laptopValue / totalValue * 100)}% of total</span>
             </div>
             <div class="stat-card">
                 <span class="stat-value">₹${mobileValue.toLocaleString('en-IN')}</span>
                 <span class="stat-label">Mobile Value (${mobiles.length})</span>
+                <div class="stat-bar amber"><span style="width:${Math.round(mobileValue / totalValue * 100)}%"></span></div>
+                <span class="stat-note">${Math.round(mobileValue / totalValue * 100)}% of total</span>
             </div>
-            <div class="stat-card">
+            <div class="stat-card accent">
                 <span class="stat-value">${emiEligible.length}</span>
                 <span class="stat-label">EMI-Eligible Listings (&ge;₹20k)</span>
+                <span class="stat-note">${Math.round(emiEligible.length / products.length * 100)}% of all listings</span>
             </div>
             <div class="stat-card">
                 <span class="stat-value">₹${avgEmi1yr.toLocaleString('en-IN')}/mo</span>

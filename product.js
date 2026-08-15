@@ -1,3 +1,17 @@
+// Struck-through original price plus the percentage saved, shown beside the
+// asking price. Skipped when there's no MRP on record to compare against.
+function savingsHtml(product) {
+    const mrp = product.originalPrice;
+    if (!mrp || mrp <= product.price) return '';
+    const saved = Math.round((1 - product.price / mrp) * 100);
+    return `
+        <span class="price-compare">
+            <span class="original-price">₹${mrp.toLocaleString('en-IN')} new</span>
+            <span class="save-chip">Save ${saved}%</span>
+        </span>
+    `;
+}
+
 function buildEmiSectionHtml(price) {
     if (price < 20000) return '';
     const bodyRows = emiFinanciers.map(f => `
@@ -49,6 +63,10 @@ document.addEventListener('DOMContentLoaded', () => {
     productContent.innerHTML = `
         <div class="product-main-col">
             <div class="product-image-large">
+                <span class="verified-badge">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                    Verified Condition
+                </span>
                 <img id="mainProductImage" src="${images[0].src}" alt="${product.title} - ${images[0].label}">
             </div>
             <div class="product-thumbnails" id="productThumbnails">
@@ -56,19 +74,27 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
 
             <div class="product-info-card">
+                <div class="product-eyebrow">
+                    <span>${product.category}</span>
+                    <span class="product-location">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        ${product.location.replace(', India', '')}
+                    </span>
+                </div>
                 <h2>${product.title}</h2>
                 <div class="product-meta large">
-                    <span class="product-condition">${formatDuration(product.monthsUsed)} Used</span>
-                    <span class="product-location">📍 ${product.location}</span>
+                    <span class="product-condition">${conditionGrade(product.monthsUsed)}</span>
+                    <span class="product-spec">${specSummary(product)}</span>
                 </div>
 
                 <div class="price-container large-price">
-                    <span class="current-price">₹${product.price}</span>
+                    <span class="current-price">₹${product.price.toLocaleString('en-IN')}</span>
+                    ${savingsHtml(product)}
                 </div>
 
                 <div class="product-actions">
-                    <button id="buyBtn" class="btn-primary">Buy Now</button>
-                    <button id="compareBtn" class="btn-secondary compare-btn">Add to Compare</button>
+                    <button id="buyBtn" class="btn-dark-green">Buy Now</button>
+                    <button id="compareBtn" class="btn-pale-green compare-btn">Add to Compare</button>
                 </div>
                 <form id="offerForm" class="offer-form hidden">
                     <p class="form-hint" style="margin-bottom:8px;">Give the seller a price range you're comfortable with — they'll pick a price within it.</p>

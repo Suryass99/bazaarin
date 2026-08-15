@@ -1,27 +1,48 @@
 /* --- Design System & Tokens --- */
 :root {
+    /* Surfaces. The page carries a faint violet-grey tint so that white
+       cards read as cards sitting on it; --color-bg stays pure white for
+       anything that should sit flush. --color-sunken is for the recessed
+       panels behind product photography and table headers. */
+    --color-page: #f4f5fb;
     --color-bg: #ffffff;
-    --color-surface: #f8fafc;
-    --color-surface-hover: #f1f5f9;
+    --color-surface: #ffffff;
+    --color-surface-hover: #f4f5fb;
+    --color-sunken: #e8eafa;
+
     --color-primary: #10b981;
     --color-primary-glow: rgba(16, 185, 129, 0.3);
     --color-secondary: #8b5cf6;
     --color-text-main: #0f172a;
     --color-text-muted: #475569;
-    --color-border: #e2e8f0;
+    --color-border: #e6e8f2;
     --color-success: #059669;
-    
+
+    /* Brand accents, plus the pale tints used for badges and soft fills.
+       These are the same green/violet/orange the site has always used. */
+    --color-violet: #6d28d9;
+    --color-violet-soft: #ede9fe;
+    --color-green-deep: #054636;
+    --color-green-soft: #d6f5e6;
+    --color-orange: #f59e0b;
+    --color-orange-soft: #fef3c7;
+
     --font-main: 'Outfit', sans-serif;
-    
-    --radius-sm: 0;
-    --radius-md: 0;
-    --radius-lg: 0;
-    --radius-full: 0;
-    
-    --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
-    --shadow-glow: 0 0 20px var(--color-primary-glow);
-    
+
+    /* Soft-cornered shape language, taken from the reference screens. To go
+       back to the previous fully square look, set all four to 0. */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-full: 9999px;
+
+    /* Light-theme shadows: these used to be near-black and far too heavy
+       for a white page. */
+    --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.08);
+    --shadow-md: 0 12px 32px rgba(15, 23, 42, 0.10);
+    --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.06);
+    --shadow-glow: 0 8px 22px rgba(5, 150, 105, 0.28);
+
     --transition-fast: 0.2s ease;
     --transition-smooth: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -35,7 +56,7 @@
 
 body {
     font-family: var(--font-main);
-    background-color: var(--color-bg);
+    background-color: var(--color-page);
     color: var(--color-text-main);
     line-height: 1.5;
     overflow-x: hidden;
@@ -282,37 +303,73 @@ h1, h2, h3, h4 {
     font-size: 1.1rem;
 }
 
-/* Dark/pale green pair used for the hero's two shop entry points — these two
-   keep the original pill shape by request, even though the rest of the
-   site's controls are sharp-cornered. */
+/* The filled/outlined green pair — the primary action and the quieter one
+   sitting beneath it, as on the product page's Buy Now / Compare. */
 .btn-dark-green {
-    background: var(--color-success);
+    background: var(--color-green-deep);
     color: white;
-    padding: 10px 24px;
-    border-radius: 9999px;
+    padding: 12px 26px;
+    border-radius: var(--radius-full);
     font-weight: 600;
     box-shadow: var(--shadow-sm);
     transition: var(--transition-fast);
 }
 
 .btn-dark-green:hover {
+    background: #0a5c46;
     box-shadow: var(--shadow-glow);
     transform: translateY(-2px);
 }
 
 .btn-pale-green {
-    background: rgba(16, 185, 129, 0.12);
-    color: var(--color-success);
-    padding: 10px 24px;
-    border-radius: 9999px;
-    border: 1px solid rgba(16, 185, 129, 0.3);
+    background: var(--color-bg);
+    color: var(--color-green-deep);
+    padding: 12px 26px;
+    border-radius: var(--radius-full);
+    border: 1.5px solid var(--color-green-deep);
     font-weight: 600;
     transition: var(--transition-fast);
 }
 
 .btn-pale-green:hover {
-    background: rgba(16, 185, 129, 0.2);
+    background: var(--color-green-soft);
     transform: translateY(-2px);
+}
+
+/* Violet pill — the secondary accent action, e.g. "Use My Location". */
+.btn-violet {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--color-violet);
+    color: #ffffff;
+    padding: 11px 22px;
+    border-radius: var(--radius-full);
+    font-weight: 600;
+    font-size: 0.9rem;
+    letter-spacing: 0.3px;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition-fast);
+}
+
+.btn-violet:hover {
+    background: #5b21b6;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(109, 40, 217, 0.3);
+}
+
+/* Circular icon button — the arrow that sits in the corner of the landing
+   choice cards and anywhere else a bare directional control is needed. */
+.btn-circle {
+    width: 52px;
+    height: 52px;
+    border-radius: var(--radius-full);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #ffffff;
+    transition: var(--transition-fast);
 }
 
 /* --- Hero Section --- */
@@ -443,27 +500,29 @@ h1, h2, h3, h4 {
     display: none; /* Chrome */
 }
 
+/* Filter chips. The selected one fills with a pale green wash and deep
+   green text rather than a saturated block, so a row of them stays quiet. */
 .category-card {
     flex: 0 0 auto;
-    padding: 16px 32px;
+    padding: 11px 24px;
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-full);
     color: var(--color-text-main);
-    font-size: 1.1rem;
-    font-weight: 500;
+    font-size: 0.95rem;
+    font-weight: 600;
     transition: var(--transition-fast);
 }
 
 .category-card:hover {
     background: var(--color-surface-hover);
-    transform: translateY(-2px);
+    border-color: #cdd2e8;
 }
 
 .category-card.active {
-    background: var(--color-primary);
-    border-color: var(--color-primary);
-    box-shadow: var(--shadow-glow);
+    background: var(--color-green-soft);
+    border-color: rgba(5, 70, 54, 0.35);
+    color: var(--color-green-deep);
 }
 
 /* --- Products --- */
@@ -474,10 +533,16 @@ h1, h2, h3, h4 {
 .section-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-end;
     margin-bottom: 32px;
     flex-wrap: wrap;
     gap: 16px;
+}
+
+.section-subtitle {
+    margin-top: 4px;
+    color: var(--color-text-muted);
+    font-size: 1rem;
 }
 
 .section-header-controls {
@@ -499,11 +564,17 @@ h1, h2, h3, h4 {
     background: var(--color-surface);
     color: var(--color-text-main);
     border: 1px solid var(--color-border);
-    padding: 10px 16px;
+    padding: 11px 18px;
     border-radius: var(--radius-md);
     font-family: var(--font-main);
+    font-weight: 500;
     cursor: pointer;
     outline: none;
+    transition: var(--transition-fast);
+}
+
+.sort-dropdown select:hover {
+    border-color: #cdd2e8;
 }
 
 .product-grid {
@@ -520,24 +591,34 @@ h1, h2, h3, h4 {
     transition: var(--transition-smooth);
     display: flex;
     flex-direction: column;
+    box-shadow: var(--shadow-card);
 }
 
 .product-card:hover {
-    transform: translateY(-8px);
+    transform: translateY(-6px);
     box-shadow: var(--shadow-md);
-    border-color: rgba(139, 92, 246, 0.5);
+    border-color: rgba(109, 40, 217, 0.35);
+}
+
+/* The photo sits on a recessed tinted panel rather than being cropped edge
+   to edge, so devices of different shapes all sit consistently. */
+.product-image-wrap {
+    background: var(--color-sunken);
+    padding: 28px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 210px;
 }
 
 .product-image {
     width: 100%;
-    height: 220px;
-    object-fit: cover;
-    border-bottom: 1px solid var(--color-border);
-    background: #000;
+    max-height: 170px;
+    object-fit: contain;
 }
 
 .product-details {
-    padding: 24px;
+    padding: 20px 22px 22px;
     display: flex;
     flex-direction: column;
     flex-grow: 1;
@@ -546,30 +627,49 @@ h1, h2, h3, h4 {
 .product-meta {
     display: flex;
     justify-content: space-between;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-weight: 700;
-    margin-bottom: 8px;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
 }
 .product-condition {
-    color: var(--color-secondary);
+    background: var(--color-violet-soft);
+    color: var(--color-violet);
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    font-weight: 700;
+    white-space: nowrap;
 }
 .product-location {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
     color: var(--color-text-muted);
+    font-size: 0.8rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .product-distance {
     font-size: 0.75rem;
     font-weight: 700;
-    color: var(--color-primary);
+    color: var(--color-success);
     margin-bottom: 8px;
 }
 
 .product-title {
-    font-size: 1.25rem;
-    margin-bottom: 16px;
+    font-size: 1.15rem;
     line-height: 1.3;
+    margin-bottom: 6px;
+}
+
+.product-spec {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    margin-bottom: 18px;
 }
 
 .product-footer {
@@ -593,24 +693,27 @@ h1, h2, h3, h4 {
 .current-price {
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--color-success);
+    color: var(--color-green-deep);
 }
 
 .add-btn {
-    width: 40px;
-    height: 40px;
-    background: var(--color-bg);
+    width: 38px;
+    height: 38px;
+    background: var(--color-surface-hover);
     border: 1px solid var(--color-border);
+    border-radius: var(--radius-full);
     color: var(--color-text-main);
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
     transition: var(--transition-fast);
 }
 
 .product-card:hover .add-btn {
-    background: var(--color-primary);
-    border-color: var(--color-primary);
+    background: var(--color-violet);
+    border-color: var(--color-violet);
+    color: #ffffff;
 }
 
 .no-results {
@@ -660,18 +763,37 @@ h1, h2, h3, h4 {
     gap: 32px;
 }
 .product-image-large {
-    background: var(--color-surface);
+    position: relative;
+    background: var(--color-sunken);
     border-radius: var(--radius-lg);
     overflow: hidden;
-    margin-bottom: 24px;
+    margin-bottom: 16px;
     border: 1px solid var(--color-border);
+    padding: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .product-image-large img {
     width: 100%;
     height: auto;
-    max-height: 500px;
-    object-fit: cover;
+    max-height: 420px;
+    object-fit: contain;
     display: block;
+}
+.verified-badge {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--color-green-soft);
+    color: var(--color-green-deep);
+    padding: 7px 14px;
+    border-radius: var(--radius-full);
+    font-size: 0.78rem;
+    font-weight: 700;
 }
 .product-thumbnails {
     display: flex;
@@ -695,28 +817,65 @@ h1, h2, h3, h4 {
     object-fit: cover;
     display: block;
 }
+.product-thumbnail img {
+    object-fit: contain;
+    padding: 6px;
+    background: var(--color-sunken);
+}
 .product-thumbnail:hover {
-    border-color: rgba(16, 185, 129, 0.5);
+    border-color: rgba(5, 70, 54, 0.4);
 }
 .product-thumbnail.active {
-    border-color: var(--color-primary);
-    box-shadow: var(--shadow-glow);
+    border-color: var(--color-green-deep);
 }
 .product-info-card {
     background: var(--color-surface);
     padding: 32px;
     border-radius: var(--radius-lg);
     border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-card);
+}
+.product-eyebrow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 10px;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
 }
 .product-meta.large {
     font-size: 1rem;
-    margin-top: 12px;
-    margin-bottom: 24px;
+    margin-top: 14px;
+    margin-bottom: 22px;
     justify-content: flex-start;
-    gap: 24px;
+    align-items: center;
+    gap: 14px;
+}
+.product-meta.large .product-spec {
+    margin-bottom: 0;
+}
+.large-price {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 14px;
+    flex-wrap: wrap;
 }
 .large-price .current-price {
     font-size: 2.5rem;
+}
+.price-compare {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+.save-chip {
+    background: var(--color-green-soft);
+    color: var(--color-green-deep);
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    font-weight: 700;
 }
 .product-actions {
     display: flex;
@@ -732,9 +891,9 @@ h1, h2, h3, h4 {
     cursor: default;
 }
 .compare-btn.active {
-    background: rgba(139, 92, 246, 0.12);
-    color: var(--color-secondary);
-    border-color: rgba(139, 92, 246, 0.4);
+    background: var(--color-violet-soft);
+    color: var(--color-violet);
+    border-color: rgba(109, 40, 217, 0.4);
 }
 .buy-confirmation {
     margin-top: 16px;
@@ -1066,6 +1225,8 @@ h1, h2, h3, h4 {
     border-collapse: collapse;
     background: var(--color-surface);
     border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
 }
 .compare-table th, .compare-table td {
     padding: 16px;
@@ -1082,8 +1243,11 @@ h1, h2, h3, h4 {
     width: 100%;
     max-width: 140px;
     aspect-ratio: 1;
-    object-fit: cover;
+    object-fit: contain;
+    padding: 10px;
+    background: var(--color-sunken);
     border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
     margin: 0 auto 8px;
     display: block;
 }
@@ -1104,8 +1268,11 @@ h1, h2, h3, h4 {
 .compare-row-label {
     font-weight: 600;
     color: var(--color-text-muted);
-    background: var(--color-bg);
+    background: var(--color-page);
     white-space: nowrap;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
 }
 
 /* --- Forms (Sign In / Sell) --- */
@@ -1120,6 +1287,8 @@ h1, h2, h3, h4 {
     max-width: 420px;
     background: var(--color-surface);
     border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
     padding: 40px;
 }
 .auth-card h2 {
@@ -1145,6 +1314,7 @@ h1, h2, h3, h4 {
     font-weight: 600;
     font-family: var(--font-main);
     border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
     cursor: pointer;
     transition: var(--transition-fast);
 }
@@ -1221,23 +1391,30 @@ h1, h2, h3, h4 {
     font-size: 0.9rem;
     color: var(--color-text-muted);
 }
+.form-field label {
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    font-size: 0.78rem;
+}
 .form-field input[type="text"],
 .form-field input[type="number"],
 .form-field select,
 .form-field textarea {
-    padding: 12px 16px;
+    padding: 13px 16px;
     border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
     background: var(--color-bg);
     color: var(--color-text-main);
     font-family: var(--font-main);
     font-size: 1rem;
     outline: none;
+    transition: var(--transition-fast);
 }
 .form-field input:focus,
 .form-field select:focus,
 .form-field textarea:focus {
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+    border-color: var(--color-green-deep);
+    box-shadow: 0 0 0 3px rgba(5, 70, 54, 0.12);
 }
 .form-field textarea {
     resize: vertical;
@@ -1263,43 +1440,91 @@ h1, h2, h3, h4 {
 }
 .sell-section h3 {
     margin-bottom: 16px;
-    color: var(--color-secondary);
-    font-size: 1.1rem;
+    color: var(--color-text-muted);
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
 }
 
 /* --- Admin Dashboard --- */
 .admin-dept-badge {
     display: inline-block;
-    background: rgba(139, 92, 246, 0.1);
-    color: var(--color-secondary);
-    padding: 4px 12px;
+    background: var(--color-violet-soft);
+    color: var(--color-violet);
+    padding: 5px 14px;
     border-radius: var(--radius-full);
-    font-size: 0.8rem;
-    font-weight: 600;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
     margin-bottom: 16px;
 }
 .admin-stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 16px;
     margin-bottom: 16px;
 }
 .stat-card {
     background: var(--color-surface);
     border: 1px solid var(--color-border);
-    padding: 24px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: 26px;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
+}
+/* One card per grid is filled with the violet accent so the eye has an
+   anchor, rather than every tile carrying equal weight. */
+.stat-card.accent {
+    background: var(--color-violet);
+    border-color: var(--color-violet);
+}
+.stat-card.accent .stat-value,
+.stat-card.accent .stat-label,
+.stat-card.accent .stat-note {
+    color: #ffffff;
+}
+.stat-card.accent .stat-label,
+.stat-card.accent .stat-note {
+    opacity: 0.82;
 }
 .stat-value {
-    font-size: 2rem;
+    font-size: 2.1rem;
     font-weight: 700;
-    color: var(--color-primary);
+    color: var(--color-text-main);
+    line-height: 1.1;
 }
 .stat-label {
-    font-size: 0.9rem;
+    font-size: 0.78rem;
     color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    font-weight: 700;
+    order: -1;
+}
+.stat-note {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+}
+/* Share-of-total bar under a valuation figure. */
+.stat-bar {
+    height: 6px;
+    border-radius: var(--radius-full);
+    background: var(--color-sunken);
+    overflow: hidden;
+    margin-top: 4px;
+}
+.stat-bar span {
+    display: block;
+    height: 100%;
+    border-radius: var(--radius-full);
+    background: var(--color-green-deep);
+}
+.stat-bar.amber span {
+    background: var(--color-orange);
 }
 .sell-category-option {
     cursor: pointer;
@@ -1311,13 +1536,14 @@ h1, h2, h3, h4 {
     margin-bottom: 20px;
 }
 .auto-spec-pill {
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    padding: 10px 16px;
+    background: var(--color-violet-soft);
+    border: 1px solid transparent;
+    border-radius: var(--radius-full);
+    padding: 9px 18px;
     font-size: 0.9rem;
 }
 .auto-spec-pill strong {
-    color: var(--color-secondary);
+    color: var(--color-violet);
 }
 .auto-spec-pill .form-hint {
     display: block;
@@ -1331,8 +1557,9 @@ h1, h2, h3, h4 {
     max-width: 360px;
     aspect-ratio: 1;
     object-fit: cover;
-    border: 1px solid var(--color-border);
-    background: #000;
+    border: 1px dashed rgba(109, 40, 217, 0.35);
+    border-radius: var(--radius-lg);
+    background: var(--color-violet-soft);
     display: block;
 }
 .sell-photo-actions {
@@ -1348,15 +1575,15 @@ h1, h2, h3, h4 {
 }
 
 /* --- Landing Track (index.html) ---------------------------------------
-   A scroll-driven perspective run. Three strips lie on a ground plane and
-   converge on a vanishing point — violet down the middle, green either
-   side. Scrolling lowers the camera toward the ground (`--cam-y`), which
-   sweeps the strips outward and pulls the floor lettering past the
+   A perspective run that plays itself on load. Three strips lie on a ground
+   plane and converge on a vanishing point — violet down the middle, green
+   either side. The run lowers the camera toward the ground (`--cam-y`),
+   which sweeps the strips outward and pulls the floor lettering past the
    viewer; `--travel` slides the lane dashes and words along the plane.
    home.js writes every custom property below on .track-stage. --------- */
 .landing-track {
     position: relative;
-    height: 340vh;
+    height: 100vh;
 }
 .track-stage {
     --horizon: 34%;
@@ -1370,8 +1597,7 @@ h1, h2, h3, h4 {
     --choice-scale: 0.72;
     --choice-rise: 90px;
 
-    position: sticky;
-    top: 0;
+    position: relative;
     height: 100vh;
     overflow: hidden;
     background: #ffffff;
@@ -1493,24 +1719,6 @@ h1, h2, h3, h4 {
     color: var(--color-text-muted);
     font-size: 1rem;
 }
-.track-hint {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    margin-top: 18px;
-    font-size: 0.8rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--color-text-muted);
-}
-.track-hint svg {
-    animation: hintBob 1.8s ease-in-out infinite;
-}
-@keyframes hintBob {
-    0%, 100% { transform: translateY(-2px); }
-    50% { transform: translateY(3px); }
-}
-
 /* End of the run: the two account choices take the place of the vehicle
    in the reference sequence. */
 .track-choice {
@@ -1526,34 +1734,76 @@ h1, h2, h3, h4 {
 .track-choice[data-idle="true"] {
     pointer-events: none;
 }
+/* Tinted panels rather than saturated blocks: the icon leads, the copy sits
+   in the middle, and a filled circular arrow anchors the bottom-right. */
 .choice {
+    position: relative;
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    min-width: 300px;
-    padding: 34px 44px;
-    color: #ffffff;
+    width: 340px;
+    min-height: 300px;
+    padding: 34px 34px 30px;
+    border-radius: var(--radius-lg);
     text-align: left;
-    box-shadow: 0 26px 60px rgba(15, 23, 42, 0.3);
+    box-shadow: 0 26px 60px rgba(15, 23, 42, 0.16);
     transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 .choice:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 32px 70px rgba(15, 23, 42, 0.38);
+    transform: translateY(-6px);
+    box-shadow: 0 34px 72px rgba(15, 23, 42, 0.22);
 }
 .choice-buy {
-    background: linear-gradient(160deg, #6d28d9 0%, #3b0764 100%);
+    background: linear-gradient(165deg, #f6f2ff 0%, #e6dcfb 100%);
+    color: var(--color-text-main);
+}
+.choice-buy .choice-icon,
+.choice-buy .choice-go {
+    color: var(--color-violet);
+}
+.choice-buy .choice-go {
+    background: var(--color-violet);
+    color: #ffffff;
 }
 .choice-sell {
-    background: linear-gradient(160deg, #0d7a53 0%, #054636 100%);
+    background: linear-gradient(165deg, #e8f9f1 0%, #b6ecd3 100%);
+    color: var(--color-text-main);
+}
+.choice-sell .choice-icon {
+    color: var(--color-green-deep);
+}
+.choice-sell .choice-go {
+    background: var(--color-green-deep);
+    color: #ffffff;
+}
+.choice-icon {
+    display: block;
+    margin-bottom: 26px;
 }
 .choice-title {
-    font-size: 1.7rem;
+    font-size: 1.5rem;
     font-weight: 600;
+    margin-bottom: 12px;
 }
 .choice-note {
-    font-size: 0.95rem;
-    opacity: 0.82;
+    font-size: 0.98rem;
+    line-height: 1.5;
+    color: var(--color-text-muted);
+    max-width: 26ch;
+}
+.choice-go {
+    position: absolute;
+    right: 30px;
+    bottom: 28px;
+    width: 46px;
+    height: 46px;
+    border-radius: var(--radius-full);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-fast);
+}
+.choice:hover .choice-go {
+    transform: translateX(3px);
 }
 
 /* Rides in with the choices, by which point the violet strip is wide enough
@@ -1578,23 +1828,32 @@ h1, h2, h3, h4 {
         gap: 16px;
     }
     .choice {
-        min-width: min(320px, 82vw);
-        padding: 22px 26px;
+        width: min(340px, 86vw);
+        min-height: 0;
+        padding: 22px 24px;
     }
-    .choice-title { font-size: 1.25rem; }
+    .choice-title { font-size: 1.25rem; margin-bottom: 8px; }
+    .choice-icon { margin-bottom: 14px; }
+    .choice-note { font-size: 0.9rem; max-width: none; }
+    /* Stacked cards are too short to park the arrow in the corner, so let
+       it sit in the flow at the end of the card instead. */
+    .choice-go {
+        position: static;
+        align-self: flex-end;
+        margin-top: 16px;
+        width: 38px;
+        height: 38px;
+    }
     /* Keep the opening title clear of both the navbar and the mark that
        sits on the vanishing point. */
     .track-intro { top: 12%; }
     .track-sub { font-size: 0.9rem; }
-    .track-hint { margin-top: 12px; }
     .track-logo svg { width: 84px; height: 84px; }
 }
 
-/* Without motion the run is pointless: collapse it to a single screen
-   holding the finished frame. */
+/* Without motion the run never plays; home.js paints the finished frame
+   straight away, so drop the floor lettering that only reads while moving. */
 @media (prefers-reduced-motion: reduce) {
-    .landing-track { height: 100vh; }
-    .track-hint { display: none; }
     .floor-word { display: none; }
 }
 

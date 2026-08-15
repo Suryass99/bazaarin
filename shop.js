@@ -103,21 +103,27 @@ function renderProducts() {
             const distanceBadge = dist !== null ? `<div class="product-distance">${Math.round(dist)} km away</div>` : '';
 
             card.innerHTML = `
-                <img src="${getProductThumbnail(product)}" alt="${product.title}" class="product-image">
+                <div class="product-image-wrap">
+                    <img src="${getProductThumbnail(product)}" alt="${product.title}" class="product-image">
+                </div>
                 <div class="product-details">
                     <div class="product-meta">
-                        <span class="product-condition">${formatDuration(product.monthsUsed)} Used</span>
-                        <span class="product-location">📍 ${product.location}</span>
+                        <span class="product-condition">${conditionGrade(product.monthsUsed)}</span>
+                        <span class="product-location">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            ${product.location.replace(', India', '')}
+                        </span>
                     </div>
                     ${distanceBadge}
                     <h4 class="product-title">${product.title}</h4>
+                    <p class="product-spec">${specSummary(product)}</p>
                     <div class="product-footer">
                         <div class="price-container">
-                            <span class="current-price">₹${product.price}</span>
+                            <span class="current-price">₹${product.price.toLocaleString('en-IN')}</span>
                         </div>
-                        <button class="add-btn" aria-label="View details">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                        </button>
+                        <span class="add-btn" aria-hidden="true">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                        </span>
                     </div>
                 </div>
             `;
