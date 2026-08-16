@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Chola Raja - The Rescue of Kundavai</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- The whole game lives inside this one canvas. Everything you see -->
+  <!-- (menus, comic pages, the world, the hearts) is drawn onto it by code. -->
+  <div id="stage">
+    <canvas id="screen" width="480" height="270"></canvas>
+    <div id="rotate-hint">Please turn your phone sideways &#8635;</div>
+  </div>
+
+  <!-- Scripts load in order. No modules, no build step, no npm: -->
+  <!-- each file just adds things to the global CR object. -->
+  <script src="js/util.js"></script>
+  <script src="js/input.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/art.js"></script>
+  <script src="js/world.js"></script>
+  <script src="js/player.js"></script>
+  <script src="js/enemies.js"></script>
+  <script src="js/levels.js"></script>
+  <script src="js/story.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>

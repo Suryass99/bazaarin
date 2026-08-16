@@ -6,6 +6,18 @@
       "runtimeExecutable": "powershell.exe",
       "runtimeArgs": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", ".devserver.ps1", "-Port", "8000"],
       "port": 8000
+    },
+    {
+      "name": "bazaarin-static-alt",
+      "runtimeExecutable": "powershell.exe",
+      "runtimeArgs": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", ".devserver.ps1", "-Port", "8010"],
+      "port": 8010
+    },
+    {
+      "name": "chola-raja",
+      "runtimeExecutable": "powershell.exe",
+      "runtimeArgs": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "chola-raja/.devserver.ps1", "-Port", "8020"],
+      "port": 8020
     }
   ]
 }

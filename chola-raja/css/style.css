@@ -1,0 +1,46 @@
+/* The page itself is just a black frame. All the art happens on the canvas. */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background: #05070a;
+  overflow: hidden;
+  touch-action: none;          /* stop the phone scrolling while you play */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#stage {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#screen {
+  /* Chunky pixels on purpose - this is a 480x270 game blown up to fit. */
+  /* vector art, so let the browser smooth it - it stays sharp at any size */
+
+  display: block;
+  background: #000;
+  cursor: default;
+}
+
+/* Shown only when a phone is held upright. The game is landscape. */
+#rotate-hint {
+  display: none;
+  position: fixed;
+  inset: 0;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  color: #e8c887;
+  background: #05070a;
+  font: 600 clamp(16px, 5vw, 24px)/1.5 system-ui, sans-serif;
+  z-index: 10;
+}
+body.portrait #rotate-hint { display: flex; }
