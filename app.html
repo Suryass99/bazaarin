@@ -1678,7 +1678,12 @@ h1, h2, h3, h4 {
     transform: translate3d(0, var(--cam-y), 0) rotateX(-90deg);
     transform-style: preserve-3d;
     will-change: transform;
-    backface-visibility: hidden;
+    /* No backface-visibility here. rotateX(-90deg) turns the plane's front
+       face away from a camera that sits above it, so hiding the backface
+       hides the road completely. */
+    /* The road is decorative; a floor word faded to zero opacity still
+       swallows hit tests otherwise. */
+    pointer-events: none;
 }
 .strip {
     position: absolute;
