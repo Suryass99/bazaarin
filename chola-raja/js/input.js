@@ -2,19 +2,23 @@
    input.js - keyboard, mouse and touch, boiled down to a handful
    of true/false flags the rest of the game can read.
 
-   Keyboard:  Arrows / WASD move, Space jump, Shift run,
-              Z (or J / Ctrl / F) attack, Esc or P pause, M mute.
-   Touch:     joystick bottom-left, JUMP and SWORD buttons bottom-right.
+   Keyboard:  LEFT / RIGHT walk, UP jumps, DOWN crawls,
+              SPACE grabs (rope, ledge, lever, door),
+              Z (or J / Ctrl / F) attacks, Esc or P pause, M mute.
+   Touch:     joystick bottom-left, JUMP / SWORD / GRAB bottom-right.
+
+   There is no run button. One speed, and every jump in the game can be
+   made from it - one less thing to think about mid-air.
    ============================================================ */
 (function () {
   var I = {
     // held-down state, read freely every frame
     left: false, right: false, up: false, down: false,
-    jump: false, run: false, attack: false,
+    jump: false, grab: false, attack: false,
 
     // "was it pressed THIS frame" - true for exactly one frame
     jumpPressed: false, attackPressed: false, upPressed: false,
-    pausePressed: false, anyPressed: false, mutePressed: false,
+    grabPressed: false, pausePressed: false, anyPressed: false, mutePressed: false,
 
     mode: 'key',            // 'key' or 'touch' - whichever was used last
     pointer: { x: 0, y: 0, down: false, clicked: false },
@@ -28,10 +32,9 @@
   var KEYMAP = {
     ArrowLeft: 'left', KeyA: 'left',
     ArrowRight: 'right', KeyD: 'right',
-    ArrowUp: 'up', KeyW: 'up',
+    ArrowUp: 'up', KeyW: 'up',          // up IS the jump key
     ArrowDown: 'down', KeyS: 'down',
-    Space: 'jump',
-    ShiftLeft: 'run', ShiftRight: 'run',
+    Space: 'grab',                      // rope, ledge, lever, door
     KeyZ: 'attack', KeyJ: 'attack', ControlLeft: 'attack', KeyF: 'attack',
     Enter: 'confirm', NumpadEnter: 'confirm',
     Escape: 'pause', KeyP: 'pause',
@@ -67,7 +70,7 @@
     stick:  { x: 44, y: CR.VIEW_H - 43, r: 28 },   // joystick home position + radius
     jump:   { x: CR.VIEW_W - 34, y: CR.VIEW_H - 29, r: 21 },
     attack: { x: CR.VIEW_W - 82, y: CR.VIEW_H - 47, r: 21 },
-    run:    { x: CR.VIEW_W - 28, y: CR.VIEW_H - 77, r: 15 }
+    grab:   { x: CR.VIEW_W - 28, y: CR.VIEW_H - 77, r: 16 }
   };
 
   function inCircle(p, c, pad) {
@@ -142,7 +145,7 @@
      into the tidy flags above, and works out what was newly pressed. */
   I.poll = function () {
     var prev = I._prev;
-    var s = { left: false, right: false, up: false, down: false, jump: false, run: false, attack: false, pause: false, mute: false, confirm: false };
+    var s = { left: false, right: false, up: false, down: false, grab: false, attack: false, pause: false, mute: false, confirm: false };
 
     // keyboard contribution
     for (var k in I._keys) if (I._keys[k]) s[k] = true;
@@ -156,11 +159,11 @@
           // left half of the screen drives the joystick
           if (!stick) stick = t;
         } else if (inCircle(t, L.jump)) {
-          s.jump = true;
+          s.up = true;                        // the jump button IS "up"
+        } else if (inCircle(t, L.grab)) {
+          s.grab = true;
         } else if (inCircle(t, L.attack)) {
           s.attack = true;
-        } else if (inCircle(t, L.run)) {
-          s.run = true;
         } else {
           // any other tap on the right half swings the sword
           s.attack = true;
@@ -172,21 +175,23 @@
         var dead = 8;
         if (dx < -dead) s.left = true;
         if (dx > dead) s.right = true;
-        if (dy < -dead * 1.4) { s.up = true; s.jump = true; }   // push up = jump
-        if (dy > dead * 1.4) s.down = true;                     // pull down = crawl
-        if (Math.abs(dx) > 22) s.run = true;                    // push far = run
+        if (dy < -dead * 1.4) s.up = true;      // push up = jump
+        if (dy > dead * 1.4) s.down = true;     // pull down = crawl
       }
     }
 
+    // Up is the jump key. Keeping them as one thing means menus, the stick
+    // and the jump button all end up in the same place.
     I.left = s.left; I.right = s.right; I.up = s.up; I.down = s.down;
-    I.jump = s.jump; I.run = s.run; I.attack = s.attack;
+    I.jump = s.up; I.grab = s.grab; I.attack = s.attack;
 
-    I.jumpPressed   = s.jump    && !prev.jump;
-    I.attackPressed = s.attack  && !prev.attack;
     I.upPressed     = s.up      && !prev.up;
+    I.jumpPressed   = I.upPressed;
+    I.grabPressed   = s.grab    && !prev.grab;
+    I.attackPressed = s.attack  && !prev.attack;
     I.pausePressed  = s.pause   && !prev.pause;
     I.mutePressed   = s.mute    && !prev.mute;
-    I.confirmPressed = (s.confirm && !prev.confirm) || (s.jump && !prev.jump);
+    I.confirmPressed = (s.confirm && !prev.confirm) || I.grabPressed;
     I.anyPressed = I.confirmPressed || I.attackPressed || I.pointer.clicked;
 
     I._prev = s;

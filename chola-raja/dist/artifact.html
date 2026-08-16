@@ -155,19 +155,23 @@ CR.writeSettings = function (s) {
    input.js - keyboard, mouse and touch, boiled down to a handful
    of true/false flags the rest of the game can read.
 
-   Keyboard:  Arrows / WASD move, Space jump, Shift run,
-              Z (or J / Ctrl / F) attack, Esc or P pause, M mute.
-   Touch:     joystick bottom-left, JUMP and SWORD buttons bottom-right.
+   Keyboard:  LEFT / RIGHT walk, UP jumps, DOWN crawls,
+              SPACE grabs (rope, ledge, lever, door),
+              Z (or J / Ctrl / F) attacks, Esc or P pause, M mute.
+   Touch:     joystick bottom-left, JUMP / SWORD / GRAB bottom-right.
+
+   There is no run button. One speed, and every jump in the game can be
+   made from it - one less thing to think about mid-air.
    ============================================================ */
 (function () {
   var I = {
     // held-down state, read freely every frame
     left: false, right: false, up: false, down: false,
-    jump: false, run: false, attack: false,
+    jump: false, grab: false, attack: false,
 
     // "was it pressed THIS frame" - true for exactly one frame
     jumpPressed: false, attackPressed: false, upPressed: false,
-    pausePressed: false, anyPressed: false, mutePressed: false,
+    grabPressed: false, pausePressed: false, anyPressed: false, mutePressed: false,
 
     mode: 'key',            // 'key' or 'touch' - whichever was used last
     pointer: { x: 0, y: 0, down: false, clicked: false },
@@ -181,10 +185,9 @@ CR.writeSettings = function (s) {
   var KEYMAP = {
     ArrowLeft: 'left', KeyA: 'left',
     ArrowRight: 'right', KeyD: 'right',
-    ArrowUp: 'up', KeyW: 'up',
+    ArrowUp: 'up', KeyW: 'up',          // up IS the jump key
     ArrowDown: 'down', KeyS: 'down',
-    Space: 'jump',
-    ShiftLeft: 'run', ShiftRight: 'run',
+    Space: 'grab',                      // rope, ledge, lever, door
     KeyZ: 'attack', KeyJ: 'attack', ControlLeft: 'attack', KeyF: 'attack',
     Enter: 'confirm', NumpadEnter: 'confirm',
     Escape: 'pause', KeyP: 'pause',
@@ -220,7 +223,7 @@ CR.writeSettings = function (s) {
     stick:  { x: 44, y: CR.VIEW_H - 43, r: 28 },   // joystick home position + radius
     jump:   { x: CR.VIEW_W - 34, y: CR.VIEW_H - 29, r: 21 },
     attack: { x: CR.VIEW_W - 82, y: CR.VIEW_H - 47, r: 21 },
-    run:    { x: CR.VIEW_W - 28, y: CR.VIEW_H - 77, r: 15 }
+    grab:   { x: CR.VIEW_W - 28, y: CR.VIEW_H - 77, r: 16 }
   };
 
   function inCircle(p, c, pad) {
@@ -295,7 +298,7 @@ CR.writeSettings = function (s) {
      into the tidy flags above, and works out what was newly pressed. */
   I.poll = function () {
     var prev = I._prev;
-    var s = { left: false, right: false, up: false, down: false, jump: false, run: false, attack: false, pause: false, mute: false, confirm: false };
+    var s = { left: false, right: false, up: false, down: false, grab: false, attack: false, pause: false, mute: false, confirm: false };
 
     // keyboard contribution
     for (var k in I._keys) if (I._keys[k]) s[k] = true;
@@ -309,11 +312,11 @@ CR.writeSettings = function (s) {
           // left half of the screen drives the joystick
           if (!stick) stick = t;
         } else if (inCircle(t, L.jump)) {
-          s.jump = true;
+          s.up = true;                        // the jump button IS "up"
+        } else if (inCircle(t, L.grab)) {
+          s.grab = true;
         } else if (inCircle(t, L.attack)) {
           s.attack = true;
-        } else if (inCircle(t, L.run)) {
-          s.run = true;
         } else {
           // any other tap on the right half swings the sword
           s.attack = true;
@@ -325,21 +328,23 @@ CR.writeSettings = function (s) {
         var dead = 8;
         if (dx < -dead) s.left = true;
         if (dx > dead) s.right = true;
-        if (dy < -dead * 1.4) { s.up = true; s.jump = true; }   // push up = jump
-        if (dy > dead * 1.4) s.down = true;                     // pull down = crawl
-        if (Math.abs(dx) > 22) s.run = true;                    // push far = run
+        if (dy < -dead * 1.4) s.up = true;      // push up = jump
+        if (dy > dead * 1.4) s.down = true;     // pull down = crawl
       }
     }
 
+    // Up is the jump key. Keeping them as one thing means menus, the stick
+    // and the jump button all end up in the same place.
     I.left = s.left; I.right = s.right; I.up = s.up; I.down = s.down;
-    I.jump = s.jump; I.run = s.run; I.attack = s.attack;
+    I.jump = s.up; I.grab = s.grab; I.attack = s.attack;
 
-    I.jumpPressed   = s.jump    && !prev.jump;
-    I.attackPressed = s.attack  && !prev.attack;
     I.upPressed     = s.up      && !prev.up;
+    I.jumpPressed   = I.upPressed;
+    I.grabPressed   = s.grab    && !prev.grab;
+    I.attackPressed = s.attack  && !prev.attack;
     I.pausePressed  = s.pause   && !prev.pause;
     I.mutePressed   = s.mute    && !prev.mute;
-    I.confirmPressed = (s.confirm && !prev.confirm) || (s.jump && !prev.jump);
+    I.confirmPressed = (s.confirm && !prev.confirm) || I.grabPressed;
     I.anyPressed = I.confirmPressed || I.attackPressed || I.pointer.clicked;
 
     I._prev = s;
@@ -725,29 +730,37 @@ CR.writeSettings = function (s) {
   /* ---------- colour palettes ----------
      One palette per level. Changing these six-or-so colours changes
      the entire mood of a level, which is the cheapest art trick there is. */
+  /* The ground colours are deliberately much brighter than the scenery
+     colours behind them. Distance drains colour and contrast - that is
+     how your eye reads depth - so everything the prince can actually
+     stand on is painted light and edged in near-black, and everything
+     he cannot is pushed back towards the colour of the sky. */
   Art.PALETTES = {
     grove: {                       // Level 1 - morning, green, hopeful
-      skyTop: '#2e6f7a', skyBot: '#8fc38a',
-      sun: '#ffeab0',
-      far: '#4c7f6d', mid: '#356152', near: '#1f3f36',
-      groundTop: '#5d8a44', groundFace: '#3c5a2c', groundDeep: '#25391c',
-      stone: '#7d8a6a', stoneDark: '#525d44',
-      accent: '#e0b040', haze: 'rgba(180,220,190,0.20)'
+      skyTop: '#1d5a68', skyMid: '#4d8f8a', skyBot: '#c9d9a0',
+      sun: '#fff0c0',
+      far: '#43706a', mid: '#2c5049', near: '#14312c',
+      groundTop: '#84b95a', groundFace: '#4e7433', groundDeep: '#2a3d1e',
+      stone: '#a9b08c', stoneDark: '#5d6647',
+      edge: 'rgba(8,14,8,0.62)',
+      accent: '#e0b040', haze: 'rgba(190,225,205,0.26)'
     },
     fort: {                        // Level 2 - late afternoon, sand and stone
-      skyTop: '#4a3358', skyBot: '#e29a52',
-      sun: '#ffd79a',
-      far: '#9a6b46', mid: '#734c33', near: '#42291c',
-      groundTop: '#b98b57', groundFace: '#8a6238', groundDeep: '#513920',
-      stone: '#9a8462', stoneDark: '#5f513a',
-      accent: '#f0c460', haze: 'rgba(240,190,130,0.18)'
+      skyTop: '#3c2b52', skyMid: '#8e5a54', skyBot: '#eeb26a',
+      sun: '#ffe3ae',
+      far: '#8a6a55', mid: '#5c4032', near: '#2e1d14',
+      groundTop: '#dcae70', groundFace: '#a2743f', groundDeep: '#553a1d',
+      stone: '#c4a878', stoneDark: '#6b5637',
+      edge: 'rgba(20,10,4,0.62)',
+      accent: '#f0c460', haze: 'rgba(240,190,130,0.24)'
     },
     hall: {                        // Level 3 - inside the Pandya palace, night, firelight
-      skyTop: '#0a0a14', skyBot: '#1a1220',
+      skyTop: '#07050e', skyMid: '#120c1a', skyBot: '#1c1424',
       sun: '#ffb347',
-      far: '#241a2b', mid: '#191222', near: '#0d0912',
-      groundTop: '#3a2c3f', groundFace: '#241a28', groundDeep: '#120c16',
-      stone: '#43354a', stoneDark: '#241b29',
+      far: '#1d1526', mid: '#140e1c', near: '#0a0710',
+      groundTop: '#5f4a63', groundFace: '#34263a', groundDeep: '#160f1c',
+      stone: '#584566', stoneDark: '#291e30',
+      edge: 'rgba(0,0,0,0.7)',
       accent: '#ff9a3c', haze: 'rgba(255,140,50,0.10)'
     }
   };
@@ -838,6 +851,217 @@ CR.writeSettings = function (s) {
     ctx.arcTo(x, y + h, x, y, r);
     ctx.arcTo(x, y, x + w, y, r);
     ctx.closePath();
+  };
+
+  /* ============================================================
+     THE FACE
+
+     Drawn in its own little space with the head centre at 0,0, always
+     looking to the right (drawPerson flips the whole figure when he
+     turns around). Everyone gets a jaw, an eye, a brow, a nose and a
+     mouth - it is only a few pixels each, but it is the difference
+     between a person and a bean.
+     ============================================================ */
+
+  // which expression suits what the body is doing
+  function faceFor(anim, override) {
+    if (override) return override;
+    if (anim === 'attack') return 'grim';
+    if (anim === 'hurt') return 'pain';
+    if (anim === 'dead') return 'out';
+    if (anim === 'cheer') return 'smile';
+    if (anim === 'crawl' || anim === 'wallrun' || anim === 'hang') return 'grim';
+    return 'neutral';
+  }
+
+  Art.drawHead = function (ctx, col, o) {
+    o = o || {};
+    var face = o.face || 'neutral';
+    var angry = face === 'grim' || face === 'pain';
+    var strong = o.jaw === 'strong';
+
+    var chinX = strong ? 1.2 : 0.8;
+    var chinY = strong ? 4.3 : 3.8;
+    var jawW = strong ? 3.7 : 3.3;
+
+    /* --- hair that falls behind the head, drawn first --- */
+    if (o.hair === 'long') {
+      ctx.fillStyle = col.hair;
+      ctx.beginPath();
+      ctx.moveTo(-1.8, -3.2);
+      ctx.quadraticCurveTo(-4.8, -1.2, -4.5, 3.0);
+      ctx.quadraticCurveTo(-4.2, 6.4, -2.4, 7.2);
+      ctx.lineTo(-0.8, 6.4);
+      ctx.quadraticCurveTo(-2.6, 4.2, -2.2, -0.8);
+      ctx.closePath(); ctx.fill();
+    } else if (o.hair === 'braid') {
+      ctx.fillStyle = col.hair;
+      ctx.beginPath();
+      ctx.ellipse(-1.6, 4.6, 1.9, 4.8, 0.12, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    /* --- the head, drawn as a profile ---
+       One path from the crown, down over the brow, out along the nose,
+       past the lips to the chin and back round the jaw. Putting the nose
+       in the outline is what makes it read as a face instead of a ball
+       with an eye painted on it. */
+    ctx.fillStyle = col.skin;
+    ctx.beginPath();
+    ctx.moveTo(-3.3, -2.5);
+    ctx.quadraticCurveTo(-1.6, -4.6, 1.0, -4.1);      // crown
+    ctx.quadraticCurveTo(2.6, -3.7, 2.9, -2.2);       // forehead
+    ctx.lineTo(3.15, -1.2);                           // brow ridge
+    ctx.lineTo(3.15, -0.5);                           // bridge of the nose
+    ctx.lineTo(4.35, 0.85);                           // tip of the nose
+    ctx.lineTo(3.1, 1.15);                            // underneath it
+    ctx.quadraticCurveTo(3.5, 1.6, 3.35, 1.95);       // upper lip
+    ctx.quadraticCurveTo(3.0, 2.2, 3.3, 2.6);         // lower lip
+    ctx.quadraticCurveTo(3.5, 3.1, chinX + 0.5, chinY - 0.2);   // chin
+    ctx.quadraticCurveTo(chinX - 1.6, chinY + 0.3, -1.6, chinY - 0.7);
+    ctx.quadraticCurveTo(-jawW - 0.2, chinY - 1.8, -jawW - 0.3, 0.4);  // jaw to ear
+    ctx.quadraticCurveTo(-4.1, -1.3, -3.3, -2.5);     // back of the skull
+    ctx.closePath();
+    ctx.fill();
+
+    // the shaded plane under the cheekbone - this is what reads as a jawline
+    ctx.fillStyle = col.skinDark;
+    ctx.globalAlpha = strong ? 0.55 : 0.35;
+    ctx.beginPath();
+    ctx.moveTo(-jawW * 0.9, 0.4);
+    ctx.quadraticCurveTo(-1.0, chinY * 0.9, chinX - 1.4, chinY - 0.2);
+    ctx.lineTo(chinX - 2.2, chinY - 1.2);
+    ctx.quadraticCurveTo(-1.6, chinY * 0.6, -jawW * 0.85, -0.4);
+    ctx.closePath(); ctx.fill();
+    ctx.globalAlpha = 1;
+
+    // a shave that is a few days old
+    if (o.stubble || o.beard) {
+      ctx.fillStyle = col.hair;
+      ctx.globalAlpha = o.beard ? 0.75 : 0.3;
+      ctx.beginPath();
+      ctx.moveTo(-2.8, 0.9);
+      ctx.quadraticCurveTo(-2.2, chinY * 0.95, chinX - 1.5, chinY - 0.1);
+      ctx.lineTo(chinX + 0.6, chinY - 0.4);
+      ctx.quadraticCurveTo(jawW * 0.95, 2.0, jawW - 0.2, 0.5);
+      ctx.quadraticCurveTo(1.4, 2.2, -2.8, 0.9);
+      ctx.closePath(); ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+
+    // ear
+    ctx.fillStyle = col.skinDark;
+    ctx.beginPath();
+    ctx.ellipse(-2.4, 0.2, 0.75, 1.05, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    /* --- eye: an almond, not a saucer --- */
+    if (face === 'out') {
+      ctx.strokeStyle = '#3a2a20'; ctx.lineWidth = 0.4;
+      ctx.beginPath(); ctx.moveTo(1.5, -0.5); ctx.lineTo(2.7, -0.5); ctx.stroke();
+    } else {
+      ctx.fillStyle = '#e8dcca';
+      ctx.beginPath();
+      ctx.moveTo(1.5, -0.35);
+      ctx.quadraticCurveTo(2.15, -1.0, 2.8, -0.4);
+      ctx.quadraticCurveTo(2.15, 0.2, 1.5, -0.35);
+      ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#14100c';
+      ctx.beginPath(); ctx.arc(2.35, -0.38, 0.38, 0, Math.PI * 2); ctx.fill();
+      // lash line along the top lid
+      ctx.strokeStyle = '#241a14'; ctx.lineWidth = 0.32;
+      ctx.beginPath();
+      ctx.moveTo(1.45, -0.4); ctx.quadraticCurveTo(2.15, -1.05, 2.85, -0.45);
+      ctx.stroke();
+    }
+
+    /* --- brow --- */
+    ctx.strokeStyle = col.hair;
+    ctx.lineWidth = 0.62;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    if (angry) { ctx.moveTo(0.9, -2.0); ctx.lineTo(2.95, -1.35); }
+    else { ctx.moveTo(1.0, -1.75); ctx.lineTo(2.95, -1.75); }
+    ctx.stroke();
+
+    // a crease down the side of the nose gives the profile some depth
+    ctx.strokeStyle = col.skinDark;
+    ctx.lineWidth = 0.3;
+    ctx.beginPath();
+    ctx.moveTo(2.9, -0.4); ctx.quadraticCurveTo(3.3, 0.6, 3.0, 1.1);
+    ctx.stroke();
+
+    /* --- mouth --- */
+    if (face === 'pain') {
+      ctx.fillStyle = '#3d1410';
+      ctx.beginPath();
+      ctx.ellipse(2.7, 2.0, 0.58, 0.62, 0, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      ctx.strokeStyle = '#4d2418';
+      ctx.lineWidth = 0.42;
+      ctx.beginPath();
+      if (face === 'smile') { ctx.moveTo(2.0, 1.85); ctx.quadraticCurveTo(2.7, 2.6, 3.25, 1.95); }
+      else if (face === 'grim') { ctx.lineWidth = 0.55; ctx.moveTo(2.0, 2.25); ctx.quadraticCurveTo(2.7, 1.85, 3.25, 2.2); }
+      else if (face === 'out') { ctx.moveTo(2.1, 2.15); ctx.lineTo(3.2, 2.2); }
+      else { ctx.moveTo(2.1, 2.05); ctx.quadraticCurveTo(2.7, 2.25, 3.25, 2.0); }
+      ctx.stroke();
+    }
+
+    if (o.moustache) {
+      ctx.strokeStyle = col.hair;
+      ctx.lineWidth = 1.0;
+      ctx.beginPath();
+      ctx.moveTo(1.2, 1.75); ctx.quadraticCurveTo(2.9, 1.5, 4.0, 2.3);
+      ctx.stroke();
+    }
+
+    /* --- hair on top --- */
+    ctx.fillStyle = col.hair;
+    if (o.hair === 'knot') {
+      ctx.beginPath();
+      ctx.ellipse(-0.2, -1.4, 3.7, 3.1, 0, Math.PI * 0.98, Math.PI * 2.12);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(-3.0, -1.6, 1.9, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (o.hair === 'long') {
+      ctx.beginPath();
+      ctx.ellipse(-0.2, -1.6, 3.8, 3.2, 0, Math.PI * 0.95, Math.PI * 2.18);
+      ctx.fill();
+      // a fringe swept across the forehead
+      ctx.beginPath();
+      ctx.moveTo(-3.4, -2.2);
+      ctx.quadraticCurveTo(0.6, -5.2, 3.6, -2.4);
+      ctx.quadraticCurveTo(1.2, -2.9, -1.0, -1.6);
+      ctx.closePath(); ctx.fill();
+    } else if (o.hair === 'braid') {
+      ctx.beginPath();
+      ctx.ellipse(-0.1, -1.5, 3.7, 3.1, 0, Math.PI * 0.92, Math.PI * 2.14);
+      ctx.fill();
+    }
+
+    if (o.crown) {
+      ctx.fillStyle = col.gold;
+      ctx.beginPath();
+      ctx.moveTo(-2.8, -3.0); ctx.lineTo(2.8, -3.0); ctx.lineTo(2.2, -5.0);
+      ctx.lineTo(1.0, -3.8); ctx.lineTo(0, -5.6); ctx.lineTo(-1.0, -3.8); ctx.lineTo(-2.2, -5.0);
+      ctx.closePath(); ctx.fill();
+    }
+    if (o.helmet) {
+      ctx.fillStyle = col.metal || '#9aa3ac';
+      ctx.beginPath();
+      ctx.ellipse(0, -1.8, 3.7, 3.1, 0, Math.PI, Math.PI * 2);
+      ctx.fill();
+      ctx.fillRect(-3.7, -2.1, 7.4, 1.0);
+      if (o.plume) {
+        ctx.fillStyle = col.sash;
+        ctx.beginPath();
+        ctx.moveTo(0, -4.6); ctx.quadraticCurveTo(-1.5, -8.7, -3.5, -9.7);
+        ctx.quadraticCurveTo(-1.2, -7.4, -1.0, -4.6);
+        ctx.closePath(); ctx.fill();
+      }
+    }
   };
 
   /* ============================================================
@@ -939,6 +1163,12 @@ CR.writeSettings = function (s) {
       bob = cy;
       armA = [-2.7, -3.0]; armB = [-2.7, -3.0];
       legA = [0.1, 0.2]; legB = [-0.1, -0.2];
+    } else if (anim === 'ride') {
+      // sitting a horse: thighs forward, knees bent, hands on the reins
+      hipY = -10; chestY = -19; headY = -23.5;
+      legA = [1.25, -0.35]; legB = [1.35, -0.25];
+      armA = [0.9, 0.55]; armB = [1.0, 0.6];
+      lean = 0.12;
     } else if (anim === 'sleep') {
       // slumped against the wall, chin on chest
       hipY = -7; chestY = -14; headY = -18.5;
@@ -992,45 +1222,17 @@ CR.writeSettings = function (s) {
     // neck
     ctx.fillStyle = col.skinDark;
     ctx.fillRect(-1.4, 1.5, 2.8, 3);
-    ellipse(ctx, 0.3, 0, 3.7, 4.0, col.skin);
-    // hair, tied in a knot at the back like the period sculptures
-    ctx.fillStyle = col.hair;
-    ctx.beginPath();
-    ctx.ellipse(-0.2, -1.2, 3.8, 3.2, 0, Math.PI * 0.95, Math.PI * 2.15);
-    ctx.fill();
-    ellipse(ctx, -3.0, -1.4, 1.9, 1.9, col.hair);
-    // eye and brow
-    ctx.fillStyle = '#14100e';
-    ctx.fillRect(1.7, -0.7, 1.1, 1.2);
-    ctx.fillRect(1.3, -2.0, 2.0, 0.7);
-    if (opts.crown) {
-      ctx.fillStyle = col.gold;
-      ctx.beginPath();
-      ctx.moveTo(-2.8, -2.6); ctx.lineTo(2.8, -2.6); ctx.lineTo(2.2, -4.6);
-      ctx.lineTo(1.0, -3.4); ctx.lineTo(0, -5.2); ctx.lineTo(-1.0, -3.4); ctx.lineTo(-2.2, -4.6);
-      ctx.closePath(); ctx.fill();
-    }
-    if (opts.helmet) {
-      ctx.fillStyle = col.metal || '#9aa3ac';
-      ctx.beginPath();
-      ctx.ellipse(0, -1.6, 3.6, 3.0, 0, Math.PI, Math.PI * 2);
-      ctx.fill();
-      ctx.fillRect(-3.6, -1.9, 7.2, 1.0);
-      if (opts.plume) {
-        ctx.fillStyle = col.sash;
-        ctx.beginPath();
-        ctx.moveTo(0, -4.4); ctx.quadraticCurveTo(-1.5, -8.5, -3.5, -9.5);
-        ctx.quadraticCurveTo(-1.2, -7.2, -1.0, -4.4);
-        ctx.closePath(); ctx.fill();
-      }
-    }
-    if (opts.moustache) {
-      ctx.strokeStyle = col.hair;
-      ctx.lineWidth = 0.9;
-      ctx.beginPath();
-      ctx.moveTo(0.6, 1.4); ctx.quadraticCurveTo(2.6, 1.0, 3.4, 2.2);
-      ctx.stroke();
-    }
+    Art.drawHead(ctx, col, {
+      hair: opts.hair || 'knot',
+      jaw: opts.jaw || 'normal',
+      beard: opts.beard,
+      stubble: opts.stubble,
+      moustache: opts.moustache,
+      crown: opts.crown,
+      helmet: opts.helmet,
+      plume: opts.plume,
+      face: faceFor(anim, opts.face)
+    });
     ctx.restore();
 
     /* --- front leg and front arm, on top --- */
@@ -1042,7 +1244,7 @@ CR.writeSettings = function (s) {
        A resting weapon sits at a fixed angle rather than following the
        arm, otherwise a spear ends up pointing at the floor. */
     if (weapon !== 'none') {
-      var rest = weapon === 'spear' ? -0.10 : 0.55;
+      var rest = weapon === 'spear' ? -0.10 : (weapon === 'club' ? -0.62 : 0.55);
       ctx.save();
       ctx.translate(hand.x, hand.y);
       ctx.rotate(anim === 'attack' ? swordAngle : rest);
@@ -1095,10 +1297,10 @@ CR.writeSettings = function (s) {
     } else if (weapon === 'club') {
       ctx.fillStyle = grip; ctx.fillRect(-0.9, -6, 1.8, 8);
       ctx.fillStyle = wood;
-      Art.roundRect(ctx, -2.6, -14, 5.2, 9, 2.4);
+      Art.roundRect(ctx, -2.3, -13, 4.6, 8, 2.1);
       ctx.fill();
       ctx.fillStyle = dark;
-      for (var i = 0; i < 3; i++) ctx.fillRect(-2.6, -12.5 + i * 2.8, 5.2, 0.9);
+      for (var i = 0; i < 3; i++) ctx.fillRect(-2.3, -11.6 + i * 2.5, 4.6, 0.8);
     }
   };
 
@@ -1121,35 +1323,59 @@ CR.writeSettings = function (s) {
     }
   };
 
-  /* The captive princess, seen inside the cage in the last level. */
-  Art.drawPrincess = function (ctx, x, y, t, freed, h) {
+  /* The captive princess. `mood` overrides her expression - she is not
+     always calm about what is happening to her. */
+  Art.drawPrincess = function (ctx, x, y, t, freed, h, mood) {
     var col = Art.PRINCESS;
+    var opts_face = mood;
     ctx.save();
     ctx.translate(x, y);
     var s = (h || 30) / 30 * 0.95;
     ctx.scale(s, s);
-    // sari
+    // sari, with pleats down the front and a gold border at the hem
     ctx.fillStyle = col.cloth;
     ctx.beginPath();
     ctx.moveTo(-5, 0); ctx.lineTo(5, 0); ctx.lineTo(3.2, -17); ctx.lineTo(-3.2, -17);
     ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = col.sash; ctx.lineWidth = 0.4;
+    for (var pl = -2.5; pl <= 2.5; pl += 1.7) {
+      ctx.beginPath(); ctx.moveTo(pl * 1.5, -1); ctx.lineTo(pl, -16); ctx.stroke();
+    }
     ctx.fillStyle = col.gold;
     ctx.fillRect(-5, -2, 10, 1.4);
     ctx.fillRect(-3.4, -17, 6.8, 1.2);
+    // the pallu, thrown over one shoulder
+    ctx.fillStyle = col.sash;
+    ctx.beginPath();
+    ctx.moveTo(-3.4, -21.5);
+    ctx.quadraticCurveTo(-5.6, -14, -4.4, -6);
+    ctx.lineTo(-2.4, -6.5);
+    ctx.quadraticCurveTo(-3.4, -14, -1.6, -21);
+    ctx.closePath(); ctx.fill();
     // arms
     ctx.strokeStyle = col.skin; ctx.lineWidth = 2.4; ctx.lineCap = 'round';
     var a = freed ? -2.5 + Math.sin(t * 5) * 0.3 : -0.4;
     ctx.beginPath(); ctx.moveTo(-2.5, -19); ctx.lineTo(-2.5 + Math.sin(a) * 7, -19 + Math.cos(a) * 7); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(2.5, -19); ctx.lineTo(2.5 + Math.sin(-a) * 7, -19 + Math.cos(-a) * 7); ctx.stroke();
-    // torso + head
+    // torso
     ctx.fillStyle = col.skin;
     Art.roundRect(ctx, -3.2, -22, 6.4, 6, 2.2); ctx.fill();
-    ctx.beginPath(); ctx.ellipse(0, -25.5, 3.2, 3.4, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = col.hair;
-    ctx.beginPath(); ctx.ellipse(0, -26.4, 3.3, 3.0, 0, Math.PI * 0.9, Math.PI * 2.2); ctx.fill();
-    ctx.beginPath(); ctx.ellipse(0, -21.5, 2.0, 4.6, 0, 0, Math.PI * 2); ctx.fill();   // long plait
+
+    // head - same face everyone else gets, with a plait and a bindi
+    ctx.save();
+    ctx.translate(0.4, -25.6);
+    ctx.scale(0.94, 0.94);
+    Art.drawHead(ctx, col, {
+      hair: 'braid',
+      jaw: 'normal',
+      face: freed ? 'smile' : (opts_face || 'neutral')
+    });
+    ctx.fillStyle = '#b4302a';
+    ctx.beginPath(); ctx.arc(1.0, -2.6, 0.5, 0, Math.PI * 2); ctx.fill();   // bindi
     ctx.fillStyle = col.gold;
-    ctx.beginPath(); ctx.arc(0, -28.6, 1.4, Math.PI, 0); ctx.fill();
+    ctx.beginPath(); ctx.arc(-2.3, 1.4, 0.7, 0, Math.PI * 2); ctx.fill();   // earring
+    ctx.beginPath(); ctx.arc(0, -3.4, 1.5, Math.PI, 0); ctx.fill();         // hair ornament
+    ctx.restore();
     ctx.restore();
   };
 
@@ -1381,81 +1607,135 @@ CR.writeSettings = function (s) {
       return { layers: layers, palette: P, name: paletteName };
     }
 
-    // ---- sky + sun ----
+    /* ---- sky ----
+       Three stops rather than two, with a bright band sitting on the
+       horizon. Real skies are lightest where they meet the land, and
+       that one detail does more for realism than any amount of detail. */
     layers.push({ speed: 0, y: 0, img: makeLayer(LAYER_W, LAYER_H, function (g) {
-      var grad = g.createLinearGradient(0, 0, 0, LAYER_H);
+      var grad = g.createLinearGradient(0, 0, 0, 215);
       grad.addColorStop(0, P.skyTop);
+      grad.addColorStop(0.55, P.skyMid || P.skyTop);
       grad.addColorStop(1, P.skyBot);
       g.fillStyle = grad;
       g.fillRect(0, 0, LAYER_W, LAYER_H);
-      var sg = g.createRadialGradient(360, 62, 2, 360, 62, 60);
+
+      // the sun, low and hazy
+      var sunY = paletteName === 'fort' ? 150 : 74;
+      var sg = g.createRadialGradient(352, sunY, 2, 352, sunY, 78);
       sg.addColorStop(0, P.sun);
+      sg.addColorStop(0.25, 'rgba(255,225,165,0.45)');
       sg.addColorStop(1, 'rgba(255,220,150,0)');
       g.fillStyle = sg;
-      g.beginPath(); g.arc(360, 62, 60, 0, Math.PI * 2); g.fill();
-      // a few soft clouds
-      g.fillStyle = 'rgba(255,255,255,0.13)';
-      for (var i = 0; i < 5; i++) {
-        var cx = rnd() * LAYER_W, cy = 24 + rnd() * 60;
-        for (var k = 0; k < 4; k++) {
+      g.beginPath(); g.arc(352, sunY, 78, 0, Math.PI * 2); g.fill();
+
+      // layered cloud banks, thin and stretched near the horizon
+      for (var i = 0; i < 7; i++) {
+        var cx = rnd() * LAYER_W, cy = 18 + rnd() * 96;
+        var flat = 1 - cy / 200;
+        g.fillStyle = 'rgba(255,255,255,' + (0.05 + flat * 0.10).toFixed(3) + ')';
+        for (var k = 0; k < 6; k++) {
           g.beginPath();
-          g.ellipse(cx + k * 11 - 16, cy + Math.sin(k) * 3, 15 - k * 1.5, 5, 0, 0, Math.PI * 2);
+          g.ellipse(cx + k * 13 - 30, cy + Math.sin(k * 1.3) * 2.5,
+                    17 - Math.abs(k - 2.5) * 2.4, 3.4 + flat * 2.6, 0, 0, Math.PI * 2);
           g.fill();
         }
       }
     })});
 
-    // ---- far hills + a distant gopuram ----
-    layers.push({ speed: 0.14, y: 0, img: makeLayer(LAYER_W, LAYER_H, function (g) {
+    /* ---- the furthest ridge: almost the colour of the sky ---- */
+    layers.push({ speed: 0.07, y: 0, img: makeLayer(LAYER_W, LAYER_H, function (g) {
+      g.globalAlpha = 0.5;
       g.fillStyle = P.far;
       g.beginPath();
-      g.moveTo(0, 200);
-      for (var x = 0; x <= LAYER_W; x += 24) {
-        g.lineTo(x, 168 + Math.sin(x * 0.017 + 1.2) * 22 + Math.sin(x * 0.041) * 9);
+      g.moveTo(0, LAYER_H);
+      for (var x = 0; x <= LAYER_W; x += 18) {
+        g.lineTo(x, 150 + Math.sin(x * 0.011 + 2.1) * 26 + Math.sin(x * 0.033) * 7);
       }
-      g.lineTo(LAYER_W, LAYER_H); g.lineTo(0, LAYER_H);
+      g.lineTo(LAYER_W, LAYER_H);
       g.closePath(); g.fill();
-      Art.gopuram(g, 118, 178, 40, 78, P.far, false);
-      Art.gopuram(g, 336, 182, 30, 56, P.far, false);
+      g.globalAlpha = 1;
     })});
 
-    // ---- middle band: trees or walls ----
+    /* ---- second ridge, with the temple towers on it ---- */
+    layers.push({ speed: 0.15, y: 0, img: makeLayer(LAYER_W, LAYER_H, function (g) {
+      g.globalAlpha = 0.82;
+      g.fillStyle = P.far;
+      g.beginPath();
+      g.moveTo(0, LAYER_H);
+      for (var x = 0; x <= LAYER_W; x += 20) {
+        g.lineTo(x, 176 + Math.sin(x * 0.017 + 1.2) * 20 + Math.sin(x * 0.045) * 8);
+      }
+      g.lineTo(LAYER_W, LAYER_H);
+      g.closePath(); g.fill();
+      Art.gopuram(g, 118, 180, 40, 80, P.far, false);
+      Art.gopuram(g, 336, 184, 30, 58, P.far, false);
+      g.globalAlpha = 1;
+      // haze pooling at the foot of the hills
+      var hz = g.createLinearGradient(0, 150, 0, 215);
+      hz.addColorStop(0, 'rgba(255,255,255,0)');
+      hz.addColorStop(1, P.haze);
+      g.fillStyle = hz;
+      g.fillRect(0, 150, LAYER_W, 70);
+    })});
+
+    /* ---- middle band: the tree line, or the fort wall ---- */
     layers.push({ speed: 0.34, y: 0, img: makeLayer(LAYER_W, LAYER_H, function (g) {
       if (paletteName === 'grove') {
-        for (var i = 0; i < 9; i++) {
-          var x = 12 + i * 54 + rnd() * 18;
-          if (rnd() > 0.55) Art.banyan(g, x, 214, 58 + rnd() * 22, P.mid);
-          else Art.palm(g, x, 214, 62 + rnd() * 26, P.mid);
+        // a dense wall of canopy behind the individual trees
+        g.fillStyle = P.mid;
+        g.globalAlpha = 0.75;
+        for (var b = -10; b < LAYER_W + 20; b += 26) {
+          g.beginPath();
+          g.ellipse(b, 206, 22, 13 + (b % 3) * 3, 0, 0, Math.PI * 2);
+          g.fill();
+        }
+        g.globalAlpha = 1;
+        for (var i = 0; i < 11; i++) {
+          var x = 6 + i * 45 + rnd() * 16;
+          if (rnd() > 0.55) Art.banyan(g, x, 218, 56 + rnd() * 26, P.mid);
+          else Art.palm(g, x, 218, 60 + rnd() * 30, P.mid);
         }
       } else {
-        Art.fortWall(g, 0, 216, LAYER_W, 62, P.mid, P.near);
+        Art.fortWall(g, 0, 218, LAYER_W, 66, P.mid, P.near);
         for (var t = 0; t < 4; t++) {
           var tx = 40 + t * 120;
           g.fillStyle = P.mid;
-          g.fillRect(tx, 130, 34, 86);
+          g.fillRect(tx, 128, 34, 90);
           g.fillStyle = P.near;
-          for (var b = 0; b < 34; b += 11) g.fillRect(tx + b, 124, 6, 6);
+          for (var bb = 0; bb < 34; bb += 11) g.fillRect(tx + bb, 122, 6, 6);
+          // arrow slits
+          g.fillStyle = 'rgba(0,0,0,0.45)';
+          g.fillRect(tx + 15, 146, 3, 12);
+          g.fillRect(tx + 15, 172, 3, 12);
         }
       }
       g.fillStyle = P.haze;
       g.fillRect(0, 0, LAYER_W, LAYER_H);
     })});
 
-    // ---- near band, just behind the action ----
+    /* ---- near band: dark, and close enough to be almost a silhouette ---- */
     layers.push({ speed: 0.62, y: 0, img: makeLayer(LAYER_W, LAYER_H, function (g) {
       g.fillStyle = P.near;
       if (paletteName === 'grove') {
-        for (var i = 0; i < 6; i++) Art.palm(g, i * 88 + 20, 250, 46 + rnd() * 18, P.near);
+        for (var i = 0; i < 7; i++) Art.palm(g, i * 74 + 14, 256, 48 + rnd() * 22, P.near);
         g.beginPath();
-        g.moveTo(0, 246);
-        for (var x = 0; x <= LAYER_W; x += 16) g.lineTo(x, 240 + Math.sin(x * 0.06) * 5);
+        g.moveTo(0, 250);
+        for (var x = 0; x <= LAYER_W; x += 12) {
+          g.lineTo(x, 242 + Math.sin(x * 0.06) * 5 + Math.sin(x * 0.17) * 2);
+        }
         g.lineTo(LAYER_W, LAYER_H); g.lineTo(0, LAYER_H);
         g.closePath(); g.fill();
+        // grass along the crest
+        g.strokeStyle = P.near; g.lineWidth = 1;
+        for (var gx = 0; gx < LAYER_W; gx += 4) {
+          var gy = 242 + Math.sin(gx * 0.06) * 5;
+          g.beginPath(); g.moveTo(gx, gy); g.lineTo(gx + 1.5, gy - 4 - (gx % 5)); g.stroke();
+        }
       } else {
         for (var d = 0; d < LAYER_W; d += 60) {
           g.beginPath();
           g.moveTo(d, LAYER_H);
-          g.quadraticCurveTo(d + 30, 232, d + 60, LAYER_H);
+          g.quadraticCurveTo(d + 30, 234, d + 60, LAYER_H);
           g.closePath(); g.fill();
         }
       }
@@ -1714,10 +1994,13 @@ CR.writeSettings = function (s) {
   World.update = function (dt, player) {
     World.time += dt;
 
-    // spike traps breathe in and out
+    // spike traps breathe in and out. When the assist is on they breathe
+    // slower, which widens the gap you have to run through.
+    var slow = World.trapSlow || 1;
     for (var i = 0; i < World.traps.length; i++) {
       var tr = World.traps[i];
-      var ph = ((World.time + tr.phase) % tr.period) / tr.period;
+      var period = tr.period * slow;
+      var ph = ((World.time + tr.phase) % period) / period;
       // out for the first 40% of the cycle, with a fast snap up
       var target = ph < 0.36 ? 1 : 0;
       var wasOut = tr.out;
@@ -1775,6 +2058,26 @@ CR.writeSettings = function (s) {
         rot: Math.random() * 6, vr: (Math.random() - 0.5) * 14,
         size: 1 + Math.random() * 2.4,
         col: col || '#8a6a3a'
+      });
+    }
+  };
+
+  /* Blood. Fat round droplets thrown out along the direction of the blow,
+     heavier and slower than dust so they arc and fall. dir is -1 or 1 for
+     which way the blade was travelling. */
+  World.blood = function (x, y, n, dir) {
+    for (var i = 0; i < n; i++) {
+      var spread = Math.random();
+      World.particles.push({
+        drop: true,
+        x: x + (Math.random() - 0.5) * 4,
+        y: y + (Math.random() - 0.5) * 6,
+        vx: dir * (40 + spread * 130) + (Math.random() - 0.5) * 50,
+        vy: -50 - Math.random() * 120,
+        life: 0.55 + Math.random() * 0.7,
+        rot: 0, vr: 0,
+        size: 1.8 + Math.random() * 2.8,
+        col: Math.random() < 0.25 ? '#7d1414' : '#b41e1e'
       });
     }
   };
@@ -1845,27 +2148,55 @@ CR.writeSettings = function (s) {
       if (s.kind === 'stone') {
         ctx.fillStyle = P.stone;
         ctx.fillRect(s.x, s.y, s.w, s.h);
+        // courses of cut blocks, darker as they go down into shadow
         ctx.fillStyle = P.stoneDark;
-        for (var y = s.y + 6; y < s.y + s.h; y += 8) ctx.fillRect(s.x, y, s.w, 1.2);
-        for (var x = s.x + 10; x < s.x + s.w; x += 20) ctx.fillRect(x, s.y, 1.2, s.h);
-        ctx.fillStyle = 'rgba(255,255,255,0.13)';
-        ctx.fillRect(s.x, s.y, s.w, 1.6);
+        for (var y = s.y + 7; y < s.y + s.h; y += 9) ctx.fillRect(s.x, y, s.w, 1.4);
+        for (var x = s.x + 11; x < s.x + s.w; x += 22) ctx.fillRect(x, s.y, 1.4, s.h);
+        var sg = ctx.createLinearGradient(0, s.y, 0, s.y + Math.min(s.h, 70));
+        sg.addColorStop(0, 'rgba(0,0,0,0)');
+        sg.addColorStop(1, 'rgba(0,0,0,0.4)');
+        ctx.fillStyle = sg;
+        ctx.fillRect(s.x, s.y, s.w, Math.min(s.h, 70));
+        // the lit top edge
+        ctx.fillStyle = 'rgba(255,248,225,0.35)';
+        ctx.fillRect(s.x, s.y, s.w, 1.8);
       } else {
         ctx.fillStyle = P.groundDeep;
         ctx.fillRect(s.x, s.y, s.w, s.h);
-        ctx.fillStyle = P.groundFace;
-        ctx.fillRect(s.x, s.y, s.w, Math.min(s.h, 14));
+        var eg = ctx.createLinearGradient(0, s.y, 0, s.y + Math.min(s.h, 60));
+        eg.addColorStop(0, P.groundFace);
+        eg.addColorStop(1, P.groundDeep);
+        ctx.fillStyle = eg;
+        ctx.fillRect(s.x, s.y, s.w, Math.min(s.h, 60));
+
+        // the sunlit crust of grass and earth on top
         ctx.fillStyle = P.groundTop;
-        ctx.fillRect(s.x, s.y, s.w, 4);
-        // scruffy edge so it does not read as a plain box
+        ctx.fillRect(s.x, s.y, s.w, 5);
+        ctx.fillStyle = 'rgba(255,255,235,0.28)';
+        ctx.fillRect(s.x, s.y, s.w, 1.4);
+
+        // tufts, so the edge is not a ruled line
         ctx.fillStyle = P.groundTop;
-        for (var gx = s.x; gx < s.x + s.w; gx += 6) {
-          var bump = ((gx * 37) % 11) / 11;
-          ctx.fillRect(gx, s.y - (bump > 0.6 ? 1.5 : 0), 6, 2);
+        for (var gx = s.x; gx < s.x + s.w; gx += 5) {
+          var bump = ((gx * 37) % 13) / 13;
+          if (bump > 0.55) ctx.fillRect(gx, s.y - 1.8, 3, 2.4);
         }
-        ctx.fillStyle = 'rgba(0,0,0,0.18)';
-        for (var dy = s.y + 18; dy < s.y + s.h; dy += 12) ctx.fillRect(s.x, dy, s.w, 1);
+        // pebbles and roots in the earth below
+        ctx.fillStyle = 'rgba(0,0,0,0.22)';
+        for (var dy = s.y + 20; dy < s.y + s.h; dy += 14) ctx.fillRect(s.x, dy, s.w, 1);
+        ctx.fillStyle = 'rgba(0,0,0,0.16)';
+        for (var px = s.x + 7; px < s.x + s.w; px += 17) {
+          var py = s.y + 12 + ((px * 53) % 30);
+          if (py < s.y + s.h - 3) ctx.fillRect(px, py, 2.5, 2);
+        }
       }
+
+      /* The single most useful line in the game: a near-black edge all the
+         way round anything solid. It is what stops the ground melting into
+         the scenery behind it. */
+      ctx.strokeStyle = P.edge || 'rgba(0,0,0,0.6)';
+      ctx.lineWidth = 1.6;
+      ctx.strokeRect(s.x - 0.2, s.y - 0.2, s.w + 0.4, s.h + 0.4);
     }
 
     // --- one-way wooden platforms ---
@@ -2049,10 +2380,19 @@ CR.writeSettings = function (s) {
       var pt = World.particles[i];
       ctx.save();
       ctx.translate(pt.x, pt.y);
-      ctx.rotate(pt.rot);
       ctx.globalAlpha = Math.min(1, pt.life * 2.2);
       ctx.fillStyle = pt.col;
-      ctx.fillRect(-pt.size / 2, -pt.size / 2, pt.size, pt.size);
+      if (pt.drop) {
+        // a droplet stretches along the way it is flying
+        var sp = Math.sqrt(pt.vx * pt.vx + pt.vy * pt.vy);
+        ctx.rotate(Math.atan2(pt.vy, pt.vx));
+        ctx.beginPath();
+        ctx.ellipse(0, 0, pt.size * (1 + Math.min(1.1, sp / 260)), pt.size * 0.72, 0, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        ctx.rotate(pt.rot);
+        ctx.fillRect(-pt.size / 2, -pt.size / 2, pt.size, pt.size);
+      }
       ctx.restore();
     }
     ctx.globalAlpha = 1;
@@ -2131,12 +2471,13 @@ CR.writeSettings = function (s) {
 
   // ---- the numbers that decide how the game feels ----
   var GRAVITY      = 640;     // pixels per second, per second
-  var WALK_SPEED   = 62;
-  var RUN_SPEED    = 112;
-  var ACCEL_GROUND = 620;
-  var ACCEL_AIR    = 340;
-  var FRICTION     = 760;
-  var JUMP_VEL     = -212;
+  /* One speed, no run button. A steady jog that clears every gap in the
+     game, so nobody ever loses a jump because they forgot to hold a key. */
+  var MOVE_SPEED   = 100;
+  var ACCEL_GROUND = 700;
+  var ACCEL_AIR    = 360;
+  var FRICTION     = 800;
+  var JUMP_VEL     = -216;
   var MAX_FALL     = 340;
   var FATAL_FALL   = 322;     // land faster than this and it is over (about a 4-body drop)
   var COYOTE       = 0.10;    // grace period to still jump after leaving a ledge
@@ -2144,9 +2485,12 @@ CR.writeSettings = function (s) {
 
   var STAND_H = 28, CRAWL_H = 13, BODY_W = 12;
 
+  /* Both blades take one point off a guard. The sword is not a bigger
+     number, it is a better weapon: it reaches further and recovers
+     quicker, so you can hit from outside a spear and swing again sooner. */
   var WEAPONS = {
-    dagger: { reach: 13, dmg: 1, wind: 0.10, active: 0.13, recover: 0.16 },
-    sword:  { reach: 21, dmg: 2, wind: 0.09, active: 0.15, recover: 0.14 }
+    dagger: { reach: 13, dmg: 1, wind: 0.10, active: 0.13, recover: 0.20 },
+    sword:  { reach: 22, dmg: 1, wind: 0.08, active: 0.15, recover: 0.11 }
   };
 
   function Player(x, y) {
@@ -2239,7 +2583,7 @@ CR.writeSettings = function (s) {
     if (this.hanging) {
       this.vx = 0; this.vy = 0;
       this.anim = 'hang';
-      if (In.upPressed || In.jumpPressed) {
+      if (In.grabPressed || In.upPressed) {
         // climb up onto the ledge
         this.hanging = false;
         this.y = this.hangY - this.h - 0.5;
@@ -2257,7 +2601,6 @@ CR.writeSettings = function (s) {
 
     /* ---------- decide how fast he wants to go ---------- */
     var wantDir = (In.right ? 1 : 0) - (In.left ? 1 : 0);
-    var wantsRun = In.run;
 
     // crawling: hold down on the ground, or squeeze into a low gap
     var wantCrawl = In.down && this.onGround;
@@ -2275,7 +2618,7 @@ CR.writeSettings = function (s) {
       this.crawling = true;
     }
 
-    var topSpeed = this.crawling ? 34 : (wantsRun ? RUN_SPEED : WALK_SPEED);
+    var topSpeed = this.crawling ? 36 : MOVE_SPEED;
     if (game.assist) topSpeed *= 1.0;   // difficulty assist never slows the player
 
     var accel = this.onGround ? ACCEL_GROUND : ACCEL_AIR;
@@ -2340,7 +2683,7 @@ CR.writeSettings = function (s) {
     }
 
     /* ---------- grabbing a rope ---------- */
-    if (this.ropeCooldown <= 0 && (In.up || In.jump)) {
+    if (this.ropeCooldown <= 0 && In.grab) {
       for (var i = 0; i < W.ropes.length; i++) {
         var rp = W.ropes[i];
         var ex = rp.x + Math.sin(rp.a) * rp.len;
@@ -2430,7 +2773,7 @@ CR.writeSettings = function (s) {
     else if (this.wallRunT > 0) this.anim = 'wallrun';
     else if (this.crawling) this.anim = (Math.abs(this.vx) > 4 ? 'crawl' : 'crawl');
     else if (!this.onGround) this.anim = this.vy < -20 ? 'jump' : 'fall';
-    else if (Math.abs(this.vx) > WALK_SPEED + 12) this.anim = 'run';
+    else if (Math.abs(this.vx) > MOVE_SPEED * 0.55) this.anim = 'run';
     else if (Math.abs(this.vx) > 6) this.anim = 'walk';
     else this.anim = 'idle';
 
@@ -2526,10 +2869,12 @@ CR.writeSettings = function (s) {
     this.hearts -= (amount || 1);
     this.invuln = 1.25;
     this.hurtT = 0.36;
-    this.vx = (this.centerX() < fromX ? -1 : 1) * 110;
+    var away = this.centerX() < fromX ? -1 : 1;
+    this.vx = away * 110;
     this.vy = -105;
     this.onGround = false;
     CR.World.camera.shake = 0.8;
+    CR.World.blood(this.centerX(), this.centerY() - 2, 8, away);
 
     if (this.hearts <= 0) { this.die(game, 'blade'); return true; }
     CR.Audio.sfx.hurt();
@@ -2542,9 +2887,25 @@ CR.writeSettings = function (s) {
     this.dead = true;
     this.deadT = 0;
     this.hearts = 0;
-    this.vy = -70;
     this.rope = null;
     this.hanging = false;
+    this.crawling = false;
+    this.attackT = 0;
+    this.hurtT = 0;
+
+    if (cause === 'spike') {
+      // impaled: he drops onto them rather than standing on them
+      this.vy = 40;
+      this.vx = -this.facing * 20;
+      CR.World.blood(this.centerX(), this.y + this.h - 4, 18, -this.facing);
+    } else if (cause === 'blade') {
+      this.vy = -70;
+      this.vx = -this.facing * 40;
+      CR.World.blood(this.centerX(), this.centerY(), 16, -this.facing);
+    } else {
+      this.vy = -70;
+    }
+
     CR.World.camera.shake = 1;
     CR.Audio.sfx.ayyo();
     game.onPlayerDied(cause);
@@ -2623,39 +2984,45 @@ CR.writeSettings = function (s) {
    ============================================================ */
 (function () {
 
+  /* hp is now "how many strikes it takes", because every blade does
+     exactly one point of damage. Levels override it: three strikes in
+     level one, four in level two, five in level three. */
   var TYPES = {
     guard: {
-      hp: 2, w: 12, h: 28, height: 29, speed: 46, sight: 132,
+      hp: 3, w: 12, h: 28, height: 29, speed: 46, sight: 132,
       reach: 17, wind: 0.55, active: 0.16, recover: 0.55,
       colors: 'GUARD', weapon: 'sword', helmet: true, shield: true, plume: false
     },
     spearman: {
-      hp: 2, w: 12, h: 28, height: 29, speed: 38, sight: 150,
+      hp: 3, w: 12, h: 28, height: 29, speed: 38, sight: 150,
       reach: 26, wind: 0.68, active: 0.18, recover: 0.62,
       colors: 'GUARD', weapon: 'spear', helmet: true, shield: false, plume: false
     },
     captain: {
-      hp: 5, w: 13, h: 29, height: 31, speed: 62, sight: 165,
+      hp: 6, w: 13, h: 29, height: 31, speed: 62, sight: 165,
       reach: 20, wind: 0.42, active: 0.16, recover: 0.40,
       colors: 'CAPTAIN', weapon: 'sword', helmet: true, shield: true, plume: true
     },
     boss: {
-      hp: 20, w: 22, h: 44, height: 47, speed: 40, sight: 300,
+      hp: 14, w: 22, h: 46, height: 52, speed: 40, sight: 300,
       reach: 30, wind: 0.85, active: 0.22, recover: 0.85,
-      colors: 'BOSS', weapon: 'club', helmet: false, shield: false, moustache: true
+      colors: 'BOSS', weapon: 'club', helmet: false, shield: false,
+      // Vimal: tall, long hair, a few days unshaven, and a jaw like a doorframe
+      hair: 'long', jaw: 'strong', stubble: true, moustache: false
     }
   };
 
   function Enemy(x, y, type, opts) {
     var T = TYPES[type] || TYPES.guard;
+    opts = opts || {};
     this.type = type;
     this.T = T;
     this.x = x; this.y = y - T.h;
     this.w = T.w; this.h = T.h;
     this.vx = 0; this.vy = 0;
     this.facing = -1;
-    this.hp = T.hp;
-    this.maxHp = T.hp;
+    this.hp = opts.hp || T.hp;
+    this.maxHp = this.hp;
     this.state = 'idle';       // idle | alert | chase | wind | strike | recover | hurt | dead
     this.timer = 0;
     this.animT = Math.random() * 3;
@@ -2689,13 +3056,17 @@ CR.writeSettings = function (s) {
     this.hp -= dmg;
     this.hitFlash = 0.16;
     CR.World.camera.shake = 0.45;
-    CR.World.puff(this.centerX(), this.centerY(), 5, '#a33', 70);
+
+    // blood flies away from whoever swung
+    var away = this.centerX() < fromX ? -1 : 1;
+    CR.World.blood(this.centerX(), this.centerY() - 2, 7, away);
 
     if (this.hp <= 0) {
       this.state = 'dead';
       this.deadT = 0;
-      this.vx = (this.centerX() < fromX ? -1 : 1) * 60;
+      this.vx = away * 60;
       this.vy = -110;
+      CR.World.blood(this.centerX(), this.centerY() - 4, 14, away);
       CR.Audio.sfx.guardDie();
       if (this.dropsSword) {
         CR.World.pickups.push({ x: this.centerX() - 5, y: this.y + this.h - 16, kind: 'sword', taken: false, bob: 0 });
@@ -2889,6 +3260,7 @@ CR.writeSettings = function (s) {
       anim: anim, t: this.animT, facing: this.facing,
       weapon: T.weapon, colors: colors,
       helmet: T.helmet, shield: T.shield, plume: T.plume, moustache: T.moustache,
+      hair: T.hair, jaw: T.jaw, stubble: T.stubble, beard: T.beard,
       attackP: p
     };
     pose.tint = 'rgba(8,5,4,0.3)';
@@ -2988,6 +3360,7 @@ CR.writeSettings = function (s) {
     palette: 'grove',
     music: 'level1',
     hearts: 4,
+    troopStrikes: 3,        // level one: three blows to put a troop down
     startWeapon: 'dagger',
     w: 2500, h: 360,
     spawn: [30, 300],
@@ -2999,7 +3372,7 @@ CR.writeSettings = function (s) {
       [1152, 270, 198, 130, 'stone'],
       [1470, 280, 1030, 120],
       // the little pillar the rope hangs from
-      [1390, 170, 40, 22, 'stone']
+      [1375, 128, 40, 22, 'stone']
     ],
 
     oneway: [
@@ -3011,8 +3384,8 @@ CR.writeSettings = function (s) {
     ],
 
     traps: [
-      [1640, 280, 2.6, 0.0],
-      [1700, 280, 2.6, 0.0]
+      [1650, 280, 3.0, 0.0],
+      [1695, 280, 3.0, 0.0]
     ],
 
     barrels: [
@@ -3020,7 +3393,7 @@ CR.writeSettings = function (s) {
     ],
 
     ropes: [
-      [1410, 190, 68]
+      [1395, 150, 78]
     ],
 
     gates: [
@@ -3059,15 +3432,15 @@ CR.writeSettings = function (s) {
     ],
 
     signs: [
-      [46, 'ARROW KEYS to walk    SHIFT to run'],
-      [210, 'SPACE to jump'],
+      [46, 'LEFT and RIGHT arrow keys to walk'],
+      [210, 'UP arrow to jump'],
       [312, 'Z to swing your dagger - smash those barrels'],
       [592, 'Spikes. Take a run-up and jump clean over'],
       [842, 'A Pandya guard. He lifts his blade before he swings - strike him then'],
-      [1160, 'Grab a ledge as you fall, then press UP to pull yourself over'],
-      [1362, 'Jump, press UP to catch the rope. Arrows to swing, SPACE to let go'],
-      [1500, 'Pull the lever with UP - then run. The gate does not wait'],
-      [2250, 'The door. Press UP to go through']
+      [1160, 'Catch a ledge as you fall, then SPACE to pull yourself over'],
+      [1362, 'Jump, hold SPACE to catch the rope. Arrows to swing, UP to let go'],
+      [1500, 'Pull the lever with SPACE - then go. The gate does not wait'],
+      [2250, 'The door. Press SPACE to go through']
     ],
 
     dialogue: [],
@@ -3086,6 +3459,7 @@ CR.writeSettings = function (s) {
     palette: 'fort',
     music: 'level2',
     hearts: 5,
+    troopStrikes: 4,        // level two: four
     startWeapon: 'sword',
     w: 3000, h: 380,
     spawn: [30, 320],
@@ -3100,7 +3474,7 @@ CR.writeSettings = function (s) {
       [2300, 180, 300, 240, 'stone'],
       [2596, 240, 72, 20, 'stone'],         // a ledge so the drop off the rampart is survivable
       [2600, 300, 400, 120],
-      [1260, 148, 40, 22, 'stone']          // rope anchor block
+      [1245, 110, 40, 22, 'stone']          // rope anchor block
     ],
 
     oneway: [
@@ -3114,11 +3488,11 @@ CR.writeSettings = function (s) {
     ],
 
     traps: [
-      [1080, 252, 1.8, 0.0],
-      [1120, 252, 1.8, 0.6],
-      [1160, 252, 1.8, 1.2],
-      [2440, 180, 1.6, 0.0],
-      [2480, 180, 1.6, 0.8]
+      [1080, 252, 2.2, 0.0],
+      [1120, 252, 2.2, 0.75],
+      [1160, 252, 2.2, 1.5],
+      [2440, 180, 2.0, 0.0],
+      [2480, 180, 2.0, 1.0]
     ],
 
     barrels: [
@@ -3126,7 +3500,7 @@ CR.writeSettings = function (s) {
     ],
 
     ropes: [
-      [1280, 168, 74]
+      [1265, 132, 78]
     ],
 
     gates: [
@@ -3171,11 +3545,11 @@ CR.writeSettings = function (s) {
 
     signs: [
       [46, 'The outer rampart of Madurai. They know you are coming'],
-      [660, 'Too high to jump. Run at the wall and press SPACE again to run UP it'],
+      [660, 'Too high to jump. Jump at the wall, then press UP again to run up it'],
       [1230, 'Swing across. Look at how far the rope reaches before you leap'],
       [1580, 'Hold DOWN to crawl through the drain'],
-      [2320, 'Pull it, then sprint. Two sets of spikes between you and the gate'],
-      [2900, 'The inner door. Press UP']
+      [2320, 'Pull it with SPACE, then move. Two sets of spikes before the gate'],
+      [2900, 'The inner door. Press SPACE']
     ],
 
     dialogue: [],
@@ -3195,8 +3569,10 @@ CR.writeSettings = function (s) {
     music: 'level3',
     bossMusic: 'boss',
     hearts: 6,
+    troopStrikes: 5,        // level three: five, and Vimal takes fourteen
+    bossStrikes: 14,
     startWeapon: 'sword',
-    w: 2400, h: 380,
+    w: 2440, h: 380,
     spawn: [30, 320],
 
     solids: [
@@ -3207,7 +3583,8 @@ CR.writeSettings = function (s) {
       [1520, 236, 140, 46, 'stone'],        // the slab overhead: crawl or turn back
       [1820, 230, 30, 190, 'stone'],        // the wall up into the boss hall
       [1850, 230, 550, 190, 'stone'],       // the boss hall floor
-      [1170, 176, 40, 22, 'stone']          // rope anchor block
+      [2400, 120, 24, 300, 'stone'],        // the far wall - no walking out the back of the hall
+      [1155, 178, 40, 22, 'stone']          // rope anchor block
     ],
 
     oneway: [],
@@ -3216,11 +3593,10 @@ CR.writeSettings = function (s) {
     ],
 
     traps: [
-      [690, 320, 1.9, 0.0],
-      [740, 320, 1.9, 0.65],
-      [790, 320, 1.9, 1.3],
-      [1330, 300, 2.4, 0.0],
-      [1380, 300, 2.4, 0.0]
+      [690, 320, 2.2, 0.0],
+      [740, 320, 2.2, 0.75],
+      [790, 320, 2.2, 1.5],
+      [1370, 300, 2.6, 0.0]
     ],
 
     barrels: [
@@ -3228,7 +3604,7 @@ CR.writeSettings = function (s) {
     ],
 
     ropes: [
-      [1190, 196, 80]
+      [1175, 200, 78]
     ],
 
     gates: [],
@@ -3273,12 +3649,12 @@ CR.writeSettings = function (s) {
       [46, 'The Hall of Lamps. Somewhere past these fires, Kundavai'],
       [900, 'The lamps are lit for a feast. Nobody here is celebrating'],
       [1480, 'Hold DOWN. Crawl'],
-      [1790, 'Run the wall. He is up there']
+      [1790, 'Jump the wall and press UP again. He is up there']
     ],
 
     dialogue: [
       [1900, [
-        ['VIMAL', 'You climbed my walls, boy? In the dark?'],
+        ['VIMAL', 'Edhuku da inge vandhe? Why have you come here, boy?'],
         ['RAJARAJA', 'I would do anything for my family.'],
         ['VIMAL', 'Then bleed for them.']
       ]]
@@ -3296,22 +3672,47 @@ CR.writeSettings = function (s) {
 </script>
 <script>/* ---- js/story.js ---- */
 /* ============================================================
-   story.js - the comic book pages.
+   story.js - the comic book.
 
-   The story is told as a page-turner: each page paints itself, holds
-   for ten seconds, then turns on its own. Nobody has to click anything,
-   which is what you asked for - but pressing a key skips ahead for
-   anyone who has already read it.
+   Laid out the way a printed comic is: pages divided into panels with
+   heavy black borders, a yellow caption box in the corner of the panel,
+   speech balloons with tails, halftone dots for shading, and sound
+   words painted across the action. Marvel's furniture, an Indian voice.
+
+   Each page holds for ten seconds and turns itself. Pressing anything
+   turns it early.
    ============================================================ */
 (function () {
   var S = {};
-  // Comic pages are drawn in their own fixed 480x270 space, then scaled
-  // into whatever room the panel has. That keeps the layouts stable.
+
+  // Pages are composed in a fixed 480x270 space and scaled into whatever
+  // room the screen has, so the layouts never shift about.
   var PAGE_W = 480, PAGE_H = 270;
 
+  var NIGHT = { sky1: '#0b1026', sky2: '#1d2140', stone: '#2a2c44', stoneLit: '#3b3d5c' };
+  var DAY   = { sky1: '#3f6f8a', sky2: '#d8b06a', stone: '#6b5a44', stoneLit: '#8d795c' };
 
-  var NIGHT = { sky1: '#0b1026', sky2: '#1d2140', stone: '#2a2c44', stoneLit: '#3b3d5c', warm: '#ffb347' };
-  var DAY   = { sky1: '#3f6f8a', sky2: '#d8b06a', stone: '#6b5a44', stoneLit: '#8d795c', warm: '#ffd88a' };
+  var INK = '#140f0a';
+  var PAPER = '#f2e4c2';
+
+  /* ---------- printed-page texture ---------- */
+  var halftoneTile = null;
+  function halftone(ctx, x, y, w, h, alpha) {
+    if (!halftoneTile) {
+      halftoneTile = document.createElement('canvas');
+      halftoneTile.width = 8; halftoneTile.height = 8;
+      var g = halftoneTile.getContext('2d');
+      g.fillStyle = '#000';
+      g.beginPath(); g.arc(2, 2, 1.15, 0, Math.PI * 2); g.fill();
+      g.beginPath(); g.arc(6, 6, 1.15, 0, Math.PI * 2); g.fill();
+    }
+    ctx.save();
+    ctx.globalAlpha = alpha === undefined ? 0.16 : alpha;
+    var pat = ctx.createPattern(halftoneTile, 'repeat');
+    ctx.fillStyle = pat;
+    ctx.fillRect(x, y, w, h);
+    ctx.restore();
+  }
 
   /* ---------- shared scene furniture ---------- */
 
@@ -3319,7 +3720,7 @@ CR.writeSettings = function (s) {
     var g = ctx.createLinearGradient(0, 0, 0, PAGE_H);
     g.addColorStop(0, c1); g.addColorStop(1, c2);
     ctx.fillStyle = g;
-    ctx.fillRect(0, 0, PAGE_W, PAGE_H);
+    ctx.fillRect(-PAGE_W, -PAGE_H, PAGE_W * 3, PAGE_H * 3);
   }
 
   function moon(ctx, x, y, r) {
@@ -3334,57 +3735,49 @@ CR.writeSettings = function (s) {
 
   function stars(ctx, seed) {
     var rnd = CR.rng(seed);
-    ctx.fillStyle = 'rgba(255,255,255,0.7)';
-    for (var i = 0; i < 40; i++) {
-      ctx.fillRect(rnd() * PAGE_W, rnd() * 120, 1, 1);
-    }
+    ctx.fillStyle = 'rgba(255,255,255,0.75)';
+    for (var i = 0; i < 46; i++) ctx.fillRect(rnd() * PAGE_W, rnd() * 130, 1.2, 1.2);
   }
 
-  // The Chola palace: a long wall, a gopuram gate, lamps burning.
   function palace(ctx, col, baseY, t, lamps) {
     ctx.fillStyle = col.stone;
-    ctx.fillRect(0, baseY - 60, PAGE_W, 60 + (PAGE_H - baseY));
+    ctx.fillRect(-200, baseY - 60, PAGE_W + 400, 60 + (PAGE_H - baseY) + 200);
     ctx.fillStyle = col.stoneLit;
-    for (var i = 0; i < PAGE_W; i += 22) ctx.fillRect(i, baseY - 66, 13, 7);
+    for (var i = -200; i < PAGE_W + 200; i += 22) ctx.fillRect(i, baseY - 66, 13, 7);
     CR.Art.gopuram(ctx, 118, baseY - 60, 62, 108, col.stone, true);
     CR.Art.gopuram(ctx, 372, baseY - 60, 48, 82, col.stone, true);
-    ctx.fillStyle = 'rgba(0,0,0,0.35)';
-    ctx.fillRect(228, baseY - 46, 34, 46);          // the gateway
-    if (lamps) {
-      for (var k = 0; k < 5; k++) CR.Art.torch(ctx, 30 + k * 108, baseY - 22, t);
-    }
-    CR.Art.inscription(ctx, 24, baseY - 34, 70, 3, 'rgba(255,255,255,0.14)', 11);
+    ctx.fillStyle = 'rgba(0,0,0,0.4)';
+    ctx.fillRect(228, baseY - 46, 34, 46);
+    if (lamps) for (var k = 0; k < 5; k++) CR.Art.torch(ctx, 30 + k * 108, baseY - 22, t);
+    CR.Art.inscription(ctx, 24, baseY - 34, 70, 3, 'rgba(255,255,255,0.16)', 11);
   }
 
   function ground(ctx, y, col) {
     ctx.fillStyle = col;
-    ctx.fillRect(0, y, PAGE_W, PAGE_H - y);
+    ctx.fillRect(-200, y, PAGE_W + 400, PAGE_H - y + 200);
   }
 
-  // A Chola guard, upright and awake.
   function guard(ctx, x, y, t, face, anim, h) {
     CR.Art.drawPerson(ctx, {
-      x: x, y: y, height: h || 46, anim: anim || 'idle', t: t, facing: face || 1,
+      x: x, y: y, height: h || 52, anim: anim || 'idle', t: t, facing: face || 1,
       colors: CR.Art.CHOLA, weapon: 'spear', helmet: true
     });
   }
 
-  // a sleeping guard, complete with the snoring letters
   function sleeper(ctx, x, y, t, face) {
-    // the spear he has dropped
     ctx.save();
     ctx.translate(x, y);
     ctx.strokeStyle = '#8a6a40'; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.moveTo(face * 6, 0); ctx.lineTo(face * 26, -6); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(face * 6, 0); ctx.lineTo(face * 28, -7); ctx.stroke();
     ctx.restore();
     CR.Art.drawPerson(ctx, {
-      x: x, y: y, height: 46, anim: 'sleep', t: t, facing: face || 1,
-      colors: CR.Art.CHOLA, weapon: 'none', helmet: true
+      x: x, y: y, height: 50, anim: 'sleep', t: t, facing: face || 1,
+      colors: CR.Art.CHOLA, weapon: 'none', helmet: true, face: 'out'
     });
     var n = Math.floor(t * 1.2) % 3;
     for (var i = 0; i <= n; i++) {
-      CR.Art.text(ctx, 'z', x + face * (10 + i * 7), y - 32 - i * 8,
-        { font: CR.Art.FONT_UI, color: 'rgba(255,255,255,0.85)' });
+      CR.Art.text(ctx, 'z', x + face * (11 + i * 7), y - 34 - i * 8,
+        { font: CR.Art.FONT_UI, color: 'rgba(255,255,255,0.9)' });
     }
   }
 
@@ -3394,25 +3787,18 @@ CR.writeSettings = function (s) {
     ctx.scale(s, s);
     var dark = '#1a1210';
     ctx.fillStyle = col;
-    // barrel of the body
     CR.Art.roundRect(ctx, -20, -30, 40, 17, 7); ctx.fill();
-    // neck, rising forward
     ctx.save();
-    ctx.translate(16, -28);
-    ctx.rotate(-0.5);
+    ctx.translate(16, -28); ctx.rotate(-0.5);
     ctx.fillStyle = col;
     CR.Art.roundRect(ctx, -5, -16, 10, 20, 4); ctx.fill();
     ctx.restore();
-    // head
     ctx.fillStyle = col;
     ctx.beginPath(); ctx.ellipse(26, -44, 8, 4.6, -0.25, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = dark;
     ctx.beginPath(); ctx.moveTo(22, -49); ctx.lineTo(24, -54); ctx.lineTo(26, -48); ctx.fill();
-    // mane and tail
-    ctx.fillStyle = dark;
     ctx.beginPath(); ctx.moveTo(12, -44); ctx.lineTo(20, -46); ctx.lineTo(14, -28); ctx.lineTo(8, -30); ctx.fill();
     ctx.beginPath(); ctx.moveTo(-20, -30); ctx.lineTo(-30, -22); ctx.lineTo(-20, -18); ctx.fill();
-    // legs
     ctx.strokeStyle = col; ctx.lineWidth = 3.4; ctx.lineCap = 'round';
     var ph = running ? t * 13 : 0;
     for (var i = 0; i < 4; i++) {
@@ -3420,192 +3806,315 @@ CR.writeSettings = function (s) {
       var a = running ? Math.sin(ph + i * 1.6) * 0.75 : (i % 2 ? 0.18 : -0.18);
       var kx = lx + Math.sin(a) * 8, ky = -14 + Math.cos(a) * 8;
       ctx.beginPath();
-      ctx.moveTo(lx, -14);
-      ctx.lineTo(kx, ky);
+      ctx.moveTo(lx, -14); ctx.lineTo(kx, ky);
       ctx.lineTo(kx + Math.sin(a * 0.3) * 6, ky + Math.cos(a * 0.3) * 6);
       ctx.stroke();
     }
     ctx.restore();
   }
 
-  // Vimal: heavy, loud, and not nearly as clever as he thinks
-  function vimal(ctx, x, y, anim, t, facing, carrying, h) {
-    h = h || 70;
+  // Vimal: tall, long-haired, a few days unshaven, jaw like a doorframe.
+  function vimal(ctx, x, y, anim, t, facing, carrying, h, face) {
+    h = h || 78;
     CR.Art.drawPerson(ctx, {
       x: x, y: y, height: h, anim: anim, t: t, facing: facing,
-      colors: CR.Art.BOSS, weapon: carrying ? 'none' : 'club', moustache: true
+      colors: CR.Art.BOSS, weapon: carrying ? 'none' : 'club',
+      hair: 'long', jaw: 'strong', stubble: true, face: face
     });
     if (carrying) {
       ctx.save();
-      ctx.translate(x - facing * h * 0.13, y - h * 0.88);
-      ctx.rotate(facing * 0.5);
-      ctx.scale(h / 61, h / 61);
-      CR.Art.drawPrincess(ctx, 0, 10, t, false);
+      ctx.translate(x - facing * h * 0.14, y - h * 0.86);
+      ctx.rotate(facing * 0.55);
+      CR.Art.drawPrincess(ctx, 0, 10, t, false, h * 0.62, 'pain');
       ctx.restore();
     }
   }
 
-  function speech(ctx, x, y, text, flip) {
-    ctx.font = CR.Art.FONT_SMALL;
-    var w = ctx.measureText(text).width + 10;
-    var h = 13;
-    ctx.fillStyle = 'rgba(252,246,228,0.95)';
-    CR.Art.roundRect(ctx, x - w / 2, y - h, w, h, 5); ctx.fill();
-    ctx.beginPath();
-    ctx.moveTo(x + (flip ? 5 : -5), y);
-    ctx.lineTo(x + (flip ? -2 : 2), y + 6);
-    ctx.lineTo(x + (flip ? -5 : 5), y);
-    ctx.fill();
-    CR.Art.text(ctx, text, x, y - 3.5, { align: 'center', font: CR.Art.FONT_SMALL, color: '#2a1c10', shadow: false });
+  /* ---------- balloons, captions, sound ---------- */
+
+  function balloon(ctx, x, y, text, flip, shout) {
+    var font = shout ? '700 9px "Trebuchet MS", sans-serif' : CR.Art.FONT_SMALL;
+    ctx.font = font;
+    var w = ctx.measureText(text).width + 12;
+    var h = 15;
+    ctx.fillStyle = '#fdf8ec';
+    ctx.strokeStyle = INK;
+    ctx.lineWidth = 1.2;
+    if (shout) {
+      // a jagged shout balloon
+      ctx.beginPath();
+      var pts = 16;
+      for (var i = 0; i < pts; i++) {
+        var a = (i / pts) * Math.PI * 2;
+        var rr = (i % 2 ? 0.78 : 1.05);
+        var px = x + Math.cos(a) * (w / 2) * rr;
+        var py = y - h / 2 + Math.sin(a) * (h * 0.85) * rr;
+        if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+      }
+      ctx.closePath();
+      ctx.fill(); ctx.stroke();
+    } else {
+      CR.Art.roundRect(ctx, x - w / 2, y - h, w, h, 6);
+      ctx.fill(); ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x + (flip ? 6 : -6), y - 1);
+      ctx.lineTo(x + (flip ? -3 : 3), y + 7);
+      ctx.lineTo(x + (flip ? -6 : 6), y - 1);
+      ctx.closePath();
+      ctx.fillStyle = '#fdf8ec'; ctx.fill();
+      ctx.stroke();
+    }
+    CR.Art.text(ctx, text, x, y - 4.5, { align: 'center', font: font, color: INK, shadow: false });
   }
 
-  /* ---------- the pages ---------- */
+  // the yellow narration box comics put in the corner of a panel
+  function captionBox(ctx, px, py, pw, text) {
+    var lines = CR.Art.wrap(ctx, text, pw - 22, CR.Art.FONT_SMALL);
+    var h = 7 + lines.length * 9;
+    var w = pw - 12;
+    ctx.fillStyle = '#f2d67a';
+    ctx.fillRect(px + 6, py + 6, w, h);
+    ctx.strokeStyle = INK; ctx.lineWidth = 1.1;
+    ctx.strokeRect(px + 6, py + 6, w, h);
+    for (var i = 0; i < lines.length; i++) {
+      CR.Art.text(ctx, lines[i], px + 12, py + 16 + i * 9,
+        { font: CR.Art.FONT_SMALL, color: '#2a1c08', shadow: false });
+    }
+  }
+
+  // KA-POW, but in Tamil
+  function soundWord(ctx, x, y, text, angle, size, col) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(angle || -0.18);
+    ctx.font = '700 ' + (size || 20) + 'px "Trebuchet MS", Impact, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = INK;
+    ctx.lineWidth = 3.5;
+    ctx.strokeText(text, 0, 0);
+    ctx.fillStyle = col || '#ffd24a';
+    ctx.fillText(text, 0, 0);
+    ctx.restore();
+  }
+
+  /* ============================================================
+     THE PAGES
+
+     A page is a list of panels. Each panel picks a spot in the scene
+     to look at (focus) and how close to stand (zoom), so the same
+     scene code can give a wide shot and a close-up.
+     ============================================================ */
+
+  function nightPalace(baseY, groundY, lamps) {
+    return function (ctx, t) {
+      sky(ctx, NIGHT.sky1, NIGHT.sky2);
+      stars(ctx, 3);
+      palace(ctx, NIGHT, baseY, t, lamps !== false);
+      ground(ctx, groundY, '#141826');
+    };
+  }
 
   S.INTRO = [
-    {
-      caption: 'Cholapuram, a thousand years ago. A warm night, a full moon, and every single guard fast asleep.',
+    // ---- 1 ----
+    { panels: [{
+      x: 8, y: 8, w: 464, h: 254, focus: [240, 150], zoom: 1,
+      caption: 'CHOLAPURAM. A thousand years ago. A warm night, a full moon - and every last guard on the wall fast asleep.',
       draw: function (ctx, t) {
-        sky(ctx, NIGHT.sky1, NIGHT.sky2);
-        stars(ctx, 3);
+        nightPalace(210, 236, true)(ctx, t);
         moon(ctx, 398, 44, 13);
-        palace(ctx, NIGHT, 210, t, true);
-        ground(ctx, 236, '#141826');
         sleeper(ctx, 150, 236, t, 1);
-        sleeper(ctx, 196, 236, t + 1.7, -1);
-        sleeper(ctx, 300, 236, t + 0.8, 1);
+        sleeper(ctx, 212, 236, t + 1.7, -1);
+        sleeper(ctx, 330, 236, t + 0.8, 1);
+      },
+      balloons: [[212, 172, 'zzz...', false, false]]
+    }]},
+
+    // ---- 2: wide, then a close-up of the man himself ----
+    { panels: [
+      { x: 8, y: 8, w: 300, h: 254, focus: [200, 150], zoom: 1,
+        caption: 'Over the wall came VIMAL of the Pandya court. A very large man, with a very high opinion of himself.',
+        draw: function (ctx, t) {
+          nightPalace(216, 244, true)(ctx, t);
+          moon(ctx, 60, 40, 11);
+          vimal(ctx, 214, 244, 'walk', t * 0.35, 1, false, 82);
+          sleeper(ctx, 92, 244, t, 1);
+        },
+        balloons: [[214, 120, 'Tip... toe... tip...', false, false]],
+        sound: null
+      },
+      { x: 316, y: 8, w: 156, h: 254, focus: [216, 188], zoom: 2.5,
+        caption: null,
+        draw: function (ctx, t) {
+          sky(ctx, '#141a34', '#242a4a');
+          vimal(ctx, 214, 244, 'idle', t * 0.35, 1, false, 82, 'smile');
+        }
       }
-    },
-    {
-      caption: 'Over the wall came Vimal of the Pandya court - a very large man with a very quiet opinion of himself.',
-      draw: function (ctx, t) {
-        sky(ctx, NIGHT.sky1, NIGHT.sky2);
-        stars(ctx, 9);
-        moon(ctx, 60, 40, 11);
-        palace(ctx, NIGHT, 220, t, true);
-        ground(ctx, 246, '#141826');
-        vimal(ctx, 232, 246, 'walk', t * 0.35, 1, false);
-        speech(ctx, 300, 178, 'Tip... toe... tip...', false);
-        sleeper(ctx, 96, 246, t, 1);
-        sleeper(ctx, 400, 246, t + 1.1, -1);
+    ]},
+
+    // ---- 3: the abduction ----
+    { panels: [
+      { x: 8, y: 8, w: 464, h: 150, focus: [230, 176], zoom: 1.28,
+        caption: 'He took Princess KUNDAVAI out of her own courtyard. She did not go quietly.',
+        draw: function (ctx, t) {
+          nightPalace(214, 240, true)(ctx, t);
+          vimal(ctx, 200, 240, 'run', t, 1, true, 82);
+          CR.Art.kolam(ctx, 90, 236, 12, 'rgba(255,255,255,0.22)');
+        },
+        balloons: [[132, 52, 'VIDU! LET ME GO!', true, true]]
+      },
+      { x: 8, y: 164, w: 464, h: 98, focus: [300, 210], zoom: 1.0,
+        caption: null,
+        draw: function (ctx, t) {
+          nightPalace(214, 240, false)(ctx, t);
+          horse(ctx, 300, 246, 1.15, '#3b2c22', t, true);
+          vimal(ctx, 296, 214, 'ride', t, 1, true, 56);
+          ctx.fillStyle = 'rgba(255,255,255,0.16)';
+          for (var i = 0; i < 14; i++) ctx.fillRect(120 + i * 13, 242 - (i % 3) * 3, 9, 2);
+        },
+        sound: ['THUD-THUD-THUD', 200, 200, -0.12, 18]
       }
-    },
-    {
-      caption: 'He took Princess Kundavai, sister of Prince Rajaraja, straight out of her own courtyard.',
+    ]},
+
+    // ---- 4: the wake-up ----
+    { panels: [{
+      x: 8, y: 8, w: 464, h: 254, focus: [200, 150], zoom: 1,
+      caption: 'By the time anyone opened an eye, there was nothing to see but dust.',
       draw: function (ctx, t) {
-        sky(ctx, NIGHT.sky1, NIGHT.sky2);
-        stars(ctx, 21);
-        palace(ctx, NIGHT, 214, t, true);
-        ground(ctx, 240, '#141826');
-        vimal(ctx, 170, 240, 'run', t, 1, true);
-        speech(ctx, 118, 158, 'Ayyo! Somebody!', true);
-        horse(ctx, 350, 240, 1.05, '#3b2c22', t, false);
-        CR.Art.kolam(ctx, 60, 236, 12, 'rgba(255,255,255,0.2)');
-      }
-    },
-    {
-      caption: 'By the time anyone woke up, there was nothing left to see but dust and a very smug silhouette.',
-      draw: function (ctx, t) {
-        sky(ctx, NIGHT.sky1, NIGHT.sky2);
-        stars(ctx, 33);
+        nightPalace(208, 234, true)(ctx, t);
         moon(ctx, 404, 52, 12);
-        palace(ctx, NIGHT, 208, t, true);
-        ground(ctx, 234, '#141826');
-        guard(ctx, 84, 234, t, 1, 'cheer', 50);
-        guard(ctx, 132, 234, t + 1, 1, 'idle', 48);
-        speech(ctx, 112, 172, 'She is GONE!', false);
-        // Vimal, already small in the distance
-        horse(ctx, 402, 226, 0.62, '#2c211a', t, true);
-        vimal(ctx, 398, 202, 'idle', t, 1, true, 40);
-        ctx.fillStyle = 'rgba(255,255,255,0.10)';
-        for (var i = 0; i < 9; i++) ctx.fillRect(290 + i * 13, 226 - (i % 3), 9, 2);
-      }
-    },
-    {
-      caption: 'King Parantaka Chola was woken with the news. He did not take it calmly.',
+        guard(ctx, 96, 234, t, 1, 'cheer', 54);
+        guard(ctx, 150, 234, t + 1, 1, 'hurt', 52);
+        horse(ctx, 424, 226, 0.55, '#2c211a', t, true);
+        vimal(ctx, 421, 210, 'ride', t, 1, true, 36);
+        ctx.fillStyle = 'rgba(255,255,255,0.12)';
+        for (var i = 0; i < 10; i++) ctx.fillRect(300 + i * 13, 228 - (i % 3), 9, 2);
+      },
+      balloons: [[128, 138, 'SHE IS GONE!', false, true]]
+    }]},
+
+    // ---- 5: the king ----
+    { panels: [{
+      x: 8, y: 8, w: 464, h: 254, focus: [240, 150], zoom: 1,
+      caption: 'King PARANTAKA CHOLA was woken with the news. He did not take it calmly.',
       draw: function (ctx, t) {
-        sky(ctx, '#20182c', '#3a2a30');
-        // throne room
-        ctx.fillStyle = '#2c2230';
-        ctx.fillRect(0, 0, PAGE_W, PAGE_H);
+        ctx.fillStyle = '#2c2230'; ctx.fillRect(-200, -200, 900, 700);
         ctx.fillStyle = '#3a2c3c';
-        for (var x = 20; x < PAGE_W; x += 96) ctx.fillRect(x, 40, 22, 180);
-        ground(ctx, 220, '#241b26');
-        for (var k = 0; k < 4; k++) CR.Art.torch(ctx, 46 + k * 128, 208, t);
-        // throne
+        for (var x = 20; x < PAGE_W; x += 96) ctx.fillRect(x, 40, 22, 182);
+        ground(ctx, 222, '#241b26');
+        for (var k = 0; k < 4; k++) CR.Art.torch(ctx, 46 + k * 128, 210, t);
         ctx.fillStyle = '#6a4a1c';
         CR.Art.roundRect(ctx, 74, 140, 66, 82, 8); ctx.fill();
-        ctx.fillStyle = '#d8b24e';
-        ctx.fillRect(74, 134, 66, 8);
+        ctx.fillStyle = '#d8b24e'; ctx.fillRect(74, 134, 66, 8);
         CR.Art.kolam(ctx, 107, 176, 15, 'rgba(255,220,140,0.25)');
-        // the king is on his feet, not on his throne
-        CR.Art.drawPerson(ctx, { x: 190, y: 222, height: 64, anim: 'cheer', t: t, facing: 1, colors: CR.Art.CHOLA, weapon: 'none', crown: true, moustache: true });
-        speech(ctx, 262, 118, 'You were ASLEEP?!', false);
-        guard(ctx, 320, 222, t, -1, 'hurt', 52);
-        guard(ctx, 372, 222, t + 1, -1, 'hurt', 50);
+        CR.Art.drawPerson(ctx, { x: 190, y: 222, height: 66, anim: 'cheer', t: t, facing: 1,
+          colors: CR.Art.CHOLA, weapon: 'none', crown: true, moustache: true, face: 'grim' });
+        guard(ctx, 330, 222, t, -1, 'hurt', 54);
+        guard(ctx, 386, 222, t + 1, -1, 'hurt', 52);
+      },
+      balloons: [[268, 100, 'YOU WERE ASLEEP?!', false, true]]
+    }]},
+
+    // ---- 6: the king sends his son ----
+    { panels: [
+      { x: 8, y: 8, w: 232, h: 254, focus: [203, 186], zoom: 1.45,
+        caption: 'He went straight to his son.',
+        draw: function (ctx, t) {
+          ctx.fillStyle = '#2c2230'; ctx.fillRect(-200, -200, 900, 700);
+          ctx.fillStyle = '#3a2c3c';
+          for (var x = 40; x < PAGE_W; x += 110) ctx.fillRect(x, 30, 24, 194);
+          ground(ctx, 224, '#241b26');
+          CR.Art.torch(ctx, 66, 212, t);
+          CR.Art.torch(ctx, 320, 212, t);
+          CR.Art.drawPerson(ctx, { x: 150, y: 224, height: 66, anim: 'idle', t: t, facing: 1,
+            colors: CR.Art.CHOLA, weapon: 'none', crown: true, moustache: true, face: 'grim' });
+          CR.Art.drawPerson(ctx, { x: 256, y: 224, height: 64, anim: 'idle', t: t, facing: -1,
+            colors: CR.Art.HERO, weapon: 'sword', crown: true, face: 'grim' });
+        },
+        balloons: [[126, 66, 'Bring your sister home.', false, false]]
+      },
+      { x: 248, y: 8, w: 224, h: 254, focus: [254, 188], zoom: 2.1,
+        caption: null,
+        draw: function (ctx, t) {
+          ctx.fillStyle = '#241b26'; ctx.fillRect(-200, -200, 900, 700);
+          CR.Art.torch(ctx, 320, 212, t);
+          CR.Art.drawPerson(ctx, { x: 256, y: 224, height: 64, anim: 'idle', t: t, facing: -1,
+            colors: CR.Art.HERO, weapon: 'sword', crown: true, face: 'grim' });
+        },
+        balloons: [[112, 46, 'Or I do not come back.', true, false]]
       }
-    },
-    {
-      caption: 'Prince Rajaraja made one promise: "I will bring my sister home." Then he took a chariot south, alone.',
+    ]},
+
+    // ---- 7: the ride south ----
+    { panels: [{
+      x: 8, y: 8, w: 464, h: 254, focus: [240, 150], zoom: 1,
+      caption: 'Before first light he took a chariot south, alone, towards Madurai and the Pandya king.',
       draw: function (ctx, t) {
         sky(ctx, '#3a3050', '#c98a54');
         var sg = ctx.createRadialGradient(70, 150, 4, 70, 150, 90);
-        sg.addColorStop(0, 'rgba(255,220,150,0.8)');
+        sg.addColorStop(0, 'rgba(255,220,150,0.85)');
         sg.addColorStop(1, 'rgba(255,200,120,0)');
         ctx.fillStyle = sg; ctx.beginPath(); ctx.arc(70, 150, 90, 0, Math.PI * 2); ctx.fill();
         ctx.fillStyle = '#3d3245';
         ctx.beginPath();
-        ctx.moveTo(0, 200);
-        for (var x = 0; x <= PAGE_W; x += 20) ctx.lineTo(x, 176 + Math.sin(x * 0.02) * 16);
-        ctx.lineTo(PAGE_W, PAGE_H); ctx.lineTo(0, PAGE_H); ctx.fill();
+        ctx.moveTo(-100, 200);
+        for (var x = -100; x <= PAGE_W + 100; x += 20) ctx.lineTo(x, 176 + Math.sin(x * 0.02) * 16);
+        ctx.lineTo(PAGE_W + 100, PAGE_H + 100); ctx.lineTo(-100, PAGE_H + 100); ctx.fill();
         CR.Art.gopuram(ctx, 400, 196, 40, 74, '#3d3245', false);
         ground(ctx, 224, '#6a4f34');
-        horse(ctx, 130, 224, 1.35, '#2e2018', t, true);
-        // chariot
+        horse(ctx, 118, 226, 1.3, '#2e2018', t, true);
         ctx.fillStyle = '#7a5230';
         CR.Art.roundRect(ctx, 196, 168, 62, 34, 5); ctx.fill();
-        ctx.fillStyle = '#d8b24e';
-        ctx.fillRect(196, 166, 62, 5);
+        ctx.fillStyle = '#d8b24e'; ctx.fillRect(196, 166, 62, 5);
         ctx.strokeStyle = '#4a3320'; ctx.lineWidth = 2.6;
         ctx.beginPath(); ctx.arc(226, 210, 14, 0, Math.PI * 2); ctx.stroke();
         ctx.beginPath(); ctx.moveTo(196, 186); ctx.lineTo(150, 190); ctx.stroke();
-        CR.Art.drawPerson(ctx, { x: 232, y: 170, height: 54, anim: 'idle', t: t, facing: -1, colors: CR.Art.HERO, weapon: 'dagger', crown: true });
-        speech(ctx, 316, 116, 'I will bring her home.', true);
-      }
-    }
+        CR.Art.drawPerson(ctx, { x: 232, y: 170, height: 56, anim: 'idle', t: t, facing: -1,
+          colors: CR.Art.HERO, weapon: 'dagger', crown: true, face: 'grim' });
+      },
+      sound: ['HYAAAH!', 330, 90, -0.14, 24]
+    }]}
   ];
 
   S.ENDING = [
-    {
-      caption: 'Vimal went down like a sack of temple rice, and the lamps of the hall shook with him.',
+    { panels: [{
+      x: 8, y: 8, w: 464, h: 254, focus: [240, 150], zoom: 1,
+      caption: 'Vimal went down like a sack of temple rice, and every lamp in the hall shook with him.',
       draw: function (ctx, t) {
-        ctx.fillStyle = '#140e1c'; ctx.fillRect(0, 0, PAGE_W, PAGE_H);
+        ctx.fillStyle = '#140e1c'; ctx.fillRect(-200, -200, 900, 700);
         ctx.fillStyle = '#241a28';
         for (var x = 10; x < PAGE_W; x += 92) ctx.fillRect(x, 20, 24, 200);
         ground(ctx, 218, '#2a1f2e');
         for (var k = 0; k < 4; k++) CR.Art.torch(ctx, 54 + k * 122, 206, t);
-        vimal(ctx, 330, 218, 'dead', t, -1, false);
-        CR.Art.drawPerson(ctx, { x: 172, y: 218, height: 56, anim: 'idle', t: t, facing: 1, colors: CR.Art.HERO, weapon: 'sword', crown: true });
-        speech(ctx, 140, 138, 'Kundavai!', true);
-      }
-    },
-    {
-      caption: 'The lock gave way. She had been waiting three days, and she had a great deal to say about it.',
+        vimal(ctx, 340, 218, 'dead', t, -1, false, 78);
+        CR.Art.drawPerson(ctx, { x: 168, y: 218, height: 58, anim: 'idle', t: t, facing: 1,
+          colors: CR.Art.HERO, weapon: 'sword', crown: true, face: 'grim' });
+      },
+      balloons: [[128, 96, 'KUNDAVAI!', true, true]],
+      sound: ['DHAAM!', 336, 120, 0.16, 22]
+    }]},
+
+    { panels: [{
+      x: 8, y: 8, w: 464, h: 254, focus: [240, 150], zoom: 1,
+      caption: 'The lock gave way. She had been in there three days, and she had a great deal to say about it.',
       draw: function (ctx, t) {
-        ctx.fillStyle = '#181022'; ctx.fillRect(0, 0, PAGE_W, PAGE_H);
+        ctx.fillStyle = '#181022'; ctx.fillRect(-200, -200, 900, 700);
         ground(ctx, 214, '#2a1f2e');
         for (var k = 0; k < 3; k++) CR.Art.torch(ctx, 70 + k * 160, 202, t);
-        // the broken cage door, swung open
         ctx.strokeStyle = '#8e959e'; ctx.lineWidth = 2.4;
         for (var b = 0; b <= 44; b += 8.8) {
           ctx.beginPath(); ctx.moveTo(300 + b, 214); ctx.lineTo(318 + b, 118); ctx.stroke();
         }
         ctx.beginPath(); ctx.moveTo(300, 214); ctx.lineTo(344, 214); ctx.stroke();
-        CR.Art.drawPrincess(ctx, 236, 214, t, true, 54);
-        CR.Art.drawPerson(ctx, { x: 168, y: 214, height: 56, anim: 'idle', t: t, facing: 1, colors: CR.Art.HERO, weapon: 'sword', crown: true });
-        speech(ctx, 268, 132, 'Took you long enough!', false);
-      }
-    },
-    {
+        CR.Art.drawPrincess(ctx, 240, 214, t, true, 56);
+        CR.Art.drawPerson(ctx, { x: 170, y: 214, height: 58, anim: 'idle', t: t, facing: 1,
+          colors: CR.Art.HERO, weapon: 'sword', crown: true, face: 'smile' });
+      },
+      balloons: [[272, 92, 'Took you long enough!', false, false]]
+    }]},
+
+    { panels: [{
+      x: 8, y: 8, w: 464, h: 254, focus: [240, 150], zoom: 1,
       caption: 'They rode home to Cholapuram at first light. The guards, it is said, never slept on duty again.',
       draw: function (ctx, t) {
         sky(ctx, DAY.sky1, DAY.sky2);
@@ -3615,64 +4124,90 @@ CR.writeSettings = function (s) {
         ctx.fillStyle = sg; ctx.beginPath(); ctx.arc(410, 60, 80, 0, Math.PI * 2); ctx.fill();
         palace(ctx, DAY, 206, t, false);
         ground(ctx, 232, '#8a6a44');
-        CR.Art.drawPerson(ctx, { x: 152, y: 232, height: 58, anim: 'cheer', t: t + 0.4, facing: 1, colors: CR.Art.HERO, weapon: 'sword', crown: true });
-        CR.Art.drawPrincess(ctx, 206, 232, t, true, 54);
-        CR.Art.drawPerson(ctx, { x: 262, y: 232, height: 60, anim: 'cheer', t: t, facing: -1, colors: CR.Art.CHOLA, weapon: 'none', crown: true, moustache: true });
-        for (var i = 0; i < 4; i++) {
-          CR.Art.drawPerson(ctx, {
-            x: 318 + i * 42, y: 232, height: 46, anim: 'cheer', t: t + i * 0.6,
-            facing: -1, colors: CR.Art.CHOLA, weapon: 'none', helmet: true
-          });
-        }
-        // flower petals
+        CR.Art.drawPerson(ctx, { x: 152, y: 232, height: 58, anim: 'cheer', t: t + 0.4, facing: 1,
+          colors: CR.Art.HERO, weapon: 'sword', crown: true, face: 'smile' });
+        CR.Art.drawPrincess(ctx, 206, 232, t, true, 56);
+        CR.Art.drawPerson(ctx, { x: 262, y: 232, height: 60, anim: 'cheer', t: t, facing: -1,
+          colors: CR.Art.CHOLA, weapon: 'none', crown: true, moustache: true, face: 'smile' });
+        for (var i = 0; i < 4; i++) guard(ctx, 318 + i * 42, 232, t + i * 0.6, -1, 'cheer', 48);
         var rnd = CR.rng(77);
-        for (var p = 0; p < 26; p++) {
-          var px = rnd() * PAGE_W;
-          var py = ((rnd() * 300) + t * 30) % 240;
-          ctx.fillStyle = p % 2 ? 'rgba(255,180,200,0.85)' : 'rgba(255,225,140,0.85)';
-          ctx.fillRect(px, py, 2, 2);
+        for (var p = 0; p < 30; p++) {
+          var px = rnd() * PAGE_W, py = ((rnd() * 300) + t * 30) % 240;
+          ctx.fillStyle = p % 2 ? 'rgba(255,180,200,0.9)' : 'rgba(255,225,140,0.9)';
+          ctx.fillRect(px, py, 2.2, 2.2);
         }
-        CR.Art.kolam(ctx, 90, 228, 14, 'rgba(255,255,255,0.35)');
-      }
-    }
+        CR.Art.kolam(ctx, 90, 228, 14, 'rgba(255,255,255,0.4)');
+      },
+      sound: ['VETRI!', 380, 116, -0.1, 22]
+    }]}
   ];
 
-  /* Draws one page: the picture, a hand-drawn frame, and the caption. */
+  /* ---------- drawing one page ---------- */
   S.drawPage = function (ctx, page, t, progress) {
-    var panelW = CR.VIEW_W - 16, panelH = CR.VIEW_H - 58;
+    // scale the 480x270 page into whatever the screen gives us
+    var sx = CR.VIEW_W / PAGE_W, sy = (CR.VIEW_H - 12) / PAGE_H;
     ctx.save();
-    ctx.beginPath();
-    ctx.rect(8, 8, panelW, panelH);
-    ctx.clip();
-    ctx.translate(8, 8);
-    ctx.scale(panelW / PAGE_W, panelH / PAGE_H);
-    page.draw(ctx, t);
-    ctx.restore();
+    ctx.scale(sx, sy);
 
-    // paper background behind the caption
-    ctx.fillStyle = '#f2e4c2';
-    ctx.fillRect(0, CR.VIEW_H - 50, CR.VIEW_W, 50);
-    ctx.fillStyle = '#d8c69c';
-    ctx.fillRect(0, CR.VIEW_H - 50, CR.VIEW_W, 1.5);
+    // the paper the panels sit on
+    ctx.fillStyle = INK;
+    ctx.fillRect(0, 0, PAGE_W, PAGE_H);
 
-    // the frame around the picture
-    ctx.strokeStyle = '#2a1c10';
-    ctx.lineWidth = 2.5;
-    ctx.strokeRect(8, 8, panelW, panelH);
+    for (var i = 0; i < page.panels.length; i++) {
+      var pn = page.panels[i];
 
-    var lines = CR.Art.wrap(ctx, page.caption, CR.VIEW_W - 36, CR.Art.FONT_BODY);
-    var ty = CR.VIEW_H - 34 - (lines.length - 1) * 6;
-    for (var i = 0; i < lines.length; i++) {
-      CR.Art.text(ctx, lines[i], CR.VIEW_W / 2, ty + i * 12, {
-        align: 'center', font: CR.Art.FONT_BODY, color: '#3a2a18', shadow: false
-      });
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(pn.x, pn.y, pn.w, pn.h);
+      ctx.clip();
+
+      // point the "camera" at this panel's subject
+      var zoom = pn.zoom || 1;
+      var fx = pn.focus ? pn.focus[0] : PAGE_W / 2;
+      var fy = pn.focus ? pn.focus[1] : PAGE_H / 2;
+      ctx.save();
+      ctx.translate(pn.x + pn.w / 2, pn.y + pn.h / 2);
+      ctx.scale(zoom, zoom);
+      ctx.translate(-fx, -fy);
+      pn.draw(ctx, t);
+      ctx.restore();
+
+      // printed shading
+      halftone(ctx, pn.x, pn.y, pn.w, pn.h, 0.13);
+
+      if (pn.sound) soundWord(ctx, pn.sound[1], pn.sound[2], pn.sound[0], pn.sound[3], pn.sound[4]);
+      if (pn.caption) captionBox(ctx, pn.x, pn.y, pn.w, pn.caption);
+      // balloon positions are measured from the panel's own corner, so a
+      // balloon can never wander outside the frame it belongs to
+      if (pn.balloons) {
+        for (var b = 0; b < pn.balloons.length; b++) {
+          var bl = pn.balloons[b];
+          balloon(ctx, pn.x + bl[0], pn.y + bl[1], bl[2], bl[3], bl[4]);
+        }
+      }
+      ctx.restore();
+
+      // the heavy panel border
+      ctx.strokeStyle = INK;
+      ctx.lineWidth = 3;
+      ctx.strokeRect(pn.x, pn.y, pn.w, pn.h);
+      ctx.strokeStyle = 'rgba(255,255,255,0.10)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(pn.x + 2, pn.y + 2, pn.w - 4, pn.h - 4);
     }
 
-    // the page-turn timer, drawn as a thin line filling up
-    ctx.fillStyle = 'rgba(58,42,24,0.25)';
-    ctx.fillRect(0, CR.VIEW_H - 3, CR.VIEW_W, 3);
-    ctx.fillStyle = '#8c5a2a';
-    ctx.fillRect(0, CR.VIEW_H - 3, CR.VIEW_W * progress, 3);
+    ctx.restore();
+
+    // the page-turn timer along the bottom edge
+    ctx.fillStyle = 'rgba(20,15,10,0.9)';
+    ctx.fillRect(0, CR.VIEW_H - 12, CR.VIEW_W, 12);
+    ctx.fillStyle = 'rgba(242,214,122,0.25)';
+    ctx.fillRect(0, CR.VIEW_H - 12, CR.VIEW_W, 12);
+    ctx.fillStyle = '#f2d67a';
+    ctx.fillRect(0, CR.VIEW_H - 12, CR.VIEW_W * progress, 12);
+    CR.Art.text(ctx, 'press any key to turn the page', CR.VIEW_W / 2, CR.VIEW_H - 3.5, {
+      align: 'center', font: CR.Art.FONT_SMALL, color: 'rgba(40,28,10,0.75)', shadow: false
+    });
   };
 
   CR.Story = S;
@@ -3754,7 +4289,7 @@ CR.writeSettings = function (s) {
       y += 25;
     }
 
-    CR.Art.text(ctx, CR.Input.mode === 'touch' ? 'Tap an option' : 'Arrow keys and SPACE  -  M mutes the music',
+    CR.Art.text(ctx, CR.Input.mode === 'touch' ? 'Tap an option' : 'Arrow keys to choose, SPACE to pick  -  M mutes',
       CR.VIEW_W / 2, CR.VIEW_H - 8, { align: 'center', font: CR.Art.FONT_SMALL, color: 'rgba(246,236,210,0.6)' });
 
     return rects;
@@ -3767,19 +4302,18 @@ CR.writeSettings = function (s) {
     CR.Art.text(ctx, 'HOW TO PLAY', CR.VIEW_W / 2, 30, { align: 'center', font: CR.Art.FONT_SUB, color: GOLD });
 
     var keyRows = [
-      ['ARROW KEYS', 'walk left and right'],
-      ['SHIFT', 'run (hold it, you jump much further)'],
-      ['SPACE', 'jump  -  press again at a wall to run up it'],
-      ['Z  /  J  /  CTRL', 'swing your blade'],
+      ['LEFT  RIGHT', 'walk'],
+      ['UP', 'jump  -  press it again at a wall to run up the wall'],
       ['DOWN', 'crawl through low gaps'],
-      ['UP', 'climb a ledge, catch a rope, pull a lever, open a door'],
+      ['SPACE', 'catch a rope, climb a ledge, pull a lever, open a door'],
+      ['Z  /  J  /  CTRL', 'swing your blade'],
       ['ESC  /  P', 'pause    -    M mute']
     ];
     var touchRows = [
-      ['LEFT THUMB', 'the stick: left and right to move, push up to jump, pull down to crawl'],
-      ['SWORD BUTTON', 'swing your blade'],
-      ['JUMP BUTTON', 'jump  -  tap again at a wall to run up it'],
-      ['UP ON THE STICK', 'also climbs ledges, catches ropes and opens doors']
+      ['LEFT THUMB', 'the stick: left and right to walk, push up to jump, pull down to crawl'],
+      ['JUMP', 'jump  -  tap it again at a wall to run up the wall'],
+      ['SWORD', 'swing your blade'],
+      ['GRAB', 'catch a rope, climb a ledge, pull a lever, open a door']
     ];
     var rows = CR.Input.mode === 'touch' ? touchRows : keyRows;
 
@@ -3929,7 +4463,9 @@ CR.writeSettings = function (s) {
       ['So is every note of the music.', CR.Art.FONT_SMALL, dim],
       ['Nothing was downloaded to make it.', CR.Art.FONT_SMALL, dim],
       ['', null, null],
-      ['Vimal is invented. The Cholas were not.', CR.Art.FONT_SMALL, 'rgba(246,236,210,0.45)']
+      ['Vimal is invented. The Cholas were not.', CR.Art.FONT_SMALL, 'rgba(246,236,210,0.45)'],
+      ['', null, null],
+      ['Created by Surya', CR.Art.FONT_SMALL, GOLD]
     ];
     var y = 26;
     for (var i = 0; i < lines.length; i++) {
@@ -3977,7 +4513,7 @@ CR.writeSettings = function (s) {
     }
     btn(L.jump, 'JUMP', CR.Input.jump);
     btn(L.attack, 'SWORD', CR.Input.attack);
-    btn(L.run, 'RUN', CR.Input.run);
+    btn(L.grab, 'GRAB', CR.Input.grab);
     ctx.restore();
   };
 
@@ -4115,15 +4651,21 @@ CR.writeSettings = function (s) {
     if (!fromCheckpoint) game.checkpoint = def.spawn.slice();
     game.player.invuln = 1.0;      // a breath of safety on landing, so you never respawn onto a spike
 
-    // the guards
+    /* The guards. Each level says how many strikes an ordinary troop
+       takes; a captain takes three more than his men. */
+    var strikes = def.troopStrikes || 3;
     game.enemies = [];
     for (var i = 0; i < (def.enemies || []).length; i++) {
       var e = def.enemies[i];
-      game.enemies.push(new CR.Enemy(e[0], e[1], e[2], { patrol: e[3] || 0, dropsSword: e[4] || false }));
+      game.enemies.push(new CR.Enemy(e[0], e[1], e[2], {
+        patrol: e[3] || 0,
+        dropsSword: e[4] || false,
+        hp: e[2] === 'captain' ? strikes + 3 : strikes
+      }));
     }
     game.boss = null;
     if (def.boss) {
-      game.boss = new CR.Enemy(def.boss[0], def.boss[1], 'boss', {});
+      game.boss = new CR.Enemy(def.boss[0], def.boss[1], 'boss', { hp: def.bossStrikes || 14 });
       game.boss.state = 'idle';
       game.boss.asleep = true;      // he only wakes when you reach him
     }
@@ -4137,6 +4679,7 @@ CR.writeSettings = function (s) {
     // the guards get a little slower and you get an extra heart
     var d = game.deaths[def.id] || 0;
     game.assist = d >= 3;
+    CR.World.trapSlow = game.assist ? 1.3 : 1;
     if (game.assist) {
       game.player.maxHearts = def.hearts + 1;
       game.player.hearts = def.hearts + 1;
@@ -4224,7 +4767,7 @@ CR.writeSettings = function (s) {
       case 'dead':
         game.deadT += dt;
         updatePlay(dt, true);
-        if (game.deadT > 1.3 && (In.confirmPressed || In.pointer.clicked)) game.respawn();
+        if (game.deadT > 1.3 && (In.confirmPressed || In.upPressed || In.attackPressed || In.pointer.clicked)) game.respawn();
         break;
       case 'clear':
         game.clearT -= dt;
@@ -4355,7 +4898,9 @@ CR.writeSettings = function (s) {
       return;
     }
 
-    if (!frozen) p.update(dt, game);
+    // Even on the death screen the prince keeps updating, so he actually
+    // falls and crumples instead of standing there dead on his feet.
+    if (!frozen || p.dead) p.update(dt, game);
     CR.World.update(dt, p);
 
     // --- guards ---
@@ -4456,7 +5001,7 @@ CR.writeSettings = function (s) {
     for (i = 0; i < W.levers.length; i++) {
       var lv = W.levers[i];
       if (Math.abs(p.centerX() - lv.x) < 14 && Math.abs(p.centerY() - lv.y) < 24) {
-        if (CR.Input.upPressed) {
+        if (CR.Input.grabPressed) {
           var g = W.gates[lv.gate];
           if (g) { g.timer = lv.secs; CR.Audio.sfx.lever(); CR.Audio.sfx.gate(); game.banner('The gate is up. GO.'); }
         }
@@ -4466,7 +5011,7 @@ CR.writeSettings = function (s) {
     if (W.exit) {
       W.exit.open = true;
       if (Math.abs(p.centerX() - (W.exit.x + 11)) < 16 && Math.abs((p.y + p.h) - W.exit.y) < 22) {
-        if (CR.Input.upPressed) {
+        if (CR.Input.grabPressed) {
           game.state = 'clear';
           game.clearT = 1.8;
           game.checkpoint = null;
@@ -4478,7 +5023,7 @@ CR.writeSettings = function (s) {
 
     if (W.cage && game.boss && game.boss.state === 'dead' && !W.cage.open) {
       if (Math.abs(p.centerX() - (W.cage.x + 16)) < 22 && Math.abs((p.y + p.h) - W.cage.y) < 26) {
-        if (CR.Input.upPressed) {
+        if (CR.Input.grabPressed) {
           W.cage.open = true;
           CR.Audio.sfx.pickup();
           CR.Audio.sfx.cheer();

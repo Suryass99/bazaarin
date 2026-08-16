@@ -40,6 +40,7 @@
     palette: 'grove',
     music: 'level1',
     hearts: 4,
+    troopStrikes: 3,        // level one: three blows to put a troop down
     startWeapon: 'dagger',
     w: 2500, h: 360,
     spawn: [30, 300],
@@ -51,7 +52,7 @@
       [1152, 270, 198, 130, 'stone'],
       [1470, 280, 1030, 120],
       // the little pillar the rope hangs from
-      [1390, 170, 40, 22, 'stone']
+      [1375, 128, 40, 22, 'stone']
     ],
 
     oneway: [
@@ -63,8 +64,8 @@
     ],
 
     traps: [
-      [1640, 280, 2.6, 0.0],
-      [1700, 280, 2.6, 0.0]
+      [1650, 280, 3.0, 0.0],
+      [1695, 280, 3.0, 0.0]
     ],
 
     barrels: [
@@ -72,7 +73,7 @@
     ],
 
     ropes: [
-      [1410, 190, 68]
+      [1395, 150, 78]
     ],
 
     gates: [
@@ -111,15 +112,15 @@
     ],
 
     signs: [
-      [46, 'ARROW KEYS to walk    SHIFT to run'],
-      [210, 'SPACE to jump'],
+      [46, 'LEFT and RIGHT arrow keys to walk'],
+      [210, 'UP arrow to jump'],
       [312, 'Z to swing your dagger - smash those barrels'],
       [592, 'Spikes. Take a run-up and jump clean over'],
       [842, 'A Pandya guard. He lifts his blade before he swings - strike him then'],
-      [1160, 'Grab a ledge as you fall, then press UP to pull yourself over'],
-      [1362, 'Jump, press UP to catch the rope. Arrows to swing, SPACE to let go'],
-      [1500, 'Pull the lever with UP - then run. The gate does not wait'],
-      [2250, 'The door. Press UP to go through']
+      [1160, 'Catch a ledge as you fall, then SPACE to pull yourself over'],
+      [1362, 'Jump, hold SPACE to catch the rope. Arrows to swing, UP to let go'],
+      [1500, 'Pull the lever with SPACE - then go. The gate does not wait'],
+      [2250, 'The door. Press SPACE to go through']
     ],
 
     dialogue: [],
@@ -138,6 +139,7 @@
     palette: 'fort',
     music: 'level2',
     hearts: 5,
+    troopStrikes: 4,        // level two: four
     startWeapon: 'sword',
     w: 3000, h: 380,
     spawn: [30, 320],
@@ -152,7 +154,7 @@
       [2300, 180, 300, 240, 'stone'],
       [2596, 240, 72, 20, 'stone'],         // a ledge so the drop off the rampart is survivable
       [2600, 300, 400, 120],
-      [1260, 148, 40, 22, 'stone']          // rope anchor block
+      [1245, 110, 40, 22, 'stone']          // rope anchor block
     ],
 
     oneway: [
@@ -166,11 +168,11 @@
     ],
 
     traps: [
-      [1080, 252, 1.8, 0.0],
-      [1120, 252, 1.8, 0.6],
-      [1160, 252, 1.8, 1.2],
-      [2440, 180, 1.6, 0.0],
-      [2480, 180, 1.6, 0.8]
+      [1080, 252, 2.2, 0.0],
+      [1120, 252, 2.2, 0.75],
+      [1160, 252, 2.2, 1.5],
+      [2440, 180, 2.0, 0.0],
+      [2480, 180, 2.0, 1.0]
     ],
 
     barrels: [
@@ -178,7 +180,7 @@
     ],
 
     ropes: [
-      [1280, 168, 74]
+      [1265, 132, 78]
     ],
 
     gates: [
@@ -223,11 +225,11 @@
 
     signs: [
       [46, 'The outer rampart of Madurai. They know you are coming'],
-      [660, 'Too high to jump. Run at the wall and press SPACE again to run UP it'],
+      [660, 'Too high to jump. Jump at the wall, then press UP again to run up it'],
       [1230, 'Swing across. Look at how far the rope reaches before you leap'],
       [1580, 'Hold DOWN to crawl through the drain'],
-      [2320, 'Pull it, then sprint. Two sets of spikes between you and the gate'],
-      [2900, 'The inner door. Press UP']
+      [2320, 'Pull it with SPACE, then move. Two sets of spikes before the gate'],
+      [2900, 'The inner door. Press SPACE']
     ],
 
     dialogue: [],
@@ -247,8 +249,10 @@
     music: 'level3',
     bossMusic: 'boss',
     hearts: 6,
+    troopStrikes: 5,        // level three: five, and Vimal takes fourteen
+    bossStrikes: 14,
     startWeapon: 'sword',
-    w: 2400, h: 380,
+    w: 2440, h: 380,
     spawn: [30, 320],
 
     solids: [
@@ -259,7 +263,8 @@
       [1520, 236, 140, 46, 'stone'],        // the slab overhead: crawl or turn back
       [1820, 230, 30, 190, 'stone'],        // the wall up into the boss hall
       [1850, 230, 550, 190, 'stone'],       // the boss hall floor
-      [1170, 176, 40, 22, 'stone']          // rope anchor block
+      [2400, 120, 24, 300, 'stone'],        // the far wall - no walking out the back of the hall
+      [1155, 178, 40, 22, 'stone']          // rope anchor block
     ],
 
     oneway: [],
@@ -268,11 +273,10 @@
     ],
 
     traps: [
-      [690, 320, 1.9, 0.0],
-      [740, 320, 1.9, 0.65],
-      [790, 320, 1.9, 1.3],
-      [1330, 300, 2.4, 0.0],
-      [1380, 300, 2.4, 0.0]
+      [690, 320, 2.2, 0.0],
+      [740, 320, 2.2, 0.75],
+      [790, 320, 2.2, 1.5],
+      [1370, 300, 2.6, 0.0]
     ],
 
     barrels: [
@@ -280,7 +284,7 @@
     ],
 
     ropes: [
-      [1190, 196, 80]
+      [1175, 200, 78]
     ],
 
     gates: [],
@@ -325,12 +329,12 @@
       [46, 'The Hall of Lamps. Somewhere past these fires, Kundavai'],
       [900, 'The lamps are lit for a feast. Nobody here is celebrating'],
       [1480, 'Hold DOWN. Crawl'],
-      [1790, 'Run the wall. He is up there']
+      [1790, 'Jump the wall and press UP again. He is up there']
     ],
 
     dialogue: [
       [1900, [
-        ['VIMAL', 'You climbed my walls, boy? In the dark?'],
+        ['VIMAL', 'Edhuku da inge vandhe? Why have you come here, boy?'],
         ['RAJARAJA', 'I would do anything for my family.'],
         ['VIMAL', 'Then bleed for them.']
       ]]

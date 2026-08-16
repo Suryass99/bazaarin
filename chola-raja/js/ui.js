@@ -73,7 +73,7 @@
       y += 25;
     }
 
-    CR.Art.text(ctx, CR.Input.mode === 'touch' ? 'Tap an option' : 'Arrow keys and SPACE  -  M mutes the music',
+    CR.Art.text(ctx, CR.Input.mode === 'touch' ? 'Tap an option' : 'Arrow keys to choose, SPACE to pick  -  M mutes',
       CR.VIEW_W / 2, CR.VIEW_H - 8, { align: 'center', font: CR.Art.FONT_SMALL, color: 'rgba(246,236,210,0.6)' });
 
     return rects;
@@ -86,19 +86,18 @@
     CR.Art.text(ctx, 'HOW TO PLAY', CR.VIEW_W / 2, 30, { align: 'center', font: CR.Art.FONT_SUB, color: GOLD });
 
     var keyRows = [
-      ['ARROW KEYS', 'walk left and right'],
-      ['SHIFT', 'run (hold it, you jump much further)'],
-      ['SPACE', 'jump  -  press again at a wall to run up it'],
-      ['Z  /  J  /  CTRL', 'swing your blade'],
+      ['LEFT  RIGHT', 'walk'],
+      ['UP', 'jump  -  press it again at a wall to run up the wall'],
       ['DOWN', 'crawl through low gaps'],
-      ['UP', 'climb a ledge, catch a rope, pull a lever, open a door'],
+      ['SPACE', 'catch a rope, climb a ledge, pull a lever, open a door'],
+      ['Z  /  J  /  CTRL', 'swing your blade'],
       ['ESC  /  P', 'pause    -    M mute']
     ];
     var touchRows = [
-      ['LEFT THUMB', 'the stick: left and right to move, push up to jump, pull down to crawl'],
-      ['SWORD BUTTON', 'swing your blade'],
-      ['JUMP BUTTON', 'jump  -  tap again at a wall to run up it'],
-      ['UP ON THE STICK', 'also climbs ledges, catches ropes and opens doors']
+      ['LEFT THUMB', 'the stick: left and right to walk, push up to jump, pull down to crawl'],
+      ['JUMP', 'jump  -  tap it again at a wall to run up the wall'],
+      ['SWORD', 'swing your blade'],
+      ['GRAB', 'catch a rope, climb a ledge, pull a lever, open a door']
     ];
     var rows = CR.Input.mode === 'touch' ? touchRows : keyRows;
 
@@ -248,7 +247,9 @@
       ['So is every note of the music.', CR.Art.FONT_SMALL, dim],
       ['Nothing was downloaded to make it.', CR.Art.FONT_SMALL, dim],
       ['', null, null],
-      ['Vimal is invented. The Cholas were not.', CR.Art.FONT_SMALL, 'rgba(246,236,210,0.45)']
+      ['Vimal is invented. The Cholas were not.', CR.Art.FONT_SMALL, 'rgba(246,236,210,0.45)'],
+      ['', null, null],
+      ['Created by Surya', CR.Art.FONT_SMALL, GOLD]
     ];
     var y = 26;
     for (var i = 0; i < lines.length; i++) {
@@ -296,7 +297,7 @@
     }
     btn(L.jump, 'JUMP', CR.Input.jump);
     btn(L.attack, 'SWORD', CR.Input.attack);
-    btn(L.run, 'RUN', CR.Input.run);
+    btn(L.grab, 'GRAB', CR.Input.grab);
     ctx.restore();
   };
 

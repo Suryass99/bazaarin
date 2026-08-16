@@ -9,39 +9,45 @@
    ============================================================ */
 (function () {
 
+  /* hp is now "how many strikes it takes", because every blade does
+     exactly one point of damage. Levels override it: three strikes in
+     level one, four in level two, five in level three. */
   var TYPES = {
     guard: {
-      hp: 2, w: 12, h: 28, height: 29, speed: 46, sight: 132,
+      hp: 3, w: 12, h: 28, height: 29, speed: 46, sight: 132,
       reach: 17, wind: 0.55, active: 0.16, recover: 0.55,
       colors: 'GUARD', weapon: 'sword', helmet: true, shield: true, plume: false
     },
     spearman: {
-      hp: 2, w: 12, h: 28, height: 29, speed: 38, sight: 150,
+      hp: 3, w: 12, h: 28, height: 29, speed: 38, sight: 150,
       reach: 26, wind: 0.68, active: 0.18, recover: 0.62,
       colors: 'GUARD', weapon: 'spear', helmet: true, shield: false, plume: false
     },
     captain: {
-      hp: 5, w: 13, h: 29, height: 31, speed: 62, sight: 165,
+      hp: 6, w: 13, h: 29, height: 31, speed: 62, sight: 165,
       reach: 20, wind: 0.42, active: 0.16, recover: 0.40,
       colors: 'CAPTAIN', weapon: 'sword', helmet: true, shield: true, plume: true
     },
     boss: {
-      hp: 20, w: 22, h: 44, height: 47, speed: 40, sight: 300,
+      hp: 14, w: 22, h: 46, height: 52, speed: 40, sight: 300,
       reach: 30, wind: 0.85, active: 0.22, recover: 0.85,
-      colors: 'BOSS', weapon: 'club', helmet: false, shield: false, moustache: true
+      colors: 'BOSS', weapon: 'club', helmet: false, shield: false,
+      // Vimal: tall, long hair, a few days unshaven, and a jaw like a doorframe
+      hair: 'long', jaw: 'strong', stubble: true, moustache: false
     }
   };
 
   function Enemy(x, y, type, opts) {
     var T = TYPES[type] || TYPES.guard;
+    opts = opts || {};
     this.type = type;
     this.T = T;
     this.x = x; this.y = y - T.h;
     this.w = T.w; this.h = T.h;
     this.vx = 0; this.vy = 0;
     this.facing = -1;
-    this.hp = T.hp;
-    this.maxHp = T.hp;
+    this.hp = opts.hp || T.hp;
+    this.maxHp = this.hp;
     this.state = 'idle';       // idle | alert | chase | wind | strike | recover | hurt | dead
     this.timer = 0;
     this.animT = Math.random() * 3;
@@ -75,13 +81,17 @@
     this.hp -= dmg;
     this.hitFlash = 0.16;
     CR.World.camera.shake = 0.45;
-    CR.World.puff(this.centerX(), this.centerY(), 5, '#a33', 70);
+
+    // blood flies away from whoever swung
+    var away = this.centerX() < fromX ? -1 : 1;
+    CR.World.blood(this.centerX(), this.centerY() - 2, 7, away);
 
     if (this.hp <= 0) {
       this.state = 'dead';
       this.deadT = 0;
-      this.vx = (this.centerX() < fromX ? -1 : 1) * 60;
+      this.vx = away * 60;
       this.vy = -110;
+      CR.World.blood(this.centerX(), this.centerY() - 4, 14, away);
       CR.Audio.sfx.guardDie();
       if (this.dropsSword) {
         CR.World.pickups.push({ x: this.centerX() - 5, y: this.y + this.h - 16, kind: 'sword', taken: false, bob: 0 });
@@ -275,6 +285,7 @@
       anim: anim, t: this.animT, facing: this.facing,
       weapon: T.weapon, colors: colors,
       helmet: T.helmet, shield: T.shield, plume: T.plume, moustache: T.moustache,
+      hair: T.hair, jaw: T.jaw, stubble: T.stubble, beard: T.beard,
       attackP: p
     };
     pose.tint = 'rgba(8,5,4,0.3)';

@@ -197,10 +197,13 @@
   World.update = function (dt, player) {
     World.time += dt;
 
-    // spike traps breathe in and out
+    // spike traps breathe in and out. When the assist is on they breathe
+    // slower, which widens the gap you have to run through.
+    var slow = World.trapSlow || 1;
     for (var i = 0; i < World.traps.length; i++) {
       var tr = World.traps[i];
-      var ph = ((World.time + tr.phase) % tr.period) / tr.period;
+      var period = tr.period * slow;
+      var ph = ((World.time + tr.phase) % period) / period;
       // out for the first 40% of the cycle, with a fast snap up
       var target = ph < 0.36 ? 1 : 0;
       var wasOut = tr.out;
@@ -258,6 +261,26 @@
         rot: Math.random() * 6, vr: (Math.random() - 0.5) * 14,
         size: 1 + Math.random() * 2.4,
         col: col || '#8a6a3a'
+      });
+    }
+  };
+
+  /* Blood. Fat round droplets thrown out along the direction of the blow,
+     heavier and slower than dust so they arc and fall. dir is -1 or 1 for
+     which way the blade was travelling. */
+  World.blood = function (x, y, n, dir) {
+    for (var i = 0; i < n; i++) {
+      var spread = Math.random();
+      World.particles.push({
+        drop: true,
+        x: x + (Math.random() - 0.5) * 4,
+        y: y + (Math.random() - 0.5) * 6,
+        vx: dir * (40 + spread * 130) + (Math.random() - 0.5) * 50,
+        vy: -50 - Math.random() * 120,
+        life: 0.55 + Math.random() * 0.7,
+        rot: 0, vr: 0,
+        size: 1.8 + Math.random() * 2.8,
+        col: Math.random() < 0.25 ? '#7d1414' : '#b41e1e'
       });
     }
   };
@@ -328,27 +351,55 @@
       if (s.kind === 'stone') {
         ctx.fillStyle = P.stone;
         ctx.fillRect(s.x, s.y, s.w, s.h);
+        // courses of cut blocks, darker as they go down into shadow
         ctx.fillStyle = P.stoneDark;
-        for (var y = s.y + 6; y < s.y + s.h; y += 8) ctx.fillRect(s.x, y, s.w, 1.2);
-        for (var x = s.x + 10; x < s.x + s.w; x += 20) ctx.fillRect(x, s.y, 1.2, s.h);
-        ctx.fillStyle = 'rgba(255,255,255,0.13)';
-        ctx.fillRect(s.x, s.y, s.w, 1.6);
+        for (var y = s.y + 7; y < s.y + s.h; y += 9) ctx.fillRect(s.x, y, s.w, 1.4);
+        for (var x = s.x + 11; x < s.x + s.w; x += 22) ctx.fillRect(x, s.y, 1.4, s.h);
+        var sg = ctx.createLinearGradient(0, s.y, 0, s.y + Math.min(s.h, 70));
+        sg.addColorStop(0, 'rgba(0,0,0,0)');
+        sg.addColorStop(1, 'rgba(0,0,0,0.4)');
+        ctx.fillStyle = sg;
+        ctx.fillRect(s.x, s.y, s.w, Math.min(s.h, 70));
+        // the lit top edge
+        ctx.fillStyle = 'rgba(255,248,225,0.35)';
+        ctx.fillRect(s.x, s.y, s.w, 1.8);
       } else {
         ctx.fillStyle = P.groundDeep;
         ctx.fillRect(s.x, s.y, s.w, s.h);
-        ctx.fillStyle = P.groundFace;
-        ctx.fillRect(s.x, s.y, s.w, Math.min(s.h, 14));
+        var eg = ctx.createLinearGradient(0, s.y, 0, s.y + Math.min(s.h, 60));
+        eg.addColorStop(0, P.groundFace);
+        eg.addColorStop(1, P.groundDeep);
+        ctx.fillStyle = eg;
+        ctx.fillRect(s.x, s.y, s.w, Math.min(s.h, 60));
+
+        // the sunlit crust of grass and earth on top
         ctx.fillStyle = P.groundTop;
-        ctx.fillRect(s.x, s.y, s.w, 4);
-        // scruffy edge so it does not read as a plain box
+        ctx.fillRect(s.x, s.y, s.w, 5);
+        ctx.fillStyle = 'rgba(255,255,235,0.28)';
+        ctx.fillRect(s.x, s.y, s.w, 1.4);
+
+        // tufts, so the edge is not a ruled line
         ctx.fillStyle = P.groundTop;
-        for (var gx = s.x; gx < s.x + s.w; gx += 6) {
-          var bump = ((gx * 37) % 11) / 11;
-          ctx.fillRect(gx, s.y - (bump > 0.6 ? 1.5 : 0), 6, 2);
+        for (var gx = s.x; gx < s.x + s.w; gx += 5) {
+          var bump = ((gx * 37) % 13) / 13;
+          if (bump > 0.55) ctx.fillRect(gx, s.y - 1.8, 3, 2.4);
         }
-        ctx.fillStyle = 'rgba(0,0,0,0.18)';
-        for (var dy = s.y + 18; dy < s.y + s.h; dy += 12) ctx.fillRect(s.x, dy, s.w, 1);
+        // pebbles and roots in the earth below
+        ctx.fillStyle = 'rgba(0,0,0,0.22)';
+        for (var dy = s.y + 20; dy < s.y + s.h; dy += 14) ctx.fillRect(s.x, dy, s.w, 1);
+        ctx.fillStyle = 'rgba(0,0,0,0.16)';
+        for (var px = s.x + 7; px < s.x + s.w; px += 17) {
+          var py = s.y + 12 + ((px * 53) % 30);
+          if (py < s.y + s.h - 3) ctx.fillRect(px, py, 2.5, 2);
+        }
       }
+
+      /* The single most useful line in the game: a near-black edge all the
+         way round anything solid. It is what stops the ground melting into
+         the scenery behind it. */
+      ctx.strokeStyle = P.edge || 'rgba(0,0,0,0.6)';
+      ctx.lineWidth = 1.6;
+      ctx.strokeRect(s.x - 0.2, s.y - 0.2, s.w + 0.4, s.h + 0.4);
     }
 
     // --- one-way wooden platforms ---
@@ -532,10 +583,19 @@
       var pt = World.particles[i];
       ctx.save();
       ctx.translate(pt.x, pt.y);
-      ctx.rotate(pt.rot);
       ctx.globalAlpha = Math.min(1, pt.life * 2.2);
       ctx.fillStyle = pt.col;
-      ctx.fillRect(-pt.size / 2, -pt.size / 2, pt.size, pt.size);
+      if (pt.drop) {
+        // a droplet stretches along the way it is flying
+        var sp = Math.sqrt(pt.vx * pt.vx + pt.vy * pt.vy);
+        ctx.rotate(Math.atan2(pt.vy, pt.vx));
+        ctx.beginPath();
+        ctx.ellipse(0, 0, pt.size * (1 + Math.min(1.1, sp / 260)), pt.size * 0.72, 0, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        ctx.rotate(pt.rot);
+        ctx.fillRect(-pt.size / 2, -pt.size / 2, pt.size, pt.size);
+      }
       ctx.restore();
     }
     ctx.globalAlpha = 1;

@@ -128,15 +128,21 @@
     if (!fromCheckpoint) game.checkpoint = def.spawn.slice();
     game.player.invuln = 1.0;      // a breath of safety on landing, so you never respawn onto a spike
 
-    // the guards
+    /* The guards. Each level says how many strikes an ordinary troop
+       takes; a captain takes three more than his men. */
+    var strikes = def.troopStrikes || 3;
     game.enemies = [];
     for (var i = 0; i < (def.enemies || []).length; i++) {
       var e = def.enemies[i];
-      game.enemies.push(new CR.Enemy(e[0], e[1], e[2], { patrol: e[3] || 0, dropsSword: e[4] || false }));
+      game.enemies.push(new CR.Enemy(e[0], e[1], e[2], {
+        patrol: e[3] || 0,
+        dropsSword: e[4] || false,
+        hp: e[2] === 'captain' ? strikes + 3 : strikes
+      }));
     }
     game.boss = null;
     if (def.boss) {
-      game.boss = new CR.Enemy(def.boss[0], def.boss[1], 'boss', {});
+      game.boss = new CR.Enemy(def.boss[0], def.boss[1], 'boss', { hp: def.bossStrikes || 14 });
       game.boss.state = 'idle';
       game.boss.asleep = true;      // he only wakes when you reach him
     }
@@ -150,6 +156,7 @@
     // the guards get a little slower and you get an extra heart
     var d = game.deaths[def.id] || 0;
     game.assist = d >= 3;
+    CR.World.trapSlow = game.assist ? 1.3 : 1;
     if (game.assist) {
       game.player.maxHearts = def.hearts + 1;
       game.player.hearts = def.hearts + 1;
@@ -237,7 +244,7 @@
       case 'dead':
         game.deadT += dt;
         updatePlay(dt, true);
-        if (game.deadT > 1.3 && (In.confirmPressed || In.pointer.clicked)) game.respawn();
+        if (game.deadT > 1.3 && (In.confirmPressed || In.upPressed || In.attackPressed || In.pointer.clicked)) game.respawn();
         break;
       case 'clear':
         game.clearT -= dt;
@@ -368,7 +375,9 @@
       return;
     }
 
-    if (!frozen) p.update(dt, game);
+    // Even on the death screen the prince keeps updating, so he actually
+    // falls and crumples instead of standing there dead on his feet.
+    if (!frozen || p.dead) p.update(dt, game);
     CR.World.update(dt, p);
 
     // --- guards ---
@@ -469,7 +478,7 @@
     for (i = 0; i < W.levers.length; i++) {
       var lv = W.levers[i];
       if (Math.abs(p.centerX() - lv.x) < 14 && Math.abs(p.centerY() - lv.y) < 24) {
-        if (CR.Input.upPressed) {
+        if (CR.Input.grabPressed) {
           var g = W.gates[lv.gate];
           if (g) { g.timer = lv.secs; CR.Audio.sfx.lever(); CR.Audio.sfx.gate(); game.banner('The gate is up. GO.'); }
         }
@@ -479,7 +488,7 @@
     if (W.exit) {
       W.exit.open = true;
       if (Math.abs(p.centerX() - (W.exit.x + 11)) < 16 && Math.abs((p.y + p.h) - W.exit.y) < 22) {
-        if (CR.Input.upPressed) {
+        if (CR.Input.grabPressed) {
           game.state = 'clear';
           game.clearT = 1.8;
           game.checkpoint = null;
@@ -491,7 +500,7 @@
 
     if (W.cage && game.boss && game.boss.state === 'dead' && !W.cage.open) {
       if (Math.abs(p.centerX() - (W.cage.x + 16)) < 22 && Math.abs((p.y + p.h) - W.cage.y) < 26) {
-        if (CR.Input.upPressed) {
+        if (CR.Input.grabPressed) {
           W.cage.open = true;
           CR.Audio.sfx.pickup();
           CR.Audio.sfx.cheer();

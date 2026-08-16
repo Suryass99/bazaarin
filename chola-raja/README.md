@@ -14,22 +14,28 @@ Built to run in any modern browser, offline, on a phone or a laptop.
 | Key | What it does |
 |---|---|
 | ← → | walk |
-| SHIFT | run — hold it and you jump much further |
-| SPACE | jump. Press it *again* while touching a wall to run **up** the wall |
-| Z (or J, or CTRL) | swing your blade |
+| ↑ | jump. Press it *again* while touching a wall to run **up** the wall |
 | ↓ | crawl through low gaps |
-| ↑ | climb a ledge you are hanging from, catch a rope, pull a lever, open a door |
+| SPACE | catch a rope, climb a ledge you are hanging from, pull a lever, open a door |
+| Z (or J, or CTRL) | swing your blade |
 | ESC or P | pause · M mutes |
 
-**On a phone** — hold it sideways. A stick appears bottom-left (push up to jump,
-pull down to crawl) and JUMP / SWORD / RUN buttons bottom-right.
+There is no run button. One walking speed, and every gap in the game
+clears from it.
+
+**On a phone** — the game turns itself sideways if you hold the phone upright.
+A stick sits bottom-left (push up to jump, pull down to crawl) with JUMP,
+SWORD and GRAB buttons bottom-right - the same four things the keyboard does.
 
 **The rules that matter**
 
 - A long fall kills you. Spikes kill you. Everything else costs one heart.
 - Guards *always* lift their weapon before they strike. That pause is your turn.
+- Troops take three strikes to put down in Level 1, four in Level 2, five in
+  Level 3. Vimal takes fourteen.
 - You start Level 1 with a small dagger. The captain at the end of Level 1
-  drops a proper sword — longer reach, kills a guard in one hit.
+  drops a proper sword — longer reach and a quicker recovery, so you can hit
+  from outside a spear and swing again sooner.
 - Checkpoints are scattered through each level. Dying sends you back to the
   last one, never to the start of the game.
 - Die three times on the same level and the game quietly helps: the guards

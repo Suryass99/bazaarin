@@ -13,12 +13,13 @@
 
   // ---- the numbers that decide how the game feels ----
   var GRAVITY      = 640;     // pixels per second, per second
-  var WALK_SPEED   = 62;
-  var RUN_SPEED    = 112;
-  var ACCEL_GROUND = 620;
-  var ACCEL_AIR    = 340;
-  var FRICTION     = 760;
-  var JUMP_VEL     = -212;
+  /* One speed, no run button. A steady jog that clears every gap in the
+     game, so nobody ever loses a jump because they forgot to hold a key. */
+  var MOVE_SPEED   = 100;
+  var ACCEL_GROUND = 700;
+  var ACCEL_AIR    = 360;
+  var FRICTION     = 800;
+  var JUMP_VEL     = -216;
   var MAX_FALL     = 340;
   var FATAL_FALL   = 322;     // land faster than this and it is over (about a 4-body drop)
   var COYOTE       = 0.10;    // grace period to still jump after leaving a ledge
@@ -26,9 +27,12 @@
 
   var STAND_H = 28, CRAWL_H = 13, BODY_W = 12;
 
+  /* Both blades take one point off a guard. The sword is not a bigger
+     number, it is a better weapon: it reaches further and recovers
+     quicker, so you can hit from outside a spear and swing again sooner. */
   var WEAPONS = {
-    dagger: { reach: 13, dmg: 1, wind: 0.10, active: 0.13, recover: 0.16 },
-    sword:  { reach: 21, dmg: 2, wind: 0.09, active: 0.15, recover: 0.14 }
+    dagger: { reach: 13, dmg: 1, wind: 0.10, active: 0.13, recover: 0.20 },
+    sword:  { reach: 22, dmg: 1, wind: 0.08, active: 0.15, recover: 0.11 }
   };
 
   function Player(x, y) {
@@ -121,7 +125,7 @@
     if (this.hanging) {
       this.vx = 0; this.vy = 0;
       this.anim = 'hang';
-      if (In.upPressed || In.jumpPressed) {
+      if (In.grabPressed || In.upPressed) {
         // climb up onto the ledge
         this.hanging = false;
         this.y = this.hangY - this.h - 0.5;
@@ -139,7 +143,6 @@
 
     /* ---------- decide how fast he wants to go ---------- */
     var wantDir = (In.right ? 1 : 0) - (In.left ? 1 : 0);
-    var wantsRun = In.run;
 
     // crawling: hold down on the ground, or squeeze into a low gap
     var wantCrawl = In.down && this.onGround;
@@ -157,7 +160,7 @@
       this.crawling = true;
     }
 
-    var topSpeed = this.crawling ? 34 : (wantsRun ? RUN_SPEED : WALK_SPEED);
+    var topSpeed = this.crawling ? 36 : MOVE_SPEED;
     if (game.assist) topSpeed *= 1.0;   // difficulty assist never slows the player
 
     var accel = this.onGround ? ACCEL_GROUND : ACCEL_AIR;
@@ -222,7 +225,7 @@
     }
 
     /* ---------- grabbing a rope ---------- */
-    if (this.ropeCooldown <= 0 && (In.up || In.jump)) {
+    if (this.ropeCooldown <= 0 && In.grab) {
       for (var i = 0; i < W.ropes.length; i++) {
         var rp = W.ropes[i];
         var ex = rp.x + Math.sin(rp.a) * rp.len;
@@ -312,7 +315,7 @@
     else if (this.wallRunT > 0) this.anim = 'wallrun';
     else if (this.crawling) this.anim = (Math.abs(this.vx) > 4 ? 'crawl' : 'crawl');
     else if (!this.onGround) this.anim = this.vy < -20 ? 'jump' : 'fall';
-    else if (Math.abs(this.vx) > WALK_SPEED + 12) this.anim = 'run';
+    else if (Math.abs(this.vx) > MOVE_SPEED * 0.55) this.anim = 'run';
     else if (Math.abs(this.vx) > 6) this.anim = 'walk';
     else this.anim = 'idle';
 
@@ -408,10 +411,12 @@
     this.hearts -= (amount || 1);
     this.invuln = 1.25;
     this.hurtT = 0.36;
-    this.vx = (this.centerX() < fromX ? -1 : 1) * 110;
+    var away = this.centerX() < fromX ? -1 : 1;
+    this.vx = away * 110;
     this.vy = -105;
     this.onGround = false;
     CR.World.camera.shake = 0.8;
+    CR.World.blood(this.centerX(), this.centerY() - 2, 8, away);
 
     if (this.hearts <= 0) { this.die(game, 'blade'); return true; }
     CR.Audio.sfx.hurt();
@@ -424,9 +429,25 @@
     this.dead = true;
     this.deadT = 0;
     this.hearts = 0;
-    this.vy = -70;
     this.rope = null;
     this.hanging = false;
+    this.crawling = false;
+    this.attackT = 0;
+    this.hurtT = 0;
+
+    if (cause === 'spike') {
+      // impaled: he drops onto them rather than standing on them
+      this.vy = 40;
+      this.vx = -this.facing * 20;
+      CR.World.blood(this.centerX(), this.y + this.h - 4, 18, -this.facing);
+    } else if (cause === 'blade') {
+      this.vy = -70;
+      this.vx = -this.facing * 40;
+      CR.World.blood(this.centerX(), this.centerY(), 16, -this.facing);
+    } else {
+      this.vy = -70;
+    }
+
     CR.World.camera.shake = 1;
     CR.Audio.sfx.ayyo();
     game.onPlayerDied(cause);
