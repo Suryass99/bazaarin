@@ -30,8 +30,16 @@
      The game is designed in a 480x270 box. We draw it into a canvas
      that is a whole number of times bigger, so it stays crisp on a
      laptop and still fits a phone held sideways. */
+  var lastFitW = 0, lastFitH = 0;
+
   function resize() {
     var winW = window.innerWidth, winH = window.innerHeight;
+    // A page that is still hidden can report a size of zero. Sizing the
+    // canvas to that would leave it invisible for good, so wait it out -
+    // the frame loop below calls us again as soon as there is a real size.
+    if (winW < 2 || winH < 2) return;
+    lastFitW = winW; lastFitH = winH;
+
     var scale = Math.min(winW / CR.VIEW_W, winH / CR.VIEW_H);
     var cssW = Math.floor(CR.VIEW_W * scale);
     var cssH = Math.floor(CR.VIEW_H * scale);
@@ -550,6 +558,10 @@
     var dt = (now - last) / 1000;
     last = now;
     if (dt > 0.05) dt = 0.05;      // after a stall, take one small step, not one huge one
+
+    // catch the window changing shape, including the very first moment the
+    // page becomes visible and finally has a size to fit ourselves to
+    if (window.innerWidth !== lastFitW || window.innerHeight !== lastFitH) resize();
 
     CR.Input.poll();
     update(dt);
