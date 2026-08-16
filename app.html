@@ -118,11 +118,32 @@ h1, h2, h3, h4 {
 .nav-container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 16px 24px;
+    padding: 12px 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 32px;
+    gap: 16px;
+}
+
+/* Back arrow, pinned to the far top-left ahead of the logo. Replaces the
+   old "Back to Shop" / "Back to Home" text links. */
+.nav-back {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    margin-left: -6px;
+    border-radius: var(--radius-full);
+    color: #ffffff;
+    transition: var(--transition-fast);
+}
+.nav-back:hover {
+    background: rgba(255, 255, 255, 0.16);
+}
+.nav-back:active {
+    transform: scale(0.94);
 }
 
 .logo {
@@ -132,6 +153,8 @@ h1, h2, h3, h4 {
     font-size: 1.5rem;
     font-weight: 700;
     letter-spacing: -0.5px;
+    min-width: 0;
+    flex-shrink: 1;
 }
 
 .logo-icon-svg {
@@ -763,14 +786,22 @@ h1, h2, h3, h4 {
 }
 
 /* --- Product Page --- */
+/* --nav-h is published by auth.js from the navbar's measured height; the
+   fallback covers the moment before the first measurement lands. */
 .product-page-container {
-    padding-top: 100px;
+    padding-top: calc(var(--nav-h, 70px) + 28px);
     padding-bottom: 60px;
 }
 .product-layout {
     display: grid;
     grid-template-columns: 2fr 1fr;
     gap: 32px;
+}
+/* Grid items default to min-width:auto, so a non-wrapping child (the
+   thumbnail strip, a table) pushes the track wider than the viewport and
+   the whole page scrolls sideways on a phone. */
+.product-layout > * {
+    min-width: 0;
 }
 .product-image-large {
     position: relative;
@@ -807,6 +838,7 @@ h1, h2, h3, h4 {
 }
 .product-thumbnails {
     display: flex;
+    flex-wrap: wrap;
     gap: 12px;
     margin-bottom: 24px;
 }
@@ -1141,43 +1173,61 @@ h1, h2, h3, h4 {
     position: relative;
     display: inline-block;
 }
+/* The kebab now carries every action that isn't the back arrow, the logo
+   or search, so it needs a proper tap target and a roomier panel. */
 .kebab-menu {
     background: none;
     border: none;
     cursor: pointer;
-    padding: 8px;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
     display: flex;
     align-items: center;
+    justify-content: center;
     color: #ffffff;
     transition: var(--transition-fast);
 }
 .kebab-menu:hover {
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.16);
 }
 .dropdown-content {
     display: none;
     position: absolute;
     right: 0;
-    top: 40px;
+    top: 48px;
     background-color: var(--color-surface);
-    min-width: 200px;
+    min-width: 220px;
     box-shadow: var(--shadow-md);
     border-radius: var(--radius-md);
     border: 1px solid var(--color-border);
     z-index: 200;
     overflow: hidden;
+    padding: 6px;
 }
 .dropdown-content a {
     color: var(--color-text-main);
-    padding: 12px 16px;
+    padding: 11px 14px;
     text-decoration: none;
     display: block;
     font-size: 0.95rem;
+    font-weight: 500;
+    border-radius: var(--radius-sm);
     transition: var(--transition-fast);
 }
 .dropdown-content a:hover {
     background-color: var(--color-surface-hover);
-    color: var(--color-primary);
+    color: var(--color-green-deep);
+}
+/* Sign In leads the menu, so it reads as the primary action. */
+.dropdown-content a#signInBtn {
+    background: var(--color-green-deep);
+    color: #ffffff;
+    text-align: center;
+    margin-bottom: 6px;
+}
+.dropdown-content a#signInBtn:hover {
+    background: #0a5c46;
 }
 .dropdown-content.show {
     display: block;
@@ -1289,7 +1339,7 @@ h1, h2, h3, h4 {
 .auth-page {
     display: flex;
     justify-content: center;
-    padding-top: 140px;
+    padding-top: calc(var(--nav-h, 70px) + 60px);
     padding-bottom: 80px;
 }
 .auth-card {
@@ -1625,8 +1675,10 @@ h1, h2, h3, h4 {
     margin-left: -130vw;
     height: 6000vh;
     transform-origin: 50% 0%;
-    transform: translateY(var(--cam-y)) rotateX(-90deg);
+    transform: translate3d(0, var(--cam-y), 0) rotateX(-90deg);
     transform-style: preserve-3d;
+    will-change: transform;
+    backface-visibility: hidden;
 }
 .strip {
     position: absolute;
@@ -1646,7 +1698,10 @@ h1, h2, h3, h4 {
 .strip-side.left { margin-left: -66vw; }
 .strip-side.right { margin-left: 40vw; }
 
-/* Dashed lane markings, scrolled by --travel to sell forward motion. */
+/* Dashed lane markings, carried by --travel to sell forward motion. This
+   moves by transform rather than background-position: shifting a gradient's
+   origin repaints the whole 6000vh strip every frame, whereas a transform is
+   handed to the compositor. */
 .lane {
     position: absolute;
     top: 0;
@@ -1657,7 +1712,8 @@ h1, h2, h3, h4 {
         rgba(255, 255, 255, 0.65) 0 0.8vh,
         rgba(255, 255, 255, 0) 0.8vh 2.4vh
     );
-    background-position: 0 var(--travel);
+    transform: translate3d(0, var(--travel), 0);
+    will-change: transform;
 }
 .lane-l { left: 16vw; }
 .lane-r { right: 16vw; }
@@ -1684,6 +1740,71 @@ h1, h2, h3, h4 {
     color: rgba(13, 122, 83, 0.22);
 }
 
+/* Sky: drifting laptop/phone outlines filling the open space above the
+   road. Pure transform animations on two composited layers per row, so they
+   cost nothing while the run itself is animating. */
+.track-sky {
+    position: absolute;
+    left: 0;
+    right: 0;
+    /* Clear of the navbar at the top, stopping just short of the horizon so
+       the road's haze isn't painted over. */
+    top: 76px;
+    bottom: calc(100% - var(--horizon) + 2vh);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    pointer-events: none;
+}
+.sky-row {
+    overflow: hidden;
+    height: 40px;
+}
+.sky-track {
+    display: flex;
+    align-items: center;
+    gap: 60px;
+    width: max-content;
+    will-change: transform;
+    animation: skyDriftLeft 38s linear infinite;
+}
+.sky-row-2 .sky-track {
+    animation-name: skyDriftRight;
+    animation-duration: 46s;
+}
+.sky-row-3 .sky-track {
+    animation-duration: 54s;
+}
+.sky-track > span {
+    display: inline-flex;
+    flex-shrink: 0;
+}
+.sky-track svg {
+    flex-shrink: 0;
+}
+.sky-violet { color: rgba(109, 40, 217, 0.34); }
+.sky-green { color: rgba(5, 70, 54, 0.30); }
+@keyframes skyDriftLeft {
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(-50%, 0, 0); }
+}
+@keyframes skyDriftRight {
+    from { transform: translate3d(-50%, 0, 0); }
+    to { transform: translate3d(0, 0, 0); }
+}
+/* The sky sits behind the headline and the mark, and fades toward the
+   horizon so it never fights the road for attention. */
+.track-sky::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0) 40%, rgba(255,255,255,0.85) 100%);
+}
+@media (prefers-reduced-motion: reduce) {
+    .sky-track { animation: none; }
+}
+
 /* Haze over the vanishing point. However deep the plane is it still stops
    short of the true horizon, so this both hides that edge and gives the
    road the atmospheric fade the reference sequence has. */
@@ -1702,7 +1823,7 @@ h1, h2, h3, h4 {
     position: absolute;
     left: 50%;
     top: var(--horizon);
-    transform: translate(-50%, calc(-50% + var(--logo-drop))) scale(var(--logo-scale));
+    transform: translate3d(-50%, calc(-50% + var(--logo-drop)), 0) scale(var(--logo-scale));
     opacity: var(--logo-opacity);
     will-change: transform, opacity;
     pointer-events: none;
@@ -1717,6 +1838,17 @@ h1, h2, h3, h4 {
     text-align: center;
     opacity: var(--intro-opacity);
     pointer-events: none;
+}
+/* Soft white scrim so the title stays legible over the drifting devices. */
+.track-intro::before {
+    content: '';
+    position: absolute;
+    inset: -24px -40px;
+    z-index: -1;
+    background: radial-gradient(ellipse at center,
+        rgba(255, 255, 255, 0.95) 0%,
+        rgba(255, 255, 255, 0.8) 55%,
+        rgba(255, 255, 255, 0) 100%);
 }
 .track-headline {
     font-size: clamp(1.6rem, 3.4vw, 2.6rem);
@@ -1737,7 +1869,7 @@ h1, h2, h3, h4 {
     top: 56%;
     display: flex;
     gap: 26px;
-    transform: translate(-50%, -50%) translateY(var(--choice-rise)) scale(var(--choice-scale));
+    transform: translate3d(-50%, calc(-50% + var(--choice-rise)), 0) scale(var(--choice-scale));
     opacity: var(--choice-opacity);
     will-change: transform, opacity;
 }
@@ -1871,7 +2003,7 @@ h1, h2, h3, h4 {
 .portal-page {
     display: flex;
     justify-content: center;
-    padding-top: 140px;
+    padding-top: calc(var(--nav-h, 70px) + 60px);
     padding-bottom: 80px;
 }
 .portal-card {
@@ -1936,7 +2068,6 @@ h1, h2, h3, h4 {
 
 @media (max-width: 480px) {
     .portal-page {
-        padding-top: 160px;
         padding-left: 16px;
         padding-right: 16px;
     }
@@ -1959,13 +2090,51 @@ h1, h2, h3, h4 {
     }
 }
 @media (max-width: 768px) {
+    /* The bar wraps to two rows: back arrow + logo + kebab, then search
+       across the full width. The two search fields stay side by side rather
+       than stacking, which is what used to push the navbar past 190px and
+       hide the top of the page underneath it. */
     .nav-container {
         flex-wrap: wrap;
+        padding: 10px 14px;
+        gap: 10px;
+    }
+    .logo-text {
+        font-size: 2rem;
+    }
+    .logo-icon-svg {
+        width: 26px;
+        height: 26px;
     }
     .search-bar {
         order: 3;
+        flex: 1 0 100%;
         max-width: 100%;
-        margin-top: 16px;
+        margin-top: 0;
+        flex-wrap: nowrap;
+        gap: 6px;
+    }
+    .search-bar input {
+        padding: 9px 14px;
+        font-size: 0.9rem;
+    }
+    .search-input-product {
+        flex: 3 1 0;
+        min-width: 0;
+    }
+    .search-input-location {
+        flex: 2 1 0;
+        min-width: 0;
+    }
+    .search-btn {
+        flex-shrink: 0;
+    }
+
+    /* Side padding only — the shorthand would reset the top offset that
+       .product-page-container sets from --nav-h. */
+    .container {
+        padding-left: 16px;
+        padding-right: 16px;
     }
     .hero-title {
         font-size: 2.5rem;
@@ -1977,12 +2146,101 @@ h1, h2, h3, h4 {
     .hero-actions button {
         width: 100%;
     }
+
+    /* Content */
+    .section-header {
+        align-items: flex-start;
+    }
+    .section-header-controls {
+        width: 100%;
+    }
+    .sort-dropdown,
+    .sort-dropdown select {
+        width: 100%;
+    }
+    .product-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    .section-title {
+        font-size: 1.5rem;
+    }
+    .products-section {
+        margin-bottom: 60px;
+    }
+
+    /* Product page */
+    .product-image-large {
+        padding: 18px;
+    }
+    .product-info-card {
+        padding: 22px 18px;
+    }
+    .large-price .current-price {
+        font-size: 2rem;
+    }
+    .product-actions {
+        flex-direction: column;
+    }
+    .product-actions button {
+        width: 100%;
+    }
+    .product-thumbnail {
+        width: 64px;
+        height: 64px;
+    }
+
+    /* Tables scroll inside their own container rather than the page */
+    .compare-table-wrap,
+    .emi-table-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .auth-card,
+    .sell-form-card {
+        padding: 26px 20px;
+    }
+    .admin-stats-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+    .stat-card {
+        padding: 18px;
+    }
+    .stat-value {
+        font-size: 1.5rem;
+    }
+    .footer {
+        padding: 36px 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo-text {
+        font-size: 1.75rem;
+    }
+    .hero-title {
+        font-size: 2rem;
+    }
+    .admin-stats-grid {
+        grid-template-columns: 1fr;
+    }
+    .compare-bar {
+        padding: 10px 14px;
+    }
+    /* Sky rows crowd a short phone viewport; two is plenty. */
+    .sky-row-3 {
+        display: none;
+    }
 }
 </style>
 </head>
 <body>
     <nav class="navbar">
         <div class="nav-container">
+            <!-- Back arrow, injected per route by the router -->
+            <span id="navBack"></span>
             <a href="#/" class="logo">
                 <svg class="logo-icon-svg" width="32" height="32" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="50" cy="50" r="22" stroke="#F59E0B" stroke-width="6" fill="none"/>
@@ -3051,6 +3309,16 @@ h1, h2, h3, h4 {
         }
     }
 
+    // The navbar is fixed, so every route offsets its content by the bar's
+    // height. That height isn't a constant — the search bar comes and goes
+    // per route and wraps at narrow widths — so hardcoded offsets leave
+    // content tucked underneath on phones. Measure it into --nav-h instead.
+    function syncNavHeight() {
+        const nav = document.querySelector('.navbar');
+        if (!nav) return;
+        document.documentElement.style.setProperty('--nav-h', Math.ceil(nav.getBoundingClientRect().height) + 'px');
+    }
+
     // Department labels shared by the admin-login and admin routes.
     const deptLabels = {
         stats: 'Stats & Analytics',
@@ -3082,7 +3350,7 @@ h1, h2, h3, h4 {
     function kebabMenuHtml(itemsHtml) {
         return `
             <div class="dropdown">
-                <button class="kebab-menu" onclick="toggleMenu()">
+                <button class="kebab-menu" onclick="toggleMenu()" aria-label="Menu" aria-haspopup="true">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
                 </button>
                 <div class="dropdown-content" id="myDropdown">
@@ -3095,56 +3363,42 @@ h1, h2, h3, h4 {
     const CUSTOMER_SERVICE_LINK = `<a href="javascript:void(0)">Customer Service</a>`;
     const DASHBOARD_LINK = `<a href="#/seller" id="dashboardLink" class="hidden">Seller Dashboard</a>`;
     const LOGOUT_LINK = `<a href="javascript:void(0)" id="logoutLink">Logout</a>`;
+    const SIGNIN_LINK = `<a href="#/signin" id="signInBtn">Sign In</a>`;
 
-    function navHome() {
-        return kebabMenuHtml(`${CUSTOMER_SERVICE_LINK}<a href="#/sell">Sell an Item</a>${DASHBOARD_LINK}${LOGOUT_LINK}`);
+    // Every action that isn't the back arrow, the logo or search now lives in
+    // the kebab, so the bar stays two rows tall at worst on a phone.
+    const SHOPPER_MENU = `${SIGNIN_LINK}<a href="#/shop">Browse Devices</a><a href="#/sell">List an Item</a><a href="#/compare">Compare</a>${DASHBOARD_LINK}${CUSTOMER_SERVICE_LINK}${LOGOUT_LINK}`;
+    const STAFF_MENU = `${CUSTOMER_SERVICE_LINK}${LOGOUT_LINK}`;
+
+    // The back arrow lives at the far left of the bar, ahead of the logo, so
+    // the router injects it separately from .nav-links.
+    function backArrow(hash) {
+        if (!hash) return '';
+        return `<a href="${hash}" class="nav-back" aria-label="Go back"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></a>`;
     }
-    function navShop() {
-        return `
-            <a href="#/" class="nav-link">Back to Home</a>
-            <a href="#/sell" class="nav-link">Sell</a>
-            <a href="#/signin" id="signInBtn" class="btn-primary">Sign In</a>
-            ${kebabMenuHtml(`${CUSTOMER_SERVICE_LINK}${DASHBOARD_LINK}${LOGOUT_LINK}`)}
-        `;
-    }
-    function navProduct() {
-        return `
-            <a href="#/shop" class="nav-link">Back to Shop</a>
-            ${kebabMenuHtml(`${CUSTOMER_SERVICE_LINK}${DASHBOARD_LINK}${LOGOUT_LINK}`)}
-        `;
-    }
+
+    function navHome() { return kebabMenuHtml(SHOPPER_MENU); }
+    function navShop() { return kebabMenuHtml(SHOPPER_MENU); }
+    function navProduct() { return kebabMenuHtml(SHOPPER_MENU); }
     const navCompare = navProduct;
     const navSell = navProduct;
-    function navSeller() {
-        return `
-            <a href="#/sell" class="nav-link">List an Item</a>
-            <a href="#/shop" class="nav-link">Back to Shop</a>
-            ${kebabMenuHtml(`${CUSTOMER_SERVICE_LINK}${LOGOUT_LINK}`)}
-        `;
-    }
-    function navSignin() {
-        return `<a href="#/" class="nav-link">Back to Home</a>`;
-    }
-    const navAdminLogin = navSignin;
-    const navPortal = navSignin;
-    function navAdmin() {
-        return `
-            <a href="#/" class="nav-link">Back to Home</a>
-            ${kebabMenuHtml(LOGOUT_LINK)}
-        `;
-    }
+    const navSeller = navProduct;
+    const navSignin = navProduct;
+    const navPortal = navProduct;
+    function navAdmin() { return kebabMenuHtml(STAFF_MENU); }
+    const navAdminLogin = navAdmin;
 
     const ROUTES = {
-        home:          { nav: navHome,        render: renderHomeRoute,       wrapperClass: 'landing-track',                     showFooter: true,  showSearchBar: false },
-        shop:          { nav: navShop,        render: renderShopRoute,       wrapperClass: 'container product-page-container',  showFooter: true,  showSearchBar: true },
-        product:       { nav: navProduct,     render: renderProductRoute,    wrapperClass: 'container product-page-container',  showFooter: false, showSearchBar: false },
-        compare:       { nav: navCompare,     render: renderCompareRoute,    wrapperClass: 'container product-page-container',  showFooter: true,  showSearchBar: false },
-        sell:          { nav: navSell,        render: renderSellRoute,       wrapperClass: 'container product-page-container',  showFooter: false, showSearchBar: false },
-        seller:        { nav: navSeller,      render: renderSellerRoute,     wrapperClass: 'container product-page-container',  showFooter: false, showSearchBar: false },
-        signin:        { nav: navSignin,      render: renderSigninRoute,     wrapperClass: 'container auth-page',               showFooter: false, showSearchBar: false },
-        'admin-login': { nav: navAdminLogin,  render: renderAdminLoginRoute, wrapperClass: 'container auth-page',               showFooter: false, showSearchBar: false },
-        admin:         { nav: navAdmin,       render: renderAdminRoute,      wrapperClass: 'container product-page-container',  showFooter: false, showSearchBar: false },
-        portal:        { nav: navPortal,      render: renderPortalRoute,     wrapperClass: 'container portal-page',             showFooter: false, showSearchBar: false }
+        home:          { nav: navHome,        render: renderHomeRoute,       wrapperClass: 'landing-track',                     showFooter: true,  showSearchBar: false, back: null },
+        shop:          { nav: navShop,        render: renderShopRoute,       wrapperClass: 'container product-page-container',  showFooter: true,  showSearchBar: true,  back: '#/' },
+        product:       { nav: navProduct,     render: renderProductRoute,    wrapperClass: 'container product-page-container',  showFooter: false, showSearchBar: false, back: '#/shop' },
+        compare:       { nav: navCompare,     render: renderCompareRoute,    wrapperClass: 'container product-page-container',  showFooter: true,  showSearchBar: false, back: '#/shop' },
+        sell:          { nav: navSell,        render: renderSellRoute,       wrapperClass: 'container product-page-container',  showFooter: false, showSearchBar: false, back: '#/shop' },
+        seller:        { nav: navSeller,      render: renderSellerRoute,     wrapperClass: 'container product-page-container',  showFooter: false, showSearchBar: false, back: '#/shop' },
+        signin:        { nav: navSignin,      render: renderSigninRoute,     wrapperClass: 'container auth-page',               showFooter: false, showSearchBar: false, back: '#/' },
+        'admin-login': { nav: navAdminLogin,  render: renderAdminLoginRoute, wrapperClass: 'container auth-page',               showFooter: false, showSearchBar: false, back: '#/' },
+        admin:         { nav: navAdmin,       render: renderAdminRoute,      wrapperClass: 'container product-page-container',  showFooter: false, showSearchBar: false, back: '#/' },
+        portal:        { nav: navPortal,      render: renderPortalRoute,     wrapperClass: 'container portal-page',             showFooter: false, showSearchBar: false, back: '#/' }
     };
 
     function parseHash() {
@@ -3158,6 +3412,7 @@ h1, h2, h3, h4 {
         const { name, params } = parseHash();
         const route = ROUTES[name] || ROUTES.home;
 
+        document.getElementById('navBack').innerHTML = backArrow(route.back);
         document.getElementById('navLinks').innerHTML = route.nav(params);
         document.getElementById('navSearchBar').classList.toggle('hidden', !route.showSearchBar);
 
@@ -3172,6 +3427,9 @@ h1, h2, h3, h4 {
         applyAuthUI();
         renderCompareBar();
         window.scrollTo(0, 0);
+        // The bar's height changes with the search field and with wrapping at
+        // narrow widths, and every page offsets its content by it.
+        syncNavHeight();
     }
 
     // ===================================================================
@@ -3204,44 +3462,70 @@ h1, h2, h3, h4 {
     // high and the strips pinched together, a small one drops it to the tarmac
     // and throws the strips out past the edges of the frame. --travel slides
     // the lane dashes and floor lettering along the plane.
+    // Resolved once per route render rather than per frame — a getElementById
+    // or querySelectorAll inside the frame loop costs budget for nothing.
+    let trackStage = null;
+    let trackStyle = null;
+    let trackChoiceEl = null;
+    let floorWordEls = [];
+    let viewH = window.innerHeight;
+    let choiceIdle = null;
+
+    function cacheTrackNodes() {
+        trackStage = document.getElementById('trackStage');
+        trackStyle = trackStage ? trackStage.style : null;
+        trackChoiceEl = document.getElementById('trackChoice');
+        floorWordEls = trackStage ? Array.from(trackStage.querySelectorAll('.floor-word')) : [];
+        choiceIdle = null;
+    }
+
     function drawTrack(progress) {
-        const stage = document.getElementById('trackStage');
-        if (!stage) return;
-        const vh = window.innerHeight;
+        const stage = trackStage;
+        if (!stage || !stage.isConnected) return;
+        const vh = viewH;
         const run = smoothstep(clamp(progress / RUN_END, 0, 1));
         const travel = -TRAVEL * vh * run;
 
-        stage.style.setProperty('--cam-y', lerp(CAM_HIGH, CAM_LOW, run) * vh + 'px');
-        stage.style.setProperty('--travel', travel + 'px');
+        trackStyle.setProperty('--cam-y', lerp(CAM_HIGH, CAM_LOW, run) * vh + 'px');
+        trackStyle.setProperty('--travel', travel + 'px');
 
         // The mark grows with the approach, then hands the frame to the choices.
         const handover = clamp((progress - 0.48) / 0.2, 0, 1);
-        stage.style.setProperty('--logo-scale', lerp(0.8, 2.6, run));
-        stage.style.setProperty('--logo-drop', lerp(0, 30, run) + 'px');
-        stage.style.setProperty('--logo-opacity', 1 - handover);
+        trackStyle.setProperty('--logo-scale', lerp(0.8, 2.6, run));
+        trackStyle.setProperty('--logo-drop', lerp(0, 30, run) + 'px');
+        trackStyle.setProperty('--logo-opacity', 1 - handover);
 
-        stage.style.setProperty('--intro-opacity', 1 - clamp(progress / 0.26, 0, 1));
+        trackStyle.setProperty('--intro-opacity', 1 - clamp(progress / 0.26, 0, 1));
 
         const choice = smoothstep(clamp((progress - 0.55) / 0.38, 0, 1));
-        stage.style.setProperty('--choice-opacity', choice);
-        stage.style.setProperty('--choice-scale', lerp(0.72, 1, choice));
-        stage.style.setProperty('--choice-rise', lerp(90, 0, choice) + 'px');
-        document.getElementById('trackChoice').dataset.idle = choice < 0.5 ? 'true' : 'false';
+        trackStyle.setProperty('--choice-opacity', choice);
+        trackStyle.setProperty('--choice-scale', lerp(0.72, 1, choice));
+        trackStyle.setProperty('--choice-rise', lerp(90, 0, choice) + 'px');
+
+        // Only write the attribute when it actually flips — otherwise every
+        // frame invalidates style across the subtree for nothing.
+        const idle = choice < 0.5;
+        if (idle !== choiceIdle) {
+            choiceIdle = idle;
+            trackChoiceEl.dataset.idle = idle ? 'true' : 'false';
+        }
 
         // Words are carried toward the camera by --travel and recycled to the
         // far end once they pass it, so the road never empties out. A word that
         // reaches the eye plane projects to nonsense, so each fades out over the
         // last stretch before it gets there — and fades back in at the far end,
         // where the haze hides it anyway.
-        const words = document.querySelectorAll('.floor-word');
-        const span = words.length * WORD_GAP * vh;
+        const span = floorWordEls.length * WORD_GAP * vh;
         const fadeFrom = DEPTH * vh * 0.4;
         const fadeTo = DEPTH * vh * 1.6;
-        words.forEach((word, i) => {
+        const fadeSpan = fadeTo - fadeFrom;
+        for (let i = 0; i < floorWordEls.length; i++) {
+            const word = floorWordEls[i];
             const y = (((i * WORD_GAP * vh + travel) % span) + span) % span;
-            word.style.transform = `translateY(${y}px)`;
-            word.style.opacity = clamp((y - fadeFrom) / (fadeTo - fadeFrom), 0, 1);
-        });
+            // translate3d keeps each word on its own composited layer.
+            word.style.transform = `translate3d(0, ${y}px, 0)`;
+            word.style.opacity = clamp((y - fadeFrom) / fadeSpan, 0, 1);
+        }
     }
 
     // Remember where the run got to, so a resize redraws the same frame at
@@ -3256,6 +3540,8 @@ h1, h2, h3, h4 {
     }
 
     function playRun() {
+        cacheTrackNodes();
+        fillSky();
         const token = ++runToken;
         if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
             paintTrack(1);
@@ -3268,7 +3554,7 @@ h1, h2, h3, h4 {
         let start = null;
         const step = (now) => {
             // A newer run (or a route change) supersedes this one.
-            if (token !== runToken || !document.getElementById('trackStage')) return;
+            if (token !== runToken || !trackStage || !trackStage.isConnected) return;
             if (start === null) start = now;
             const t = clamp((now - start - RUN_HOLD) / RUN_DURATION, 0, 1);
             paintTrack(t);
@@ -3277,8 +3563,49 @@ h1, h2, h3, h4 {
         requestAnimationFrame(step);
     }
 
+    // --- Sky -----------------------------------------------------------
+    // Laptop and phone outlines drifting across the open space above the
+    // road. Each row's content is duplicated so the -50% keyframe loops
+    // seamlessly, and grown until one copy covers the viewport.
+    const SKY_LAPTOP = `<svg width="46" height="34" viewBox="0 0 24 18" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="1" width="20" height="12" rx="1.5"/><path d="M1 16h22l-1.6 2.4a1 1 0 0 1-.9.6H3.5a1 1 0 0 1-.9-.6L1 16z"/></svg>`;
+    const SKY_MOBILE = `<svg width="24" height="36" viewBox="0 0 16 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="1" width="12" height="22" rx="2.5"/><line x1="6.5" y1="19.5" x2="9.5" y2="19.5"/></svg>`;
+
+    function skyRunHtml(startWithLaptop) {
+        let html = '';
+        for (let i = 0; i < 7; i++) {
+            const laptop = startWithLaptop ? i % 2 === 0 : i % 2 === 1;
+            const tint = i % 3 === 0 ? 'sky-green' : 'sky-violet';
+            html += `<span class="${tint}">${laptop ? SKY_LAPTOP : SKY_MOBILE}</span>`;
+        }
+        return html;
+    }
+
+    function fillSky() {
+        [['skyTrack1', true], ['skyTrack2', false], ['skyTrack3', true]].forEach(([id, laptopFirst]) => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const one = skyRunHtml(laptopFirst);
+            let html = one;
+            el.innerHTML = html;
+            let guard = 0;
+            while (el.getBoundingClientRect().width < window.innerWidth && guard++ < 8) {
+                html += one;
+                el.innerHTML = html;
+            }
+            el.innerHTML = html + html;
+        });
+    }
+
     // drawTrack no-ops when the home route isn't mounted.
-    window.addEventListener('resize', () => paintTrack(runProgress));
+    let skyResizeTimer = null;
+    window.addEventListener('resize', () => {
+        viewH = window.innerHeight;
+        paintTrack(runProgress);
+        clearTimeout(skyResizeTimer);
+        skyResizeTimer = setTimeout(() => {
+            if (trackStage && trackStage.isConnected) fillSky();
+        }, 200);
+    });
 
     function renderHomeRoute(root) {
         const user = getCurrentUser();
@@ -3315,6 +3642,15 @@ h1, h2, h3, h4 {
                 </div>
 
                 <div class="track-haze" aria-hidden="true"></div>
+
+                <!-- Sky: laptops and phones drifting across the open space
+                     above the road. After the haze so it isn't washed out,
+                     before the headline so it stays in the background. -->
+                <div class="track-sky" aria-hidden="true">
+                    <div class="sky-row sky-row-1"><div class="sky-track" id="skyTrack1"></div></div>
+                    <div class="sky-row sky-row-2"><div class="sky-track" id="skyTrack2"></div></div>
+                    <div class="sky-row sky-row-3"><div class="sky-track" id="skyTrack3"></div></div>
+                </div>
 
                 <div class="track-logo" aria-hidden="true">
                     <svg class="logo-icon-svg" width="120" height="120" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -4764,7 +5100,18 @@ h1, h2, h3, h4 {
     // INIT
     // ===================================================================
     window.addEventListener('hashchange', navigate);
-    document.addEventListener('DOMContentLoaded', navigate);
+    document.addEventListener('DOMContentLoaded', () => {
+        navigate();
+        const nav = document.querySelector('.navbar');
+        if (nav && window.ResizeObserver) {
+            new ResizeObserver(syncNavHeight).observe(nav);
+        } else {
+            window.addEventListener('resize', syncNavHeight);
+        }
+        if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(syncNavHeight);
+        }
+    });
     </script>
 </body>
 </html>

@@ -45,35 +45,51 @@ const RUN_END = 0.75;    // point in the run at which the camera stops moving
 const RUN_DURATION = 3400; // ms of camera movement
 const RUN_HOLD = 300;      // ms held on the opening frame before it starts
 
+// Everything the per-frame path touches is resolved once, up front: a
+// querySelector or a getElementById inside drawTrack costs a frame budget it
+// doesn't need to spend.
 const floorWords = Array.from(document.querySelectorAll('.floor-word'));
 const trackChoice = document.getElementById('trackChoice');
+const trackStyle = trackStage.style;
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// Viewport height is cached too — reading innerHeight every frame is a
+// forced layout. Refreshed on resize.
+let viewH = window.innerHeight;
+let choiceIdle = null;
 
 const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
 const lerp = (a, b, t) => a + (b - a) * t;
 const smoothstep = (t) => t * t * (3 - 2 * t);
 
 function drawTrack(progress) {
-    const vh = window.innerHeight;
+    const vh = viewH;
     const run = smoothstep(clamp(progress / RUN_END, 0, 1));
     const travel = -TRAVEL * vh * run;
 
-    trackStage.style.setProperty('--cam-y', lerp(CAM_HIGH, CAM_LOW, run) * vh + 'px');
-    trackStage.style.setProperty('--travel', travel + 'px');
+    trackStyle.setProperty('--cam-y', lerp(CAM_HIGH, CAM_LOW, run) * vh + 'px');
+    trackStyle.setProperty('--travel', travel + 'px');
 
     // The mark grows with the approach, then hands the frame to the choices.
     const handover = clamp((progress - 0.48) / 0.2, 0, 1);
-    trackStage.style.setProperty('--logo-scale', lerp(0.8, 2.6, run));
-    trackStage.style.setProperty('--logo-drop', lerp(0, 30, run) + 'px');
-    trackStage.style.setProperty('--logo-opacity', 1 - handover);
+    trackStyle.setProperty('--logo-scale', lerp(0.8, 2.6, run));
+    trackStyle.setProperty('--logo-drop', lerp(0, 30, run) + 'px');
+    trackStyle.setProperty('--logo-opacity', 1 - handover);
 
-    trackStage.style.setProperty('--intro-opacity', 1 - clamp(progress / 0.26, 0, 1));
+    trackStyle.setProperty('--intro-opacity', 1 - clamp(progress / 0.26, 0, 1));
 
     const choice = smoothstep(clamp((progress - 0.55) / 0.38, 0, 1));
-    trackStage.style.setProperty('--choice-opacity', choice);
-    trackStage.style.setProperty('--choice-scale', lerp(0.72, 1, choice));
-    trackStage.style.setProperty('--choice-rise', lerp(90, 0, choice) + 'px');
-    trackChoice.dataset.idle = choice < 0.5 ? 'true' : 'false';
+    trackStyle.setProperty('--choice-opacity', choice);
+    trackStyle.setProperty('--choice-scale', lerp(0.72, 1, choice));
+    trackStyle.setProperty('--choice-rise', lerp(90, 0, choice) + 'px');
+
+    // Writing this attribute every frame invalidates style on the subtree for
+    // no reason; it only ever changes once during the run.
+    const idle = choice < 0.5;
+    if (idle !== choiceIdle) {
+        choiceIdle = idle;
+        trackChoice.dataset.idle = idle ? 'true' : 'false';
+    }
 
     // Words are carried toward the camera by --travel and recycled to the far
     // end of the run once they pass it, so the road never empties out. A word
@@ -83,11 +99,14 @@ function drawTrack(progress) {
     const span = floorWords.length * WORD_GAP * vh;
     const fadeFrom = DEPTH * vh * 0.4;
     const fadeTo = DEPTH * vh * 1.6;
-    floorWords.forEach((word, i) => {
+    const fadeSpan = fadeTo - fadeFrom;
+    for (let i = 0; i < floorWords.length; i++) {
+        const word = floorWords[i];
         const y = (((i * WORD_GAP * vh + travel) % span) + span) % span;
-        word.style.transform = `translateY(${y}px)`;
-        word.style.opacity = clamp((y - fadeFrom) / (fadeTo - fadeFrom), 0, 1);
-    });
+        // translate3d keeps each word on its own composited layer.
+        word.style.transform = `translate3d(0, ${y}px, 0)`;
+        word.style.opacity = clamp((y - fadeFrom) / fadeSpan, 0, 1);
+    }
 }
 
 // Remember where the run got to, so a resize can redraw the same frame at
@@ -116,7 +135,57 @@ if (reduceMotion) {
     requestAnimationFrame(step);
 }
 
-window.addEventListener('resize', () => paint(runProgress));
+let resizeTimer = null;
+window.addEventListener('resize', () => {
+    viewH = window.innerHeight;
+    paint(runProgress);
+    // Re-fill the sky only once the resize settles — widening the window can
+    // leave a row too short to loop without a gap.
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(fillSky, 200);
+});
+
+// --- Sky ---------------------------------------------------------------
+// Laptop and phone outlines drifting across the open space above the road.
+// Each row's content is duplicated so the -50% keyframe loops seamlessly.
+const SKY_LAPTOP = `<svg width="46" height="34" viewBox="0 0 24 18" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="1" width="20" height="12" rx="1.5"/><path d="M1 16h22l-1.6 2.4a1 1 0 0 1-.9.6H3.5a1 1 0 0 1-.9-.6L1 16z"/></svg>`;
+const SKY_MOBILE = `<svg width="24" height="36" viewBox="0 0 16 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="1" width="12" height="22" rx="2.5"/><line x1="6.5" y1="19.5" x2="9.5" y2="19.5"/></svg>`;
+
+function skyRunHtml(startWithLaptop) {
+    let html = '';
+    for (let i = 0; i < 7; i++) {
+        const laptop = startWithLaptop ? i % 2 === 0 : i % 2 === 1;
+        const tint = i % 3 === 0 ? 'sky-green' : 'sky-violet';
+        html += `<span class="${tint}">${laptop ? SKY_LAPTOP : SKY_MOBILE}</span>`;
+    }
+    return html;
+}
+
+const SKY_ROWS = [['skyTrack1', true], ['skyTrack2', false], ['skyTrack3', true]];
+
+// The -50% keyframe scrolls exactly one copy of the row, so a single copy has
+// to be at least as wide as the viewport or the loop shows a gap. Grow the
+// run until it covers the screen, then duplicate it.
+function fillSkyRow(el, laptopFirst) {
+    const one = skyRunHtml(laptopFirst);
+    let html = one;
+    el.innerHTML = html;
+    let guard = 0;
+    while (el.getBoundingClientRect().width < window.innerWidth && guard++ < 8) {
+        html += one;
+        el.innerHTML = html;
+    }
+    el.innerHTML = html + html;
+}
+
+function fillSky() {
+    SKY_ROWS.forEach(([id, laptopFirst]) => {
+        const el = document.getElementById(id);
+        if (el) fillSkyRow(el, laptopFirst);
+    });
+}
+
+fillSky();
 
 // Dropdown Menu Logic
 function toggleMenu() {

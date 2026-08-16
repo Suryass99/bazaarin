@@ -108,11 +108,32 @@ h1, h2, h3, h4 {
 .nav-container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 16px 24px;
+    padding: 12px 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 32px;
+    gap: 16px;
+}
+
+/* Back arrow, pinned to the far top-left ahead of the logo. Replaces the
+   old "Back to Shop" / "Back to Home" text links. */
+.nav-back {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    margin-left: -6px;
+    border-radius: var(--radius-full);
+    color: #ffffff;
+    transition: var(--transition-fast);
+}
+.nav-back:hover {
+    background: rgba(255, 255, 255, 0.16);
+}
+.nav-back:active {
+    transform: scale(0.94);
 }
 
 .logo {
@@ -122,6 +143,8 @@ h1, h2, h3, h4 {
     font-size: 1.5rem;
     font-weight: 700;
     letter-spacing: -0.5px;
+    min-width: 0;
+    flex-shrink: 1;
 }
 
 .logo-icon-svg {
@@ -753,14 +776,22 @@ h1, h2, h3, h4 {
 }
 
 /* --- Product Page --- */
+/* --nav-h is published by auth.js from the navbar's measured height; the
+   fallback covers the moment before the first measurement lands. */
 .product-page-container {
-    padding-top: 100px;
+    padding-top: calc(var(--nav-h, 70px) + 28px);
     padding-bottom: 60px;
 }
 .product-layout {
     display: grid;
     grid-template-columns: 2fr 1fr;
     gap: 32px;
+}
+/* Grid items default to min-width:auto, so a non-wrapping child (the
+   thumbnail strip, a table) pushes the track wider than the viewport and
+   the whole page scrolls sideways on a phone. */
+.product-layout > * {
+    min-width: 0;
 }
 .product-image-large {
     position: relative;
@@ -797,6 +828,7 @@ h1, h2, h3, h4 {
 }
 .product-thumbnails {
     display: flex;
+    flex-wrap: wrap;
     gap: 12px;
     margin-bottom: 24px;
 }
@@ -1131,43 +1163,61 @@ h1, h2, h3, h4 {
     position: relative;
     display: inline-block;
 }
+/* The kebab now carries every action that isn't the back arrow, the logo
+   or search, so it needs a proper tap target and a roomier panel. */
 .kebab-menu {
     background: none;
     border: none;
     cursor: pointer;
-    padding: 8px;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
     display: flex;
     align-items: center;
+    justify-content: center;
     color: #ffffff;
     transition: var(--transition-fast);
 }
 .kebab-menu:hover {
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.16);
 }
 .dropdown-content {
     display: none;
     position: absolute;
     right: 0;
-    top: 40px;
+    top: 48px;
     background-color: var(--color-surface);
-    min-width: 200px;
+    min-width: 220px;
     box-shadow: var(--shadow-md);
     border-radius: var(--radius-md);
     border: 1px solid var(--color-border);
     z-index: 200;
     overflow: hidden;
+    padding: 6px;
 }
 .dropdown-content a {
     color: var(--color-text-main);
-    padding: 12px 16px;
+    padding: 11px 14px;
     text-decoration: none;
     display: block;
     font-size: 0.95rem;
+    font-weight: 500;
+    border-radius: var(--radius-sm);
     transition: var(--transition-fast);
 }
 .dropdown-content a:hover {
     background-color: var(--color-surface-hover);
-    color: var(--color-primary);
+    color: var(--color-green-deep);
+}
+/* Sign In leads the menu, so it reads as the primary action. */
+.dropdown-content a#signInBtn {
+    background: var(--color-green-deep);
+    color: #ffffff;
+    text-align: center;
+    margin-bottom: 6px;
+}
+.dropdown-content a#signInBtn:hover {
+    background: #0a5c46;
 }
 .dropdown-content.show {
     display: block;
@@ -1279,7 +1329,7 @@ h1, h2, h3, h4 {
 .auth-page {
     display: flex;
     justify-content: center;
-    padding-top: 140px;
+    padding-top: calc(var(--nav-h, 70px) + 60px);
     padding-bottom: 80px;
 }
 .auth-card {
@@ -1615,8 +1665,10 @@ h1, h2, h3, h4 {
     margin-left: -130vw;
     height: 6000vh;
     transform-origin: 50% 0%;
-    transform: translateY(var(--cam-y)) rotateX(-90deg);
+    transform: translate3d(0, var(--cam-y), 0) rotateX(-90deg);
     transform-style: preserve-3d;
+    will-change: transform;
+    backface-visibility: hidden;
 }
 .strip {
     position: absolute;
@@ -1636,7 +1688,10 @@ h1, h2, h3, h4 {
 .strip-side.left { margin-left: -66vw; }
 .strip-side.right { margin-left: 40vw; }
 
-/* Dashed lane markings, scrolled by --travel to sell forward motion. */
+/* Dashed lane markings, carried by --travel to sell forward motion. This
+   moves by transform rather than background-position: shifting a gradient's
+   origin repaints the whole 6000vh strip every frame, whereas a transform is
+   handed to the compositor. */
 .lane {
     position: absolute;
     top: 0;
@@ -1647,7 +1702,8 @@ h1, h2, h3, h4 {
         rgba(255, 255, 255, 0.65) 0 0.8vh,
         rgba(255, 255, 255, 0) 0.8vh 2.4vh
     );
-    background-position: 0 var(--travel);
+    transform: translate3d(0, var(--travel), 0);
+    will-change: transform;
 }
 .lane-l { left: 16vw; }
 .lane-r { right: 16vw; }
@@ -1674,6 +1730,71 @@ h1, h2, h3, h4 {
     color: rgba(13, 122, 83, 0.22);
 }
 
+/* Sky: drifting laptop/phone outlines filling the open space above the
+   road. Pure transform animations on two composited layers per row, so they
+   cost nothing while the run itself is animating. */
+.track-sky {
+    position: absolute;
+    left: 0;
+    right: 0;
+    /* Clear of the navbar at the top, stopping just short of the horizon so
+       the road's haze isn't painted over. */
+    top: 76px;
+    bottom: calc(100% - var(--horizon) + 2vh);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    pointer-events: none;
+}
+.sky-row {
+    overflow: hidden;
+    height: 40px;
+}
+.sky-track {
+    display: flex;
+    align-items: center;
+    gap: 60px;
+    width: max-content;
+    will-change: transform;
+    animation: skyDriftLeft 38s linear infinite;
+}
+.sky-row-2 .sky-track {
+    animation-name: skyDriftRight;
+    animation-duration: 46s;
+}
+.sky-row-3 .sky-track {
+    animation-duration: 54s;
+}
+.sky-track > span {
+    display: inline-flex;
+    flex-shrink: 0;
+}
+.sky-track svg {
+    flex-shrink: 0;
+}
+.sky-violet { color: rgba(109, 40, 217, 0.34); }
+.sky-green { color: rgba(5, 70, 54, 0.30); }
+@keyframes skyDriftLeft {
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(-50%, 0, 0); }
+}
+@keyframes skyDriftRight {
+    from { transform: translate3d(-50%, 0, 0); }
+    to { transform: translate3d(0, 0, 0); }
+}
+/* The sky sits behind the headline and the mark, and fades toward the
+   horizon so it never fights the road for attention. */
+.track-sky::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0) 40%, rgba(255,255,255,0.85) 100%);
+}
+@media (prefers-reduced-motion: reduce) {
+    .sky-track { animation: none; }
+}
+
 /* Haze over the vanishing point. However deep the plane is it still stops
    short of the true horizon, so this both hides that edge and gives the
    road the atmospheric fade the reference sequence has. */
@@ -1692,7 +1813,7 @@ h1, h2, h3, h4 {
     position: absolute;
     left: 50%;
     top: var(--horizon);
-    transform: translate(-50%, calc(-50% + var(--logo-drop))) scale(var(--logo-scale));
+    transform: translate3d(-50%, calc(-50% + var(--logo-drop)), 0) scale(var(--logo-scale));
     opacity: var(--logo-opacity);
     will-change: transform, opacity;
     pointer-events: none;
@@ -1707,6 +1828,17 @@ h1, h2, h3, h4 {
     text-align: center;
     opacity: var(--intro-opacity);
     pointer-events: none;
+}
+/* Soft white scrim so the title stays legible over the drifting devices. */
+.track-intro::before {
+    content: '';
+    position: absolute;
+    inset: -24px -40px;
+    z-index: -1;
+    background: radial-gradient(ellipse at center,
+        rgba(255, 255, 255, 0.95) 0%,
+        rgba(255, 255, 255, 0.8) 55%,
+        rgba(255, 255, 255, 0) 100%);
 }
 .track-headline {
     font-size: clamp(1.6rem, 3.4vw, 2.6rem);
@@ -1727,7 +1859,7 @@ h1, h2, h3, h4 {
     top: 56%;
     display: flex;
     gap: 26px;
-    transform: translate(-50%, -50%) translateY(var(--choice-rise)) scale(var(--choice-scale));
+    transform: translate3d(-50%, calc(-50% + var(--choice-rise)), 0) scale(var(--choice-scale));
     opacity: var(--choice-opacity);
     will-change: transform, opacity;
 }
@@ -1861,7 +1993,7 @@ h1, h2, h3, h4 {
 .portal-page {
     display: flex;
     justify-content: center;
-    padding-top: 140px;
+    padding-top: calc(var(--nav-h, 70px) + 60px);
     padding-bottom: 80px;
 }
 .portal-card {
@@ -1926,7 +2058,6 @@ h1, h2, h3, h4 {
 
 @media (max-width: 480px) {
     .portal-page {
-        padding-top: 160px;
         padding-left: 16px;
         padding-right: 16px;
     }
@@ -1949,13 +2080,51 @@ h1, h2, h3, h4 {
     }
 }
 @media (max-width: 768px) {
+    /* The bar wraps to two rows: back arrow + logo + kebab, then search
+       across the full width. The two search fields stay side by side rather
+       than stacking, which is what used to push the navbar past 190px and
+       hide the top of the page underneath it. */
     .nav-container {
         flex-wrap: wrap;
+        padding: 10px 14px;
+        gap: 10px;
+    }
+    .logo-text {
+        font-size: 2rem;
+    }
+    .logo-icon-svg {
+        width: 26px;
+        height: 26px;
     }
     .search-bar {
         order: 3;
+        flex: 1 0 100%;
         max-width: 100%;
-        margin-top: 16px;
+        margin-top: 0;
+        flex-wrap: nowrap;
+        gap: 6px;
+    }
+    .search-bar input {
+        padding: 9px 14px;
+        font-size: 0.9rem;
+    }
+    .search-input-product {
+        flex: 3 1 0;
+        min-width: 0;
+    }
+    .search-input-location {
+        flex: 2 1 0;
+        min-width: 0;
+    }
+    .search-btn {
+        flex-shrink: 0;
+    }
+
+    /* Side padding only — the shorthand would reset the top offset that
+       .product-page-container sets from --nav-h. */
+    .container {
+        padding-left: 16px;
+        padding-right: 16px;
     }
     .hero-title {
         font-size: 2.5rem;
@@ -1966,5 +2135,92 @@ h1, h2, h3, h4 {
     }
     .hero-actions button {
         width: 100%;
+    }
+
+    /* Content */
+    .section-header {
+        align-items: flex-start;
+    }
+    .section-header-controls {
+        width: 100%;
+    }
+    .sort-dropdown,
+    .sort-dropdown select {
+        width: 100%;
+    }
+    .product-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    .section-title {
+        font-size: 1.5rem;
+    }
+    .products-section {
+        margin-bottom: 60px;
+    }
+
+    /* Product page */
+    .product-image-large {
+        padding: 18px;
+    }
+    .product-info-card {
+        padding: 22px 18px;
+    }
+    .large-price .current-price {
+        font-size: 2rem;
+    }
+    .product-actions {
+        flex-direction: column;
+    }
+    .product-actions button {
+        width: 100%;
+    }
+    .product-thumbnail {
+        width: 64px;
+        height: 64px;
+    }
+
+    /* Tables scroll inside their own container rather than the page */
+    .compare-table-wrap,
+    .emi-table-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .auth-card,
+    .sell-form-card {
+        padding: 26px 20px;
+    }
+    .admin-stats-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+    .stat-card {
+        padding: 18px;
+    }
+    .stat-value {
+        font-size: 1.5rem;
+    }
+    .footer {
+        padding: 36px 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo-text {
+        font-size: 1.75rem;
+    }
+    .hero-title {
+        font-size: 2rem;
+    }
+    .admin-stats-grid {
+        grid-template-columns: 1fr;
+    }
+    .compare-bar {
+        padding: 10px 14px;
+    }
+    /* Sky rows crowd a short phone viewport; two is plenty. */
+    .sky-row-3 {
+        display: none;
     }
 }

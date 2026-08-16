@@ -24,25 +24,29 @@
             </div>
             <div class="nav-links">
                 <div class="dropdown">
-                    <button class="kebab-menu" onclick="toggleMenu()">
+                    <button class="kebab-menu" onclick="toggleMenu()" aria-label="Menu" aria-haspopup="true">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
                     </button>
                     <div class="dropdown-content" id="myDropdown">
-                        <a href="#">Customer Service</a>
-                        <a href="sell.html">Sell an Item</a>
+                        <a href="signin.html" id="signInBtn">Sign In</a>
+                        <a href="shop.html">Browse Devices</a>
+                        <a href="sell.html">List an Item</a>
+                        <a href="compare.html">Compare</a>
                         <a href="seller.html" id="dashboardLink" class="hidden">Seller Dashboard</a>
+                        <a href="#">Customer Service</a>
                         <a href="#" id="logoutLink">Logout</a>
                     </div>
                 </div>
             </div>
-        </div>
+</div>
     </nav>
 
-    <!-- Landing: a scroll-driven perspective run. Three strips converge on a
-         vanishing point (violet centre, green sides) and the camera descends
-         toward the ground as you scroll, sweeping them outward. The rotating
-         bazaarin mark floats at the vanishing point; once the run finishes it
-         hands over to the two account choices. -->
+    <!-- Landing: a perspective run that plays itself on load. Three strips
+         converge on a vanishing point (violet centre, green sides) and the
+         camera descends toward the ground, sweeping them outward. Laptops and
+         phones drift through the sky above. The rotating bazaarin mark floats
+         at the vanishing point; once the run finishes it hands over to the
+         two account choices. -->
     <div class="landing-track" id="landingTrack">
         <div class="track-stage" id="trackStage">
             <!-- Ground plane -->
@@ -66,6 +70,17 @@
             </div>
 
             <div class="track-haze" aria-hidden="true"></div>
+
+            <!-- Sky: laptops and phones drifting across the open space above
+                 the road, so the upper half of the frame isn't dead white.
+                 Sits after the haze so it isn't washed out by it, and before
+                 the headline and mark so it stays in the background. Filled
+                 by home.js; each row is one composited transform animation. -->
+            <div class="track-sky" aria-hidden="true">
+                <div class="sky-row sky-row-1"><div class="sky-track" id="skyTrack1"></div></div>
+                <div class="sky-row sky-row-2"><div class="sky-track" id="skyTrack2"></div></div>
+                <div class="sky-row sky-row-3"><div class="sky-track" id="skyTrack3"></div></div>
+            </div>
 
             <!-- Rotating bazaarin mark, parked on the vanishing point -->
             <div class="track-logo" aria-hidden="true">

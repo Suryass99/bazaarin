@@ -74,3 +74,29 @@ function applyAuthUI() {
 }
 
 document.addEventListener('DOMContentLoaded', applyAuthUI);
+
+// The navbar is fixed, so every page has to offset its content by exactly the
+// navbar's height. That height isn't a constant — it depends on whether the
+// page carries a search bar and on how far the bar wraps at narrow widths, so
+// hardcoded offsets leave content tucked underneath on phones. Measure it and
+// publish it as --nav-h for the stylesheet to use.
+function syncNavHeight() {
+    const nav = document.querySelector('.navbar');
+    if (!nav) return;
+    document.documentElement.style.setProperty('--nav-h', Math.ceil(nav.getBoundingClientRect().height) + 'px');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    syncNavHeight();
+    // The bar rewraps on rotation, on font load, and whenever the search
+    // fields are injected, so watch it rather than measuring once.
+    const nav = document.querySelector('.navbar');
+    if (nav && window.ResizeObserver) {
+        new ResizeObserver(syncNavHeight).observe(nav);
+    } else {
+        window.addEventListener('resize', syncNavHeight);
+    }
+    if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(syncNavHeight);
+    }
+});
