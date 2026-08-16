@@ -267,29 +267,32 @@
     if (CR.Input.mode !== 'touch') return;
     var L = CR.Input.layout;
     ctx.save();
-    ctx.globalAlpha = 0.34;
+    ctx.globalAlpha = 0.24;
 
     // the stick
-    ctx.strokeStyle = CREAM; ctx.lineWidth = 1.6;
+    ctx.strokeStyle = CREAM; ctx.lineWidth = 1.4;
     ctx.beginPath(); ctx.arc(L.stick.x, L.stick.y, L.stick.r, 0, Math.PI * 2); ctx.stroke();
     var knobX = L.stick.x, knobY = L.stick.y;
     if (CR.Input._stick) {
       var dx = CR.clamp(CR.Input._stick.x - L.stick.x, -L.stick.r, L.stick.r);
       var dy = CR.clamp(CR.Input._stick.y - L.stick.y, -L.stick.r, L.stick.r);
       knobX += dx; knobY += dy;
+      ctx.globalAlpha = 0.42;
     }
     ctx.fillStyle = CREAM;
-    ctx.beginPath(); ctx.arc(knobX, knobY, 12, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(knobX, knobY, 10, 0, Math.PI * 2); ctx.fill();
 
     // buttons
-    function btn(c, label, held) {
-      ctx.globalAlpha = held ? 0.6 : 0.34;
-      ctx.fillStyle = held ? GOLD : 'rgba(246,236,210,0.25)';
+    function btn(c, label, held, size) {
+      ctx.globalAlpha = held ? 0.55 : 0.24;
+      ctx.fillStyle = held ? GOLD : 'rgba(246,236,210,0.22)';
       ctx.beginPath(); ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = CREAM; ctx.lineWidth = 1.4;
+      ctx.strokeStyle = CREAM; ctx.lineWidth = 1.2;
       ctx.beginPath(); ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2); ctx.stroke();
-      ctx.globalAlpha = 0.85;
-      CR.Art.text(ctx, label, c.x, c.y + 3, { align: 'center', font: CR.Art.FONT_SMALL, color: INK, shadow: false });
+      ctx.globalAlpha = held ? 0.95 : 0.7;
+      CR.Art.text(ctx, label, c.x, c.y + 2.5, {
+        align: 'center', font: size || CR.Art.FONT_SMALL, color: INK, shadow: false
+      });
     }
     btn(L.jump, 'JUMP', CR.Input.jump);
     btn(L.attack, 'SWORD', CR.Input.attack);

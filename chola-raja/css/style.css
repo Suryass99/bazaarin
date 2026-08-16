@@ -21,26 +21,11 @@ html, body {
 }
 
 #screen {
-  /* Chunky pixels on purpose - this is a 480x270 game blown up to fit. */
-  /* vector art, so let the browser smooth it - it stays sharp at any size */
-
+  /* The art is drawn as shapes rather than pixels, so it stays sharp at
+     any size and the browser is welcome to smooth it. game.js positions
+     and sizes this, and turns it sideways on an upright phone. */
   display: block;
   background: #000;
   cursor: default;
+  transform-origin: center center;
 }
-
-/* Shown only when a phone is held upright. The game is landscape. */
-#rotate-hint {
-  display: none;
-  position: fixed;
-  inset: 0;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 2rem;
-  color: #e8c887;
-  background: #05070a;
-  font: 600 clamp(16px, 5vw, 24px)/1.5 system-ui, sans-serif;
-  z-index: 10;
-}
-body.portrait #rotate-hint { display: flex; }

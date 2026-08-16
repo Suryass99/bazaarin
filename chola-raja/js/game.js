@@ -40,7 +40,18 @@
     if (winW < 2 || winH < 2) return;
     lastFitW = winW; lastFitH = winH;
 
-    var scale = Math.min(winW / CR.VIEW_W, winH / CR.VIEW_H);
+    /* If someone opens this on a phone held upright - or with rotation
+       locked - we do not nag them to turn it. We turn the game instead,
+       sideways, so it fills the screen and can be played straight away.
+       On a narrow desktop window we just letterbox: a keyboard does not
+       care which way up the picture is. */
+    var portrait = winH > winW;
+    var turned = portrait && winW < 600 && CR.Input.isTouchDevice();
+
+    var fitW = turned ? winH : winW;
+    var fitH = turned ? winW : winH;
+
+    var scale = Math.min(fitW / CR.VIEW_W, fitH / CR.VIEW_H);
     var cssW = Math.floor(CR.VIEW_W * scale);
     var cssH = Math.floor(CR.VIEW_H * scale);
 
@@ -53,12 +64,24 @@
     canvas.style.width = cssW + 'px';
     canvas.style.height = cssH + 'px';
 
+    // sit the picture in the middle of the window, turned if we need to be
+    var left = Math.round((winW - cssW) / 2);
+    var top = Math.round((winH - cssH) / 2);
+    canvas.style.position = 'absolute';
+    canvas.style.left = left + 'px';
+    canvas.style.top = top + 'px';
+    canvas.style.transform = turned ? 'rotate(90deg)' : 'none';
+
+    // input.js needs to know all this to work out where a finger landed
+    CR.display = {
+      turned: turned,
+      cssW: cssW, cssH: cssH,
+      cx: left + cssW / 2,
+      cy: top + cssH / 2
+    };
+
     ctx.setTransform(q, 0, 0, q, 0, 0);
     ctx.imageSmoothingEnabled = true;
-
-    // a phone held upright cannot show a landscape game
-    var portrait = winH > winW && Math.min(winW, winH) < 560;
-    document.body.classList.toggle('portrait', portrait);
   }
   window.addEventListener('resize', resize);
   window.addEventListener('orientationchange', function () { setTimeout(resize, 120); });

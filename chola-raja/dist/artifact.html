@@ -23,34 +23,18 @@ html, body {
 }
 
 #screen {
-  /* Chunky pixels on purpose - this is a 480x270 game blown up to fit. */
-  /* vector art, so let the browser smooth it - it stays sharp at any size */
-
+  /* The art is drawn as shapes rather than pixels, so it stays sharp at
+     any size and the browser is welcome to smooth it. game.js positions
+     and sizes this, and turns it sideways on an upright phone. */
   display: block;
   background: #000;
   cursor: default;
+  transform-origin: center center;
 }
-
-/* Shown only when a phone is held upright. The game is landscape. */
-#rotate-hint {
-  display: none;
-  position: fixed;
-  inset: 0;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 2rem;
-  color: #e8c887;
-  background: #05070a;
-  font: 600 clamp(16px, 5vw, 24px)/1.5 system-ui, sans-serif;
-  z-index: 10;
-}
-body.portrait #rotate-hint { display: flex; }
 </style>
 
 <div id="stage">
   <canvas id="screen" width="400" height="225"></canvas>
-  <div id="rotate-hint">Please turn your phone sideways &#8635;</div>
 </div>
 
 <script>/* ---- js/util.js ---- */
@@ -210,6 +194,18 @@ CR.writeSettings = function (s) {
   /* Turn a real browser pixel position into a position inside our
      480x270 game picture, so a tap on a button lands where it looks. */
   I.toGame = function (clientX, clientY) {
+    var d = CR.display;
+    if (d && d.turned) {
+      /* The picture is rotated a quarter turn, so a finger has to be
+         rotated back the same amount before we can say where it landed.
+         A quarter turn clockwise sends (u,v) to (-v,u), so going back
+         from the screen: u = dy, v = -dx. */
+      var dx = clientX - d.cx, dy = clientY - d.cy;
+      return {
+        x: (dy + d.cssW / 2) / d.cssW * CR.VIEW_W,
+        y: (-dx + d.cssH / 2) / d.cssH * CR.VIEW_H
+      };
+    }
     var r = I._canvas.getBoundingClientRect();
     return {
       x: (clientX - r.left) / r.width * CR.VIEW_W,
@@ -218,11 +214,13 @@ CR.writeSettings = function (s) {
   };
 
   /* --- on-screen touch button layout (also used by ui.js to draw them) --- */
+  /* Everything is tucked into the two bottom corners, well clear of the
+     middle of the screen where the fighting happens. */
   I.layout = {
-    stick:  { x: 58, y: CR.VIEW_H - 46, r: 30 },   // joystick home position + radius
-    jump:   { x: CR.VIEW_W - 70, y: CR.VIEW_H - 34, r: 24 },
-    attack: { x: CR.VIEW_W - 26, y: CR.VIEW_H - 72, r: 22 },
-    run:    { x: CR.VIEW_W - 118, y: CR.VIEW_H - 72, r: 18 }
+    stick:  { x: 44, y: CR.VIEW_H - 43, r: 28 },   // joystick home position + radius
+    jump:   { x: CR.VIEW_W - 34, y: CR.VIEW_H - 29, r: 21 },
+    attack: { x: CR.VIEW_W - 82, y: CR.VIEW_H - 47, r: 21 },
+    run:    { x: CR.VIEW_W - 28, y: CR.VIEW_H - 77, r: 15 }
   };
 
   function inCircle(p, c, pad) {
@@ -3950,29 +3948,32 @@ CR.writeSettings = function (s) {
     if (CR.Input.mode !== 'touch') return;
     var L = CR.Input.layout;
     ctx.save();
-    ctx.globalAlpha = 0.34;
+    ctx.globalAlpha = 0.24;
 
     // the stick
-    ctx.strokeStyle = CREAM; ctx.lineWidth = 1.6;
+    ctx.strokeStyle = CREAM; ctx.lineWidth = 1.4;
     ctx.beginPath(); ctx.arc(L.stick.x, L.stick.y, L.stick.r, 0, Math.PI * 2); ctx.stroke();
     var knobX = L.stick.x, knobY = L.stick.y;
     if (CR.Input._stick) {
       var dx = CR.clamp(CR.Input._stick.x - L.stick.x, -L.stick.r, L.stick.r);
       var dy = CR.clamp(CR.Input._stick.y - L.stick.y, -L.stick.r, L.stick.r);
       knobX += dx; knobY += dy;
+      ctx.globalAlpha = 0.42;
     }
     ctx.fillStyle = CREAM;
-    ctx.beginPath(); ctx.arc(knobX, knobY, 12, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(knobX, knobY, 10, 0, Math.PI * 2); ctx.fill();
 
     // buttons
-    function btn(c, label, held) {
-      ctx.globalAlpha = held ? 0.6 : 0.34;
-      ctx.fillStyle = held ? GOLD : 'rgba(246,236,210,0.25)';
+    function btn(c, label, held, size) {
+      ctx.globalAlpha = held ? 0.55 : 0.24;
+      ctx.fillStyle = held ? GOLD : 'rgba(246,236,210,0.22)';
       ctx.beginPath(); ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = CREAM; ctx.lineWidth = 1.4;
+      ctx.strokeStyle = CREAM; ctx.lineWidth = 1.2;
       ctx.beginPath(); ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2); ctx.stroke();
-      ctx.globalAlpha = 0.85;
-      CR.Art.text(ctx, label, c.x, c.y + 3, { align: 'center', font: CR.Art.FONT_SMALL, color: INK, shadow: false });
+      ctx.globalAlpha = held ? 0.95 : 0.7;
+      CR.Art.text(ctx, label, c.x, c.y + 2.5, {
+        align: 'center', font: size || CR.Art.FONT_SMALL, color: INK, shadow: false
+      });
     }
     btn(L.jump, 'JUMP', CR.Input.jump);
     btn(L.attack, 'SWORD', CR.Input.attack);
@@ -4026,7 +4027,18 @@ CR.writeSettings = function (s) {
     if (winW < 2 || winH < 2) return;
     lastFitW = winW; lastFitH = winH;
 
-    var scale = Math.min(winW / CR.VIEW_W, winH / CR.VIEW_H);
+    /* If someone opens this on a phone held upright - or with rotation
+       locked - we do not nag them to turn it. We turn the game instead,
+       sideways, so it fills the screen and can be played straight away.
+       On a narrow desktop window we just letterbox: a keyboard does not
+       care which way up the picture is. */
+    var portrait = winH > winW;
+    var turned = portrait && winW < 600 && CR.Input.isTouchDevice();
+
+    var fitW = turned ? winH : winW;
+    var fitH = turned ? winW : winH;
+
+    var scale = Math.min(fitW / CR.VIEW_W, fitH / CR.VIEW_H);
     var cssW = Math.floor(CR.VIEW_W * scale);
     var cssH = Math.floor(CR.VIEW_H * scale);
 
@@ -4039,12 +4051,24 @@ CR.writeSettings = function (s) {
     canvas.style.width = cssW + 'px';
     canvas.style.height = cssH + 'px';
 
+    // sit the picture in the middle of the window, turned if we need to be
+    var left = Math.round((winW - cssW) / 2);
+    var top = Math.round((winH - cssH) / 2);
+    canvas.style.position = 'absolute';
+    canvas.style.left = left + 'px';
+    canvas.style.top = top + 'px';
+    canvas.style.transform = turned ? 'rotate(90deg)' : 'none';
+
+    // input.js needs to know all this to work out where a finger landed
+    CR.display = {
+      turned: turned,
+      cssW: cssW, cssH: cssH,
+      cx: left + cssW / 2,
+      cy: top + cssH / 2
+    };
+
     ctx.setTransform(q, 0, 0, q, 0, 0);
     ctx.imageSmoothingEnabled = true;
-
-    // a phone held upright cannot show a landscape game
-    var portrait = winH > winW && Math.min(winW, winH) < 560;
-    document.body.classList.toggle('portrait', portrait);
   }
   window.addEventListener('resize', resize);
   window.addEventListener('orientationchange', function () { setTimeout(resize, 120); });

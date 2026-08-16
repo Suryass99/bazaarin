@@ -29,7 +29,6 @@ BODY=dist/.body.tmp
   echo ''
   echo '<div id="stage">'
   echo '  <canvas id="screen" width="400" height="225"></canvas>'
-  echo '  <div id="rotate-hint">Please turn your phone sideways &#8635;</div>'
   echo '</div>'
   echo ''
   for f in $FILES; do

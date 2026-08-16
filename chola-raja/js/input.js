@@ -41,6 +41,18 @@
   /* Turn a real browser pixel position into a position inside our
      480x270 game picture, so a tap on a button lands where it looks. */
   I.toGame = function (clientX, clientY) {
+    var d = CR.display;
+    if (d && d.turned) {
+      /* The picture is rotated a quarter turn, so a finger has to be
+         rotated back the same amount before we can say where it landed.
+         A quarter turn clockwise sends (u,v) to (-v,u), so going back
+         from the screen: u = dy, v = -dx. */
+      var dx = clientX - d.cx, dy = clientY - d.cy;
+      return {
+        x: (dy + d.cssW / 2) / d.cssW * CR.VIEW_W,
+        y: (-dx + d.cssH / 2) / d.cssH * CR.VIEW_H
+      };
+    }
     var r = I._canvas.getBoundingClientRect();
     return {
       x: (clientX - r.left) / r.width * CR.VIEW_W,
@@ -49,11 +61,13 @@
   };
 
   /* --- on-screen touch button layout (also used by ui.js to draw them) --- */
+  /* Everything is tucked into the two bottom corners, well clear of the
+     middle of the screen where the fighting happens. */
   I.layout = {
-    stick:  { x: 58, y: CR.VIEW_H - 46, r: 30 },   // joystick home position + radius
-    jump:   { x: CR.VIEW_W - 70, y: CR.VIEW_H - 34, r: 24 },
-    attack: { x: CR.VIEW_W - 26, y: CR.VIEW_H - 72, r: 22 },
-    run:    { x: CR.VIEW_W - 118, y: CR.VIEW_H - 72, r: 18 }
+    stick:  { x: 44, y: CR.VIEW_H - 43, r: 28 },   // joystick home position + radius
+    jump:   { x: CR.VIEW_W - 34, y: CR.VIEW_H - 29, r: 21 },
+    attack: { x: CR.VIEW_W - 82, y: CR.VIEW_H - 47, r: 21 },
+    run:    { x: CR.VIEW_W - 28, y: CR.VIEW_H - 77, r: 15 }
   };
 
   function inCircle(p, c, pad) {
