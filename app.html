@@ -1634,374 +1634,128 @@ h1, h2, h3, h4 {
     font-size: 0.9rem;
 }
 
-/* --- Landing Track (home route) ---------------------------------------
-   A perspective run that plays itself on load. Three strips lie on a ground
-   plane and converge on a vanishing point — violet down the middle, green
-   either side. The run lowers the camera toward the ground (`--cam-y`),
-   which sweeps the strips outward and pulls the floor lettering past the
-   viewer; `--travel` slides the lane dashes and words along the plane.
-   renderHomeRoute writes every custom property below on .track-stage. --------- */
-.landing-track {
-    position: relative;
-    height: 100vh;
+/* --- Landing Split (home route) ----------------------------------------
+   The landing is a partition: a plain white panel carrying the sign-in
+   choice, and a violet panel alongside it where line-art laptops and phones
+   drift across the frame. The two device types travel in diagonally opposite
+   directions — laptops south-east, phones north-west — so the field reads as
+   two streams passing through each other rather than one sheet sliding.
+   renderHomeRoute injects the left panel's copy and fills the right panel. ------ */
+.landing-split {
+    display: flex;
+    min-height: 100vh;
+    padding-top: var(--nav-h, 96px);
 }
-.track-stage {
-    --horizon: 34%;
-    --cam-y: 260vh;
-    --travel: 0px;
-    --logo-scale: 0.8;
-    --logo-drop: 0px;
-    --logo-opacity: 1;
-    --intro-opacity: 1;
-    --choice-opacity: 0;
-    --choice-scale: 0.72;
-    --choice-rise: 90px;
-
-    position: relative;
-    height: 100vh;
-    overflow: hidden;
+.landing-left {
+    flex: 1 1 58%;
+    /* Without this a long headline sets the flex base and pushes the violet
+       panel off the side rather than wrapping. */
+    min-width: 0;
     background: #ffffff;
-    perspective: 75vh;
-    perspective-origin: 50% var(--horizon);
-}
-
-/* Ground plane: pivoted about its far-from-viewer edge and laid flat, so
-   local +Y runs away from the camera and meets the horizon. */
-.track-plane {
-    position: absolute;
-    left: 50%;
-    top: var(--horizon);
-    width: 260vw;
-    margin-left: -130vw;
-    height: 6000vh;
-    transform-origin: 50% 0%;
-    transform: translate3d(0, var(--cam-y), 0) rotateX(-90deg);
-    transform-style: preserve-3d;
-    will-change: transform;
-    /* No backface-visibility here. rotateX(-90deg) turns the plane's front
-       face away from a camera that sits above it, so hiding the backface
-       hides the road completely. */
-    /* The road is decorative; a floor word faded to zero opacity still
-       swallows hit tests otherwise. */
-    pointer-events: none;
-}
-.strip {
-    position: absolute;
-    top: 0;
-    height: 100%;
-    left: 50%;
-}
-.strip-mid {
-    width: 68vw;
-    margin-left: -34vw;
-    background: #6d28d9;
-}
-.strip-side {
-    width: 26vw;
-    background: #0d7a53;
-}
-.strip-side.left { margin-left: -66vw; }
-.strip-side.right { margin-left: 40vw; }
-
-/* Dashed lane markings, carried by --travel to sell forward motion. This
-   moves by transform rather than background-position: shifting a gradient's
-   origin repaints the whole 6000vh strip every frame, whereas a transform is
-   handed to the compositor. */
-.lane {
-    position: absolute;
-    top: 0;
-    height: 100%;
-    width: 0.7vw;
-    background-image: repeating-linear-gradient(
-        to bottom,
-        rgba(255, 255, 255, 0.65) 0 0.8vh,
-        rgba(255, 255, 255, 0) 0.8vh 2.4vh
-    );
-    transform: translate3d(0, var(--travel), 0);
-    will-change: transform;
-}
-.lane-l { left: 16vw; }
-.lane-r { right: 16vw; }
-
-/* Lettering painted on the road. Each word's position along the plane is
-   set by renderHomeRoute so it can fade out before it reaches the camera. */
-.floor-word {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    width: 200vw;
-    margin-left: -100vw;
-    text-align: center;
-    font-size: 13vw;
-    font-weight: 700;
-    letter-spacing: 0.4vw;
-    line-height: 1;
-    white-space: nowrap;
-    color: rgba(109, 40, 217, 0.22);
-    opacity: 0;
-    will-change: transform, opacity;
-}
-.floor-word.alt {
-    color: rgba(13, 122, 83, 0.22);
-}
-
-/* Sky: drifting laptop/phone outlines filling the open space above the
-   road. Pure transform animations on two composited layers per row, so they
-   cost nothing while the run itself is animating. */
-.track-sky {
-    position: absolute;
-    left: 0;
-    right: 0;
-    /* Clear of the navbar at the top, stopping just short of the horizon so
-       the road's haze isn't painted over. */
-    top: 76px;
-    bottom: calc(100% - var(--horizon) + 2vh);
-    overflow: hidden;
     display: flex;
     flex-direction: column;
-    justify-content: space-evenly;
-    pointer-events: none;
-}
-.sky-row {
-    overflow: hidden;
-    height: 40px;
-}
-.sky-track {
-    display: flex;
-    align-items: center;
-    gap: 60px;
-    width: max-content;
-    will-change: transform;
-    animation: skyDriftLeft 38s linear infinite;
-}
-.sky-row-2 .sky-track {
-    animation-name: skyDriftRight;
-    animation-duration: 46s;
-}
-.sky-row-3 .sky-track {
-    animation-duration: 54s;
-}
-.sky-track > span {
-    display: inline-flex;
-    flex-shrink: 0;
-}
-.sky-track svg {
-    flex-shrink: 0;
-}
-.sky-violet { color: rgba(109, 40, 217, 0.34); }
-.sky-green { color: rgba(5, 70, 54, 0.30); }
-@keyframes skyDriftLeft {
-    from { transform: translate3d(0, 0, 0); }
-    to { transform: translate3d(-50%, 0, 0); }
-}
-@keyframes skyDriftRight {
-    from { transform: translate3d(-50%, 0, 0); }
-    to { transform: translate3d(0, 0, 0); }
-}
-/* The sky sits behind the headline and the mark, and fades toward the
-   horizon so it never fights the road for attention. */
-.track-sky::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to bottom, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0) 40%, rgba(255,255,255,0.85) 100%);
-}
-@media (prefers-reduced-motion: reduce) {
-    .sky-track { animation: none; }
-}
-
-/* Haze over the vanishing point. However deep the plane is it still stops
-   short of the true horizon, so this both hides that edge and gives the
-   road the atmospheric fade the reference sequence has. */
-.track-haze {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: calc(var(--horizon) - 14vh);
-    height: 32vh;
-    background: linear-gradient(to bottom, #ffffff 0%, #ffffff 65%, rgba(255, 255, 255, 0) 100%);
-    pointer-events: none;
-}
-
-/* The rotating mark sits on the vanishing point and grows as we close in. */
-.track-logo {
-    position: absolute;
-    left: 50%;
-    top: var(--horizon);
-    transform: translate3d(-50%, calc(-50% + var(--logo-drop)), 0) scale(var(--logo-scale));
-    opacity: var(--logo-opacity);
-    will-change: transform, opacity;
-    pointer-events: none;
-}
-
-.track-intro {
-    position: absolute;
-    left: 50%;
-    top: 15%;
-    transform: translateX(-50%);
-    width: min(680px, 88vw);
-    text-align: center;
-    opacity: var(--intro-opacity);
-    pointer-events: none;
-}
-/* Soft white scrim so the title stays legible over the drifting devices. */
-.track-intro::before {
-    content: '';
-    position: absolute;
-    inset: -24px -40px;
-    z-index: -1;
-    background: radial-gradient(ellipse at center,
-        rgba(255, 255, 255, 0.95) 0%,
-        rgba(255, 255, 255, 0.8) 55%,
-        rgba(255, 255, 255, 0) 100%);
-}
-.track-headline {
-    font-size: clamp(1.6rem, 3.4vw, 2.6rem);
-    font-weight: 600;
-    letter-spacing: -0.5px;
-    color: var(--color-text-main);
-}
-.track-sub {
-    margin-top: 10px;
-    color: var(--color-text-muted);
-    font-size: 1rem;
-}
-/* End of the run: the two account choices take the place of the vehicle
-   in the reference sequence. */
-.track-choice {
-    position: absolute;
-    left: 50%;
-    top: 56%;
-    display: flex;
-    gap: 26px;
-    transform: translate3d(-50%, calc(-50% + var(--choice-rise)), 0) scale(var(--choice-scale));
-    opacity: var(--choice-opacity);
-    will-change: transform, opacity;
-}
-.track-choice[data-idle="true"] {
-    pointer-events: none;
-}
-/* Tinted panels rather than saturated blocks: the icon leads, the copy sits
-   in the middle, and a filled circular arrow anchors the bottom-right. */
-.choice {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    width: 340px;
-    min-height: 300px;
-    padding: 34px 34px 30px;
-    border-radius: var(--radius-lg);
-    text-align: left;
-    box-shadow: 0 26px 60px rgba(15, 23, 42, 0.16);
-    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
-}
-.choice:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 34px 72px rgba(15, 23, 42, 0.22);
-}
-.choice-buy {
-    background: linear-gradient(165deg, #f6f2ff 0%, #e6dcfb 100%);
-    color: var(--color-text-main);
-}
-.choice-buy .choice-icon,
-.choice-buy .choice-go {
-    color: var(--color-violet);
-}
-.choice-buy .choice-go {
-    background: var(--color-violet);
-    color: #ffffff;
-}
-.choice-sell {
-    background: linear-gradient(165deg, #e8f9f1 0%, #b6ecd3 100%);
-    color: var(--color-text-main);
-}
-.choice-sell .choice-icon {
-    color: var(--color-green-deep);
-}
-.choice-sell .choice-go {
-    background: var(--color-green-deep);
-    color: #ffffff;
-}
-.choice-icon {
-    display: block;
-    margin-bottom: 26px;
-}
-.choice-title {
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin-bottom: 12px;
-}
-.choice-note {
-    font-size: 0.98rem;
-    line-height: 1.5;
-    color: var(--color-text-muted);
-    max-width: 26ch;
-}
-.choice-go {
-    position: absolute;
-    right: 30px;
-    bottom: 28px;
-    width: 46px;
-    height: 46px;
-    border-radius: var(--radius-full);
-    display: inline-flex;
     align-items: center;
     justify-content: center;
-    transition: var(--transition-fast);
-}
-.choice:hover .choice-go {
-    transform: translateX(3px);
-}
-
-/* Rides in with the choices, by which point the violet strip is wide enough
-   under it for white text to read. */
-.track-tagline {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 6vh;
+    gap: 28px;
+    padding: 60px 40px;
     text-align: center;
+}
+/* The hero type was sized for a full-width page; in a 58% column it has to
+   come down or it breaks mid-word. */
+.landing-left .hero-title {
+    font-size: clamp(2rem, 4.4vw, 3.4rem);
+}
+.landing-left .hero-subtitle {
+    font-size: 1.05rem;
+}
+.landing-tagline {
+    color: var(--color-text-muted);
     font-size: 0.85rem;
     letter-spacing: 3px;
     text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.8);
-    opacity: var(--choice-opacity);
+}
+.landing-right {
+    position: relative;
+    flex: 1 1 42%;
+    min-width: 0;
+    overflow: hidden;
+    background: linear-gradient(160deg, #5b21b6 0%, #3b0764 100%);
+}
+
+/* Drift field. Each icon runs a straight diagonal line and loops; --dx/--dy
+   are the half-travel in px, published by the home route on the panel from its
+   measured size and inherited by every drifter, so one write rescales the
+   whole field on resize. They are px rather than percentages because a
+   percentage translate resolves against the icon's own box, not the panel's.
+   Only transform and opacity animate, so each drifter stays on the
+   compositor — and each layer is icon-sized, not panel-sized. */
+.landing-right {
+    --dx: 160px;
+    --dy: 260px;
+}
+.drift {
+    position: absolute;
+    left: var(--drift-x, 50%);
+    top: var(--drift-y, 50%);
+    color: #ffffff;
     pointer-events: none;
+    opacity: 0;
+    will-change: transform, opacity;
+    animation:
+        driftSouthEast var(--drift-dur, 26s) linear infinite,
+        driftFade var(--drift-dur, 26s) linear infinite;
+    animation-delay: var(--drift-delay, 0s);
 }
-
-@media (max-width: 720px) {
-    .track-choice {
-        flex-direction: column;
-        gap: 16px;
-    }
-    .choice {
-        width: min(340px, 86vw);
-        min-height: 0;
-        padding: 22px 24px;
-    }
-    .choice-title { font-size: 1.25rem; margin-bottom: 8px; }
-    .choice-icon { margin-bottom: 14px; }
-    .choice-note { font-size: 0.9rem; max-width: none; }
-    /* Stacked cards are too short to park the arrow in the corner, so let
-       it sit in the flow at the end of the card instead. */
-    .choice-go {
-        position: static;
-        align-self: flex-end;
-        margin-top: 16px;
-        width: 38px;
-        height: 38px;
-    }
-    /* Keep the opening title clear of both the navbar and the mark that
-       sits on the vanishing point. */
-    .track-intro { top: 12%; }
-    .track-sub { font-size: 0.9rem; }
-    .track-logo svg { width: 84px; height: 84px; }
+/* Phones run the opposite diagonal. */
+.drift.drift-up {
+    animation-name: driftNorthWest, driftFade;
 }
-
-/* Without motion the run never plays; home.js paints the finished frame
-   straight away, so drop the floor lettering that only reads while moving. */
+.drift svg {
+    display: block;
+}
+@keyframes driftSouthEast {
+    from { transform: translate3d(calc(var(--dx) * -1), calc(var(--dy) * -1), 0); }
+    to { transform: translate3d(var(--dx), var(--dy), 0); }
+}
+@keyframes driftNorthWest {
+    from { transform: translate3d(var(--dx), var(--dy), 0); }
+    to { transform: translate3d(calc(var(--dx) * -1), calc(var(--dy) * -1), 0); }
+}
+/* Fades at both ends of the run, so a drifter never pops in or out mid-panel
+   and the loop point is invisible. */
+@keyframes driftFade {
+    0%, 100% { opacity: 0; }
+    18%, 82% { opacity: 0.55; }
+}
 @media (prefers-reduced-motion: reduce) {
-    .floor-word { display: none; }
+    .drift {
+        animation: none;
+        opacity: 0.45;
+    }
+}
+
+@media (max-width: 900px) {
+    /* Stacked: the violet panel becomes a band under the sign-in choice. */
+    .landing-split {
+        flex-direction: column;
+        min-height: 0;
+    }
+    .landing-left {
+        padding: 48px 24px;
+    }
+    .landing-right {
+        flex: 0 0 auto;
+        min-height: 240px;
+    }
+}
+@media (max-width: 480px) {
+    .landing-left {
+        padding: 36px 18px;
+        gap: 20px;
+    }
+    .landing-right {
+        min-height: 180px;
+    }
 }
 
 /* --- Access Portal --- */
@@ -2233,10 +1987,6 @@ h1, h2, h3, h4 {
     }
     .compare-bar {
         padding: 10px 14px;
-    }
-    /* Sky rows crowd a short phone viewport; two is plenty. */
-    .sky-row-3 {
-        display: none;
     }
 }
 </style>
@@ -3394,7 +3144,7 @@ h1, h2, h3, h4 {
     const navAdminLogin = navAdmin;
 
     const ROUTES = {
-        home:          { nav: navHome,        render: renderHomeRoute,       wrapperClass: 'landing-track',                     showFooter: true,  showSearchBar: false, back: null },
+        home:          { nav: navHome,        render: renderHomeRoute,       wrapperClass: 'landing-split',                     showFooter: true,  showSearchBar: false, back: null },
         shop:          { nav: navShop,        render: renderShopRoute,       wrapperClass: 'container product-page-container',  showFooter: true,  showSearchBar: true,  back: '#/' },
         product:       { nav: navProduct,     render: renderProductRoute,    wrapperClass: 'container product-page-container',  showFooter: false, showSearchBar: false, back: '#/shop' },
         compare:       { nav: navCompare,     render: renderCompareRoute,    wrapperClass: 'container product-page-container',  showFooter: true,  showSearchBar: false, back: '#/shop' },
@@ -3440,176 +3190,58 @@ h1, h2, h3, h4 {
     // ===================================================================
     // PAGE: home (from index.html + home.js)
     // ===================================================================
-    // The home route is a perspective run that plays itself on load and
-    // doubles as the login gate. Every distance below is a multiple of the
-    // viewport height so the run frames itself identically on a phone and on
-    // a desktop.
-    const CAM_HIGH = 2.6;    // camera height at the start of the run
-    const CAM_LOW = 0.7;     // camera height at the end (just above the tarmac)
-    const DEPTH = 0.75;      // must match `perspective` on .track-stage
-    const TRAVEL = 19;       // distance the floor slides toward the camera
-    const WORD_GAP = 2.4;    // spacing between floor words along the plane
-    const RUN_END = 0.75;    // point in the run at which the camera stops
-    const RUN_DURATION = 3400; // ms of camera movement
-    const RUN_HOLD = 300;      // ms held on the opening frame before it starts
+    // The home route is the login gate, laid out as a split: a white panel
+    // carrying the sign-in choice, and a violet panel where line-art laptops
+    // and phones drift across the frame. The two device types run diagonally
+    // opposite paths — laptops south-east, phones north-west — so the field
+    // reads as two streams passing through each other. Each drifter is one
+    // element running two composited animations (transform + opacity); the
+    // keyframes translate by +/- --dx/--dy, published on the panel below.
+    const DRIFT_PER_TYPE = 11;
+    const DRIFT_LAPTOP = `<svg width="42" height="31" viewBox="0 0 24 18" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="1" width="20" height="12" rx="1.5"/><path d="M1 16h22l-1.6 2.4a1 1 0 0 1-.9.6H3.5a1 1 0 0 1-.9-.6L1 16z"/></svg>`;
+    const DRIFT_MOBILE = `<svg width="23" height="34" viewBox="0 0 16 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="1" width="12" height="22" rx="2.5"/><line x1="6.5" y1="19.5" x2="9.5" y2="19.5"/></svg>`;
 
-    const FLOOR_WORDS = [
-        'BUILD FOR INDIA', 'REFURBISHED', 'CERTIFIED', 'SAVE MORE',
-        'LESS E-WASTE', 'TRUSTED', 'BUY SMARTER', 'SELL FASTER'
-    ];
-
-    const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
-    const lerp = (a, b, t) => a + (b - a) * t;
-    const smoothstep = (t) => t * t * (3 - 2 * t);
-
-    // --cam-y is the on-screen distance between the horizon and the near edge
-    // of the ground plane, i.e. camera height: a large value keeps the camera
-    // high and the strips pinched together, a small one drops it to the tarmac
-    // and throws the strips out past the edges of the frame. --travel slides
-    // the lane dashes and floor lettering along the plane.
-    // Resolved once per route render rather than per frame — a getElementById
-    // or querySelectorAll inside the frame loop costs budget for nothing.
-    let trackStage = null;
-    let trackStyle = null;
-    let trackChoiceEl = null;
-    let floorWordEls = [];
-    let viewH = window.innerHeight;
-    let choiceIdle = null;
-
-    function cacheTrackNodes() {
-        trackStage = document.getElementById('trackStage');
-        trackStyle = trackStage ? trackStage.style : null;
-        trackChoiceEl = document.getElementById('trackChoice');
-        floorWordEls = trackStage ? Array.from(trackStage.querySelectorAll('.floor-word')) : [];
-        choiceIdle = null;
-    }
-
-    function drawTrack(progress) {
-        const stage = trackStage;
-        if (!stage || !stage.isConnected) return;
-        const vh = viewH;
-        const run = smoothstep(clamp(progress / RUN_END, 0, 1));
-        const travel = -TRAVEL * vh * run;
-
-        trackStyle.setProperty('--cam-y', lerp(CAM_HIGH, CAM_LOW, run) * vh + 'px');
-        trackStyle.setProperty('--travel', travel + 'px');
-
-        // The mark grows with the approach, then hands the frame to the choices.
-        const handover = clamp((progress - 0.48) / 0.2, 0, 1);
-        trackStyle.setProperty('--logo-scale', lerp(0.8, 2.6, run));
-        trackStyle.setProperty('--logo-drop', lerp(0, 30, run) + 'px');
-        trackStyle.setProperty('--logo-opacity', 1 - handover);
-
-        trackStyle.setProperty('--intro-opacity', 1 - clamp(progress / 0.26, 0, 1));
-
-        const choice = smoothstep(clamp((progress - 0.55) / 0.38, 0, 1));
-        trackStyle.setProperty('--choice-opacity', choice);
-        trackStyle.setProperty('--choice-scale', lerp(0.72, 1, choice));
-        trackStyle.setProperty('--choice-rise', lerp(90, 0, choice) + 'px');
-
-        // Only write the attribute when it actually flips — otherwise every
-        // frame invalidates style across the subtree for nothing.
-        const idle = choice < 0.5;
-        if (idle !== choiceIdle) {
-            choiceIdle = idle;
-            trackChoiceEl.dataset.idle = idle ? 'true' : 'false';
-        }
-
-        // Words are carried toward the camera by --travel and recycled to the
-        // far end once they pass it, so the road never empties out. A word that
-        // reaches the eye plane projects to nonsense, so each fades out over the
-        // last stretch before it gets there — and fades back in at the far end,
-        // where the haze hides it anyway.
-        const span = floorWordEls.length * WORD_GAP * vh;
-        const fadeFrom = DEPTH * vh * 0.4;
-        const fadeTo = DEPTH * vh * 1.6;
-        const fadeSpan = fadeTo - fadeFrom;
-        for (let i = 0; i < floorWordEls.length; i++) {
-            const word = floorWordEls[i];
-            const y = (((i * WORD_GAP * vh + travel) % span) + span) % span;
-            // translate3d keeps each word on its own composited layer.
-            word.style.transform = `translate3d(0, ${y}px, 0)`;
-            word.style.opacity = clamp((y - fadeFrom) / fadeSpan, 0, 1);
-        }
-    }
-
-    // Remember where the run got to, so a resize redraws the same frame at
-    // the new viewport size instead of snapping. Cleared on every navigation
-    // away from home, so coming back replays the run from the top.
-    let runProgress = 0;
-    let runToken = 0;
-
-    function paintTrack(progress) {
-        runProgress = progress;
-        drawTrack(progress);
-    }
-
-    function playRun() {
-        cacheTrackNodes();
-        fillSky();
-        const token = ++runToken;
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-            paintTrack(1);
-            return;
-        }
-        paintTrack(0);
-        // The clock starts on the first frame actually served rather than at
-        // call time, so a page opened in a background tab still plays the run
-        // when it's brought forward instead of snapping to the finished frame.
-        let start = null;
-        const step = (now) => {
-            // A newer run (or a route change) supersedes this one.
-            if (token !== runToken || !trackStage || !trackStage.isConnected) return;
-            if (start === null) start = now;
-            const t = clamp((now - start - RUN_HOLD) / RUN_DURATION, 0, 1);
-            paintTrack(t);
-            if (t < 1) requestAnimationFrame(step);
-        };
-        requestAnimationFrame(step);
-    }
-
-    // --- Sky -----------------------------------------------------------
-    // Laptop and phone outlines drifting across the open space above the
-    // road. Each row's content is duplicated so the -50% keyframe loops
-    // seamlessly, and grown until one copy covers the viewport.
-    const SKY_LAPTOP = `<svg width="46" height="34" viewBox="0 0 24 18" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="1" width="20" height="12" rx="1.5"/><path d="M1 16h22l-1.6 2.4a1 1 0 0 1-.9.6H3.5a1 1 0 0 1-.9-.6L1 16z"/></svg>`;
-    const SKY_MOBILE = `<svg width="24" height="36" viewBox="0 0 16 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="1" width="12" height="22" rx="2.5"/><line x1="6.5" y1="19.5" x2="9.5" y2="19.5"/></svg>`;
-
-    function skyRunHtml(startWithLaptop) {
+    function driftHtml() {
         let html = '';
-        for (let i = 0; i < 7; i++) {
-            const laptop = startWithLaptop ? i % 2 === 0 : i % 2 === 1;
-            const tint = i % 3 === 0 ? 'sky-green' : 'sky-violet';
-            html += `<span class="${tint}">${laptop ? SKY_LAPTOP : SKY_MOBILE}</span>`;
+        for (let i = 0; i < DRIFT_PER_TYPE * 2; i++) {
+            const laptop = i % 2 === 0;
+            const n = i >> 1;
+            // A golden-ratio walk spreads the icons over the panel without
+            // the clumps a random scatter leaves and without landing on a
+            // grid.
+            const x = 6 + ((n * 0.6180339887 + (laptop ? 0.13 : 0.61)) % 1) * 78;
+            const y = 6 + ((n * 0.7548776662 + (laptop ? 0.37 : 0.05)) % 1) * 78;
+            const dur = 24 + (n % 5) * 4;
+            // Delays spread across a full cycle, so the panel is never empty
+            // and the end-of-run fades never pulse in unison.
+            const delay = -(dur * n) / DRIFT_PER_TYPE - (laptop ? 0 : dur / 7);
+            html += `<span class="drift${laptop ? '' : ' drift-up'}" style="` +
+                `--drift-x:${x.toFixed(1)}%;--drift-y:${y.toFixed(1)}%;` +
+                `--drift-dur:${dur}s;--drift-delay:${delay.toFixed(2)}s">` +
+                `${laptop ? DRIFT_LAPTOP : DRIFT_MOBILE}</span>`;
         }
         return html;
     }
 
-    function fillSky() {
-        [['skyTrack1', true], ['skyTrack2', false], ['skyTrack3', true]].forEach(([id, laptopFirst]) => {
-            const el = document.getElementById(id);
-            if (!el) return;
-            const one = skyRunHtml(laptopFirst);
-            let html = one;
-            el.innerHTML = html;
-            let guard = 0;
-            while (el.getBoundingClientRect().width < window.innerWidth && guard++ < 8) {
-                html += one;
-                el.innerHTML = html;
-            }
-            el.innerHTML = html + html;
-        });
+    // Travel is half the sweep in each axis. It lives on the panel rather
+    // than on each drifter so one write rescales the whole field, and it has
+    // to be in px: a percentage translate resolves against the icon's own
+    // box, not the panel's.
+    function sizeDrift() {
+        const panel = document.getElementById('driftPanel');
+        if (!panel || !panel.isConnected) return;
+        const rect = panel.getBoundingClientRect();
+        panel.style.setProperty('--dx', Math.round(rect.width * 0.34) + 'px');
+        panel.style.setProperty('--dy', Math.round(rect.height * 0.42) + 'px');
     }
 
-    // drawTrack no-ops when the home route isn't mounted.
-    let skyResizeTimer = null;
+    // The panel is torn down and rebuilt on every navigation, so watch the
+    // window rather than hold a ResizeObserver on an element that keeps being
+    // replaced. sizeDrift no-ops when the home route isn't mounted.
+    let driftResizeTimer = null;
     window.addEventListener('resize', () => {
-        viewH = window.innerHeight;
-        paintTrack(runProgress);
-        clearTimeout(skyResizeTimer);
-        skyResizeTimer = setTimeout(() => {
-            if (trackStage && trackStage.isConnected) fillSky();
-        }, 200);
+        clearTimeout(driftResizeTimer);
+        driftResizeTimer = setTimeout(sizeDrift, 150);
     });
 
     function renderHomeRoute(root) {
@@ -3617,88 +3249,35 @@ h1, h2, h3, h4 {
         if (user && user.accountType === 'seller') { location.hash = '#/seller'; return; }
         if (user && user.accountType === 'admin') { location.hash = '#/admin'; return; }
 
-        // A signed-in buyer already has an account, so their choices skip the
-        // sign-in step and go straight to the relevant page.
-        const signedIn = !!user;
-        const subtitle = signedIn
-            ? `Welcome back, ${user.name}. Pick up where you left off.`
-            : `Certified secondhand laptops and phones, from sellers across the country.`;
-        const buyHref = signedIn ? '#/shop' : '#/signin?role=customer';
-        const buyNote = signedIn
-            ? 'Browse the full catalogue of tested, certified devices.'
-            : 'Premium refurbished electronics. Tested, certified, and ready for a second life.';
-        const sellHref = signedIn ? '#/sell' : '#/signin?role=seller';
-        const sellNote = signedIn
-            ? 'List a device of your own and reach buyers across India.'
-            : 'Turn your unused devices into value instantly. Fair pricing, seamless process.';
+        // A signed-in buyer already has an account, so they get the category
+        // chooser instead of the sign-in choice.
+        const hero = user
+            ? `
+                <span class="badge">Welcome back, ${user.name}!</span>
+                <h2 class="hero-title">Build for India,<br><span class="text-gradient">Priced for Everyone.</span></h2>
+                <p class="hero-subtitle">From Mumbai to Kochi, shop certified secondhand laptops and phones from sellers across the country. Save money and reduce e-waste with India's most trusted refurbished marketplace.</p>
+                <div class="hero-actions">
+                    <a href="#/shop?category=Laptops" class="btn-dark-green large">Shop Laptops</a>
+                    <a href="#/shop?category=Mobiles" class="btn-pale-green large">Shop Mobiles</a>
+                </div>`
+            : `
+                <span class="badge">Sign In to Bazaarin</span>
+                <h2 class="hero-title">Are You Buying,<br><span class="text-gradient">Or Selling?</span></h2>
+                <p class="hero-subtitle">Choose how you'd like to use Bazaarin — buy certified refurbished electronics, or list your own to sell.</p>
+                <div class="hero-actions">
+                    <a href="#/signin?role=customer" class="btn-dark-green large">I'm a Buyer</a>
+                    <a href="#/signin?role=seller" class="btn-pale-green large">I'm a Seller</a>
+                </div>`;
 
         root.innerHTML = `
-            <div class="track-stage" id="trackStage">
-                <div class="track-plane">
-                    <div class="strip strip-side left"></div>
-                    <div class="strip strip-side right"></div>
-                    <div class="strip strip-mid">
-                        <span class="lane lane-l"></span>
-                        <span class="lane lane-r"></span>
-                    </div>
-                    <div class="floor-words" aria-hidden="true">
-                        ${FLOOR_WORDS.map((w, i) => `<span class="floor-word${i % 2 ? ' alt' : ''}">${w}</span>`).join('')}
-                    </div>
-                </div>
-
-                <div class="track-haze" aria-hidden="true"></div>
-
-                <!-- Sky: laptops and phones drifting across the open space
-                     above the road. After the haze so it isn't washed out,
-                     before the headline so it stays in the background. -->
-                <div class="track-sky" aria-hidden="true">
-                    <div class="sky-row sky-row-1"><div class="sky-track" id="skyTrack1"></div></div>
-                    <div class="sky-row sky-row-2"><div class="sky-track" id="skyTrack2"></div></div>
-                    <div class="sky-row sky-row-3"><div class="sky-track" id="skyTrack3"></div></div>
-                </div>
-
-                <div class="track-logo" aria-hidden="true">
-                    <svg class="logo-icon-svg" width="120" height="120" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="50" cy="50" r="22" stroke="#F59E0B" stroke-width="6" fill="none"/>
-                        <path d="M34 34 L 66 66 M 34 66 L 66 34" stroke="#F59E0B" stroke-width="6" stroke-linecap="round"/>
-                        <circle cx="50" cy="20" r="6" fill="#F59E0B"/><circle cx="50" cy="80" r="6" fill="#F59E0B"/>
-                        <circle cx="20" cy="50" r="6" fill="#F59E0B"/><circle cx="80" cy="50" r="6" fill="#F59E0B"/>
-                    </svg>
-                </div>
-
-                <div class="track-intro">
-                    <h2 class="track-headline">India's biggest refurbished market</h2>
-                    <p class="track-sub">${subtitle}</p>
-                </div>
-
-                <div class="track-choice" id="trackChoice" data-idle="true">
-                    <a class="choice choice-buy" href="${buyHref}">
-                        <span class="choice-icon">
-                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-                        </span>
-                        <span class="choice-title">I want to buy</span>
-                        <span class="choice-note">${buyNote}</span>
-                        <span class="choice-go" aria-hidden="true">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                        </span>
-                    </a>
-                    <a class="choice choice-sell" href="${sellHref}">
-                        <span class="choice-icon">
-                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4 12 22l-9-9V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>
-                        </span>
-                        <span class="choice-title">I want to sell</span>
-                        <span class="choice-note">${sellNote}</span>
-                        <span class="choice-go" aria-hidden="true">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                        </span>
-                    </a>
-                </div>
-
-                <p class="track-tagline">Build for India.</p>
+            <div class="landing-left">
+                <div class="hero-content">${hero}</div>
+                <p class="landing-tagline">Build for India.</p>
             </div>
+            <div class="landing-right" id="driftPanel" aria-hidden="true">${driftHtml()}</div>
         `;
 
-        playRun();
+        sizeDrift();
     }
 
     // ===================================================================
